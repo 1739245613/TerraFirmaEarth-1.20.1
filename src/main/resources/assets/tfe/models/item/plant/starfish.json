@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/starfish/starfish"
+                 },
+    "parent":  "minecraft:item/generated"
+}

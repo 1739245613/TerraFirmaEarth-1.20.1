@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/yellow_saxifrage/leaves"
+                 },
+    "parent":  "minecraft:item/generated"
+}

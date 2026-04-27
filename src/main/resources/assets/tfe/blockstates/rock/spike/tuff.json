@@ -1,0 +1,14 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "part=base": {
+      "model": "tfe:block/rock/spike/tuff_base"
+    },
+    "part=middle": {
+      "model": "tfe:block/rock/spike/tuff_middle"
+    },
+    "part=tip": {
+      "model": "tfe:block/rock/spike/tuff_tip"
+    }
+  }
+}

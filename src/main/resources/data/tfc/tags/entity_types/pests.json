@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#tfc:universal_pests",
+    "#tfc:cold_pests",
+    "#tfc:desert_pests",
+    "#tfc:tropical_pests"
+  ]
+}

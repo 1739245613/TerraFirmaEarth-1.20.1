@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfe:block/dirt/podzol"
+                 },
+    "parent":  "tfc:item/duff_inv"
+}

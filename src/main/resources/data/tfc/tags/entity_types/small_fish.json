@@ -1,0 +1,15 @@
+{
+  "replace": true,
+  "values": [
+    "tfc:cod",
+    "tfc:pufferfish",
+    "tfc:tropical_fish",
+    "tfc:salmon",
+    "tfc:rainbow_trout",
+    "tfc:lake_trout",
+    "tfc:bluegill",
+    "tfc:largemouth_bass",
+    "tfc:smallmouth_bass",
+    "tfc:crappie"
+  ]
+}

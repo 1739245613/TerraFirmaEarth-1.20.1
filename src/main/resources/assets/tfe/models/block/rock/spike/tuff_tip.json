@@ -1,0 +1,8 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "tfc:block/rock/spike_tip",
+  "textures": {
+    "texture": "tfe:block/rock/raw/tuff",
+    "particle": "tfe:block/rock/raw/tuff"
+  }
+}

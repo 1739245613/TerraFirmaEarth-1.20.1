@@ -1,0 +1,10 @@
+{
+    "variants":  {
+                     "mature=true":  {
+                                         "model":  "tfe:block/dead_crop/radish"
+                                     },
+                     "mature=false":  {
+                                          "model":  "tfe:block/dead_crop/radish_young"
+                                      }
+                 }
+}

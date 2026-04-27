@@ -1,0 +1,7 @@
+{
+    "replace": false,
+    "values": [
+        "minecraft:bamboo",
+        "tfe:plant/golden_bamboo"
+    ]
+}

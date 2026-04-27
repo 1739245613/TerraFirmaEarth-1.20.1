@@ -1,0 +1,9 @@
+{
+    "variants":  {
+                     "":  [
+                              {
+                                  "model":  "tfe:block/coarse_dirt/silty_loam"
+                              }
+                          ]
+                 }
+}

@@ -1,0 +1,89 @@
+package com.newterraearth.tfe.world;
+
+public final class NTELayerIds
+{
+    public static int PLATEAU_WIDE;
+    public static int GUANO_ISLAND;
+    public static int SEA_STACKS;
+    public static int TERRACE_UPPER;
+    public static int TERRACE_LOWER;
+    public static int SETBACK_CLIFFS;
+    public static int COASTAL_DUNES;
+    public static int ROCKY_SHORES;
+    public static int EMBAYMENTS;
+    public static int MUD_FLATS;
+    public static int SALT_FLATS;
+    public static int DUNE_SEA;
+    public static int GRASSY_DUNES;
+    public static int WHORLED_CANYONS;
+    public static int STAIR_STEP_CANYONS;
+    public static int MESAS;
+    public static int BUTTES;
+    public static int HOODOOS;
+    public static int ROCKY_PLATEAU;
+    public static int TOWER_KARST_PLAINS;
+    public static int TOWER_KARST_CANYONS;
+    public static int TOWER_KARST_HILLS;
+    public static int TOWER_KARST_HIGHLANDS;
+    public static int TOWER_KARST_LAKE;
+    public static int TOWER_KARST_BAY;
+    public static int BURREN_PLATEAU;
+    public static int BURREN_BADLANDS;
+    public static int BURREN_BADLANDS_TALL;
+    public static int BURREN_ROCHE_MOUTONEE;
+    public static int BURREN_PLAINS;
+    public static int SHILIN_PLAINS;
+    public static int SHILIN_CANYONS;
+    public static int SHILIN_HILLS;
+    public static int SHILIN_HIGHLANDS;
+    public static int SHILIN_PLATEAU;
+    public static int DOLINE_PLAINS;
+    public static int DOLINE_HILLS;
+    public static int DOLINE_ROLLING_HILLS;
+    public static int DOLINE_HIGHLANDS;
+    public static int DOLINE_PLATEAU;
+    public static int DOLINE_CANYONS;
+    public static int CENOTE_PLAINS;
+    public static int CENOTE_HILLS;
+    public static int CENOTE_ROLLING_HILLS;
+    public static int CENOTE_CANYONS;
+    public static int CENOTE_HIGHLANDS;
+    public static int CENOTE_PLATEAU;
+    public static int EXTREME_DOLINE_PLATEAU;
+    public static int EXTREME_DOLINE_MOUNTAINS;
+    public static int ACTIVE_SHIELD_VOLCANO;
+    public static int DORMANT_SHIELD_VOLCANO;
+    public static int EXTINCT_SHIELD_VOLCANO;
+    public static int ANCIENT_SHIELD_VOLCANO;
+    public static int SUNKEN_SHIELD_VOLCANO;
+    public static int SHIELD_VOLCANO_SHORE;
+    public static int OLD_SHIELD_VOLCANO_SHORE;
+    public static int ICE_SHEET;
+    public static int ICE_SHEET_MOUNTAINS;
+    public static int ICE_SHEET_OCEANIC_MOUNTAINS;
+    public static int ICE_SHEET_SHIELD_VOLCANO;
+    public static int ICE_SHEET_TUYAS;
+    public static int SUBGLACIAL_LAKE;
+    public static int ICE_SHEET_EDGE;
+    public static int ICE_SHEET_TUYAS_EDGE;
+    public static int ICE_SHEET_OCEANIC;
+    public static int ICE_SHEET_OCEANIC_MOUNTAINS_EDGE;
+    public static int ICE_SHEET_MOUNTAINS_EDGE;
+    public static int GLACIATED_MOUNTAINS;
+    public static int GLACIATED_OCEANIC_MOUNTAINS;
+    public static int MELTWATER_LAKE;
+    public static int GLACIATED_SHIELD_VOLCANO;
+    public static int ICE_SHEET_SHORE;
+    public static int GLACIALLY_CARVED_MOUNTAINS;
+    public static int GLACIALLY_CARVED_OCEANIC_MOUNTAINS;
+    public static int DRUMLINS;
+    public static int TUYAS;
+    public static int KNOB_AND_KETTLE;
+    public static int PATTERNED_GROUND;
+    public static int INVERTED_PATTERNED_GROUND;
+    public static int STONE_CIRCLES;
+
+    private NTELayerIds()
+    {
+    }
+}

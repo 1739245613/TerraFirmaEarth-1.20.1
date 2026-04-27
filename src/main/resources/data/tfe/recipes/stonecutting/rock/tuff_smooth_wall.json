@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "tfe:rock/smooth/tuff"
+  },
+  "result": "tfe:rock/smooth/tuff_wall",
+  "count": 1
+}

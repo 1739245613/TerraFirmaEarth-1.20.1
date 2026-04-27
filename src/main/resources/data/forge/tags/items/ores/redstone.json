@@ -1,0 +1,7 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/cinnabar/tuff",
+                   "tfe:ore/cryolite/tuff"
+               ]
+}

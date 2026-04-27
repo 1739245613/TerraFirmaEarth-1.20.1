@@ -1,0 +1,163 @@
+{
+    "config":  {
+                   "min_radius":  5,
+                   "max_radius":  11,
+                   "height":  7,
+                   "states":  [
+                                  {
+                                      "with":  "tfe:dirt/podzol",
+                                      "replace":  "tfc:dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/podzol",
+                                      "replace":  "tfe:duff/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:mud/podzol",
+                                      "replace":  "tfc:mud/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay/podzol",
+                                      "replace":  "tfc:clay/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/podzol",
+                                      "replace":  "tfe:clay_duff/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:rooted_dirt/podzol",
+                                      "replace":  "tfc:rooted_dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/podzol",
+                                      "replace":  "tfe:coarse_dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:grass/podzol",
+                                      "replace":  "tfc:grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_grass/podzol",
+                                      "replace":  "tfc:clay_grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:dirt/podzol",
+                                      "replace":  "tfc:dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/podzol",
+                                      "replace":  "tfe:duff/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:mud/podzol",
+                                      "replace":  "tfc:mud/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay/podzol",
+                                      "replace":  "tfc:clay/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/podzol",
+                                      "replace":  "tfe:clay_duff/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:rooted_dirt/podzol",
+                                      "replace":  "tfc:rooted_dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/podzol",
+                                      "replace":  "tfe:coarse_dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:grass/podzol",
+                                      "replace":  "tfc:grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_grass/podzol",
+                                      "replace":  "tfc:clay_grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:dirt/podzol",
+                                      "replace":  "tfe:dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/podzol",
+                                      "replace":  "tfe:duff/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:mud/podzol",
+                                      "replace":  "tfe:mud/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay/podzol",
+                                      "replace":  "tfe:clay/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/podzol",
+                                      "replace":  "tfe:clay_duff/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:rooted_dirt/podzol",
+                                      "replace":  "tfe:rooted_dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/podzol",
+                                      "replace":  "tfe:coarse_dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:grass/podzol",
+                                      "replace":  "tfe:grass/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_grass/podzol",
+                                      "replace":  "tfe:clay_grass/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:dirt/podzol",
+                                      "replace":  "tfc:dirt/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/podzol",
+                                      "replace":  "tfe:duff/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:mud/podzol",
+                                      "replace":  "tfc:mud/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:clay/podzol",
+                                      "replace":  "tfc:clay/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/podzol",
+                                      "replace":  "tfe:clay_duff/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:rooted_dirt/podzol",
+                                      "replace":  "tfc:rooted_dirt/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/podzol",
+                                      "replace":  "tfe:coarse_dirt/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:grass/podzol",
+                                      "replace":  "tfc:grass/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_grass/podzol",
+                                      "replace":  "tfc:clay_grass/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/podzol",
+                                      "replace":  "tfe:grass/podzol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/podzol",
+                                      "replace":  "tfe:clay_grass/podzol"
+                                  }
+                              ]
+               },
+    "__comment__":  "This file was automatically created by mcresources",
+    "type":  "tfc:soil_disc"
+}

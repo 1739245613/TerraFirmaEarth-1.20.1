@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/dirt/podzol"
+                 },
+    "parent":  "tfe:block/duff_snowy_side"
+}

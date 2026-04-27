@@ -1,0 +1,12 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:rock/raw/tuff_wall",
+                   "tfe:rock/bricks/tuff_wall",
+                   "tfe:rock/cobble/tuff_wall",
+                   "tfe:rock/smooth/tuff_wall",
+                   "tfe:rock/mossy_cobble/tuff_wall",
+                   "tfe:rock/mossy_bricks/tuff_wall",
+                   "tfe:rock/cracked_bricks/tuff_wall"
+               ]
+}

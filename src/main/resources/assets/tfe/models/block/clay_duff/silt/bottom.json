@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfc:block/clay/silt"
+                 },
+    "parent":  "tfe:block/duff_bottom"
+}

@@ -1,0 +1,101 @@
+TerraFirmaEarth / 群峦地形移植 — NOTICE
+========================================
+
+Copyright (c) 2026 交错次元 and contributors.
+
+本项目按 EUPL v1.2 发布软件部分，按 CC BY-SA 4.0 发布美术 / 数据资源部分。
+完整条款见仓库根目录的 LICENSE 文件。
+
+This project is licensed under the EUPL v1.2 for code and CC BY-SA 4.0 for
+art / data assets. See the LICENSE file in the repository root for full terms.
+
+本文件依 EUPL v1.2 第 5 条 "Attribution right" 列示对上游作品的署名义务，及
+本项目使用的第三方组件 / 资源的原始版权与许可信息。
+
+--------------------------------------------------------------------------------
+
+1. TerraFirmaCraft (TFC) — Upstream Project
+--------------------------------------------------------------------------------
+
+  Project   : TerraFirmaCraft
+  Repository: https://github.com/TerraFirmaCraft/TerraFirmaCraft
+  Branches  : 1.20.x（主参考分支）、1.21.x（部分 1.21 特性参考）
+  Code      : Licensed under EUPL v1.2.
+  Assets    : Licensed under Creative Commons Attribution-ShareAlike 4.0
+              International (CC BY-SA 4.0).
+
+  Original Authors / Copyright holders (non-exhaustive, see TFC git history
+  for the full contributor list):
+    - Robert "Bioxx" Anthony
+    - Amanda "Kittychanley" Halek
+    - Dries "Dries007" Dewachter
+    - Alex "AlcatrazEscapee" O'Neill
+    - And all other TerraFirmaCraft contributors.
+
+  本项目为 TerraFirmaCraft 的衍生作品（Derivative Work），其代码部分、
+  worldgen 配置、surface builder、植物 / 作物 / 群系结构、mixin 目标、注册
+  机制等多处参考或派生自 TerraFirmaCraft 1.20.x / 1.21.x 源码及其资源。
+  本项目按 EUPL v1.2 Copyleft 条款继承上游协议。
+
+  TerraFirmaCraft 自身亦包含来自更早期 TFC Classic（Bioxx 等于 1.7.10 时代
+  发布的原始 TerraFirmaCraft）的部分编辑过的源代码，TFC 上游声明该等部分
+  在原作者书面授权下按不同许可使用。本项目对这些进一步的链路不作扩展授权
+  亦不撤销，相关义务仍以 TerraFirmaCraft 上游 LICENSE.txt 与其 README 中的
+  相关说明为准。
+
+2. FastNoiseLite (Single-file Library)
+--------------------------------------------------------------------------------
+
+  若本项目的构建产物或源码中保留了来自 TerraFirmaCraft 的 `FastNoiseLite.java`
+  或其等价拷贝，则该文件按其原始 MIT License 继续适用。
+
+  Original copyright notice (preserved verbatim where the file is present):
+
+      MIT License
+
+      Copyright(c) 2020 Jordan Peck (jordan.me2@gmail.com)
+      Copyright(c) 2020 Contributors
+
+      Permission is hereby granted, free of charge, to any person obtaining
+      a copy of this software and associated documentation files (the
+      "Software"), to deal in the Software without restriction, including
+      without limitation the rights to use, copy, modify, merge, publish,
+      distribute, sublicense, and/or sell copies of the Software, and to
+      permit persons to whom the Software is furnished to do so, subject to
+      the following conditions:
+
+      The above copyright notice and this permission notice shall be included
+      in all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+3. Star Catalog Data — bsc5p_radec_min.json
+--------------------------------------------------------------------------------
+
+  若本项目沿用了来自 TFC 的 `bsc5p_radec_min.json`（恒星方位数据，源自
+  Yale Bright Star Catalog 的 5p 子集），则该数据按 Creative Commons
+  Attribution 4.0 International (CC BY 4.0) 继续适用，原始来源可参见 TFC
+  上游 README 中的相关说明。
+
+4. Minecraft / Forge / Mojang Trademarks
+--------------------------------------------------------------------------------
+
+  "Minecraft" 与相关名称、标识为 Mojang Studios / Microsoft 的注册商标。
+  "Forge"、"MinecraftForge" 名称归其各自权利人所有。本项目仅在描述兼容性、
+  依赖关系或适用范围时使用上述名称，不构成对任何前述权利人的隶属、合作、
+  授权或背书关系。
+
+5. 第三方依赖（运行期）
+--------------------------------------------------------------------------------
+
+  - TerraFirmaCraft (`tfc`)：必需依赖，EUPL v1.2 / CC BY-SA 4.0。
+  - Another Forest Compat (`afc`) 等可选兼容模组：本项目仅在运行期通过反射 /
+    数据包覆盖与之交互，不分发其源码或资源；其各自协议仍由上游决定。
+
+  以上未列出的第三方依赖，按其各自分发渠道公布的协议为准。
+
+--------------------------------------------------------------------------------
+
+如发现本 NOTICE 遗漏了应当署名的上游作者或第三方组件，请在仓库提交 issue 或
+联系维护者更新；本项目愿意按 EUPL v1.2 第 5 条 Attribution right 的精神补全
+署名信息。

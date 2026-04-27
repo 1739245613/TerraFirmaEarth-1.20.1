@@ -1,0 +1,119 @@
+{
+    "config":  {
+                   "min_radius":  7,
+                   "max_radius":  14,
+                   "height":  7,
+                   "states":  [
+                                  {
+                                      "with":  "tfc:dirt/silt",
+                                      "replace":  "tfc:dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfe:duff/loam"
+                                  },
+                                  {
+                                      "with":  "tfc:mud/silt",
+                                      "replace":  "tfc:mud/loam"
+                                  },
+                                  {
+                                      "with":  "tfc:clay/silt",
+                                      "replace":  "tfc:clay/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfe:clay_duff/loam"
+                                  },
+                                  {
+                                      "with":  "tfc:rooted_dirt/silt",
+                                      "replace":  "tfc:rooted_dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/silt",
+                                      "replace":  "tfe:coarse_dirt/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfc:grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfc:clay_grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfc:dirt/silt",
+                                      "replace":  "tfc:dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfe:duff/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfc:mud/silt",
+                                      "replace":  "tfc:mud/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfc:clay/silt",
+                                      "replace":  "tfc:clay/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfe:clay_duff/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfc:rooted_dirt/silt",
+                                      "replace":  "tfc:rooted_dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/silt",
+                                      "replace":  "tfe:coarse_dirt/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfc:grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfc:clay_grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfc:dirt/silt",
+                                      "replace":  "tfe:dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfe:duff/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfc:mud/silt",
+                                      "replace":  "tfe:mud/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfc:clay/silt",
+                                      "replace":  "tfe:clay/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfe:clay_duff/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfc:rooted_dirt/silt",
+                                      "replace":  "tfe:rooted_dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:coarse_dirt/silt",
+                                      "replace":  "tfe:coarse_dirt/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfe:grass/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfe:clay_grass/oxisol"
+                                  }
+                              ]
+               },
+    "__comment__":  "This file was automatically created by mcresources",
+    "type":  "tfc:soil_disc"
+}

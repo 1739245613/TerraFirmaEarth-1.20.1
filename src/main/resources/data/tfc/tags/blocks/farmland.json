@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:farmland/fluvisol",
+                   "tfe:farmland/mollisol",
+                   "tfe:farmland/podzol",
+                   "tfe:farmland/oxisol"
+               ]
+}

@@ -1,0 +1,10 @@
+{
+    "type":  "tfc:quern",
+    "ingredient":  {
+                       "item":  "tfe:seeds/canola"
+                   },
+    "result":  {
+                   "item":  "tfe:canola_paste",
+                   "count":  2
+               }
+}

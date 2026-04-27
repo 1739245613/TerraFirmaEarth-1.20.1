@@ -1,0 +1,9 @@
+{
+    "variants":  {
+                     "":  [
+                              {
+                                  "model":  "tfe:block/grass_path/oxisol"
+                              }
+                          ]
+                 }
+}

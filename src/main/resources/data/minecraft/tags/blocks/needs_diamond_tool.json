@@ -1,0 +1,8 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/amethyst/tuff",
+                   "tfe:ore/emerald/tuff",
+                   "tfe:ore/topaz/tuff"
+               ]
+}

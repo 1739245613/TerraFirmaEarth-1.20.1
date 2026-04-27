@@ -1,0 +1,8 @@
+{
+    "min_hydration":  260,
+    "max_hydration":  500,
+    "hydration_wiggle_range":  0,
+    "min_temperature":  10.4,
+    "max_temperature":  40,
+    "temperature_wiggle_range":  5
+}

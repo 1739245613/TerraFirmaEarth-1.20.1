@@ -1,0 +1,12 @@
+{
+    "ingredient":  [
+                       "tfe:dirt/podzol",
+                       "tfe:grass/podzol",
+                       "tfe:duff/podzol",
+                       "tfe:grass_path/podzol",
+                       "tfe:farmland/podzol",
+                       "tfe:rooted_dirt/podzol"
+                   ],
+    "result":  "tfe:dirt/podzol",
+    "type":  "tfc:landslide"
+}

@@ -1,0 +1,8 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfc:farmland/silt",
+                   "tfc:farmland/silty_loam",
+                   "tfe:farmland/fluvisol"
+               ]
+}

@@ -1,0 +1,344 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple"
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "y": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "east": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 90,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 90,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 90,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "north": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "south": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 180,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 180,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 180,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "up": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 180,
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 180,
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 180,
+          "y": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "west": "true",
+        "open": "true"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 270
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 270,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 270,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple",
+          "x": 270,
+          "y": 270,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "down": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed"
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "y": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "east": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 90,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 90,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 90,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "north": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "south": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 180,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 180,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 180,
+          "z": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "up": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 180,
+          "y": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 180,
+          "y": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 180,
+          "y": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "west": "true",
+        "open": "false"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 270
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 270,
+          "z": 90
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 270,
+          "z": 180
+        },
+        {
+          "model": "tfc:block/plant/anemone_purple_closed",
+          "x": 270,
+          "y": 270,
+          "z": 270
+        }
+      ]
+    }
+  ]
+}

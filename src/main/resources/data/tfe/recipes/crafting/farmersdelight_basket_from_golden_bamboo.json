@@ -1,0 +1,27 @@
+{
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "farmersdelight_tfc"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "b b",
+    "#c#"
+  ],
+  "key": {
+    "b": {
+      "item": "tfe:plant/golden_bamboo"
+    },
+    "#": {
+      "item": "farmersdelight:canvas"
+    },
+    "c": {
+      "tag": "forge:chests"
+    }
+  },
+  "result": {
+    "item": "farmersdelight:basket"
+  }
+}

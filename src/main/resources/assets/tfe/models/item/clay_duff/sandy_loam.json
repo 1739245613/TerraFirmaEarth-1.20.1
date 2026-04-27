@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfc:block/clay/sandy_loam"
+                 },
+    "parent":  "tfc:item/duff_inv"
+}

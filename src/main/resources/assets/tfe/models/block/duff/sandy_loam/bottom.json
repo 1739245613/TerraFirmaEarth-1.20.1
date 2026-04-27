@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfc:block/dirt/sandy_loam"
+                 },
+    "parent":  "tfe:block/duff_bottom"
+}

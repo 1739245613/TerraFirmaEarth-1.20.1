@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/stairs",
+  "textures": {
+    "bottom": "tfe:block/rock/mossy_cobble/tuff",
+    "top": "tfe:block/rock/mossy_cobble/tuff",
+    "side": "tfe:block/rock/mossy_cobble/tuff"
+  }
+}

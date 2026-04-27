@@ -1,0 +1,22 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "replace": false,
+  "values": [
+    "tfc:plant/manatee_grass_patch",
+    "tfc:plant/star_grass_patch",
+    "tfc:plant/cordgrass_patch",
+    "tfc:plant/laminaria_patch",
+    "tfc:plant/gutweed_patch",
+    "tfc:plant/red_algae_patch",
+    "tfc:plant/sargassum_patch",
+    "tfc:plant/sea_lavender_patch",
+    "tfc:plant/turtle_grass_patch",
+    "tfc:plant/anemone_purple_patch",
+    "tfc:plant/anemone_green_patch",
+    "tfc:plant/barnacles_patch",
+    "tfc:plant/mussels_patch",
+    "tfc:plant/starfish_patch",
+    "tfc:plant/anemone_large_purple_patch",
+    "tfc:plant/anemone_large_orange_patch"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "tfe:rock/cracked_bricks/tuff"
+    }
+  },
+  "result": {
+    "item": "tfe:rock/cracked_bricks/tuff_slab",
+    "count": 6
+  }
+}

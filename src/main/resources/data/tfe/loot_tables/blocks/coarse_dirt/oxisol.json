@@ -1,0 +1,20 @@
+{
+    "pools":  [
+                  {
+                      "entries":  [
+                                      {
+                                          "name":  "tfe:coarse_dirt/oxisol",
+                                          "type":  "minecraft:item"
+                                      }
+                                  ],
+                      "name":  "loot_pool",
+                      "rolls":  1,
+                      "conditions":  [
+                                         {
+                                             "condition":  "minecraft:survives_explosion"
+                                         }
+                                     ]
+                  }
+              ],
+    "type":  "minecraft:block"
+}

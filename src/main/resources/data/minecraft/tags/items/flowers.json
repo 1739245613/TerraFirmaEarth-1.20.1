@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "tfe:plant/white_water_lily",
+    "tfe:plant/yellow_water_lily",
+    "tfe:plant/purple_water_lily",
+    "tfe:plant/azalea",
+    "tfe:plant/bear_grass",
+    "tfe:plant/kinnikinnick",
+    "tfe:plant/mountain_hullwort",
+    "tfe:plant/moss_campion",
+    "tfe:plant/palash",
+    "tfe:plant/penwortel",
+    "tfe:plant/qantu",
+    "tfe:plant/ramirezella",
+    "tfe:plant/ramunda",
+    "tfe:plant/tank_bromeliad"
+  ]
+}

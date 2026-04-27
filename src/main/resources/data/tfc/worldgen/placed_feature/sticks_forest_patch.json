@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","feature":"tfc:sticks_forest_patch","placement":[{"type":"minecraft:rarity_filter","chance":3},{"type":"minecraft:in_square"},{"type":"tfc:climate","min_temperature":-20,"max_temperature":50,"min_groundwater":70,"max_groundwater":500,"min_forest":3}]}

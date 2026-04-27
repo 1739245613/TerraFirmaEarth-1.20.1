@@ -1,0 +1,7 @@
+{
+    "textures":  {
+                     "end":  "tfe:block/coarse_dirt/podzol_top",
+                     "side":  "tfe:block/coarse_dirt/podzol"
+                 },
+    "parent":  "minecraft:block/cube_column"
+}

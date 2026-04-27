@@ -1,0 +1,53 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "axis=x": [
+      {
+        "model": "tfe:block/rock/raw/tuff",
+        "x": 90,
+        "y": 90
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff_mirrored",
+        "x": 90,
+        "y": 90
+      }
+    ],
+    "axis=y": [
+      {
+        "model": "tfe:block/rock/raw/tuff"
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff_mirrored"
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff",
+        "y": 180
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff_mirrored",
+        "y": 180
+      }
+    ],
+    "axis=z": [
+      {
+        "model": "tfe:block/rock/raw/tuff",
+        "x": 90
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff_mirrored",
+        "x": 90
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff",
+        "x": 90,
+        "y": 180
+      },
+      {
+        "model": "tfe:block/rock/raw/tuff_mirrored",
+        "x": 90,
+        "y": 180
+      }
+    ]
+  }
+}

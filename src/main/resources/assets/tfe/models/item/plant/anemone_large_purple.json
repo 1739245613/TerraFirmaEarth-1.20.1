@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/anemone_large_purple/anemone_single"
+                 },
+    "parent":  "minecraft:item/generated"
+}

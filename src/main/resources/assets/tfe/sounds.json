@@ -1,0 +1,106 @@
+{
+  "entity.seal.ambient": {
+    "subtitle": "subtitles.tfe.entity.seal.ambient",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wolf.ambient",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.seal.death": {
+    "subtitle": "subtitles.tfe.entity.seal.death",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wolf.death",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.seal.hurt": {
+    "subtitle": "subtitles.tfe.entity.seal.hurt",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wolf.hurt",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.seal.step": {
+    "subtitle": "subtitles.tfe.entity.seal.step",
+    "sounds": [
+      {
+        "name": "minecraft:entity/fish/flop1",
+        "pitch": 0.7,
+        "volume": 0.5
+      }
+    ]
+  },
+  "entity.seal.attack": {
+    "subtitle": "subtitles.tfe.entity.seal.attack",
+    "sounds": [
+      {
+        "name": "minecraft:entity.fox.bite",
+        "pitch": 0.5,
+        "type": "event"
+      }
+    ]
+  },
+  "entity.bison.ambient": {
+    "subtitle": "subtitles.tfe.entity.bison.ambient",
+    "sounds": [
+      {
+        "name": "tfc:entity/deer/say1",
+        "pitch": 0.9
+      },
+      {
+        "name": "tfc:entity/deer/say2",
+        "pitch": 0.9
+      },
+      {
+        "name": "tfc:entity/deer/say3",
+        "pitch": 0.9
+      },
+      {
+        "name": "tfc:entity/deer/say5",
+        "pitch": 0.9,
+        "weight": 4
+      },
+      {
+        "name": "tfc:entity/deer/say6",
+        "pitch": 0.9
+      },
+      {
+        "name": "tfc:entity/deer/say7",
+        "pitch": 0.9
+      }
+    ]
+  },
+  "entity.bison.death": {
+    "subtitle": "subtitles.tfe.entity.bison.death",
+    "sounds": [
+      "tfc:entity/deer/death1"
+    ]
+  },
+  "entity.bison.hurt": {
+    "subtitle": "subtitles.tfe.entity.bison.hurt",
+    "sounds": [
+      "tfc:entity/deer/hurt1"
+    ]
+  },
+  "entity.bison.step": {
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wolf.step",
+        "type": "event"
+      }
+    ]
+  },
+  "entity.bison.attack": {
+    "subtitle": "subtitles.tfe.entity.bison.attack",
+    "sounds": [
+      "tfc:entity/deer/moose_charge_1"
+    ]
+  }
+}

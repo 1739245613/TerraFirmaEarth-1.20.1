@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/crop/alfalfa_wild"
+                 },
+    "parent":  "minecraft:item/generated"
+}

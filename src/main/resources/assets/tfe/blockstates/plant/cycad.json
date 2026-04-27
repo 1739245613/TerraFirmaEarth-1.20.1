@@ -1,0 +1,18 @@
+{
+    "multipart":  [
+                      {
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/empty"
+                                        }
+                                    ]
+                      },
+                      {
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/plant/cycad_dynamic"
+                                        }
+                                    ]
+                      }
+                  ]
+}

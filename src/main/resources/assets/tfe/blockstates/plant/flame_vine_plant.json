@@ -1,0 +1,7 @@
+{
+    "variants":  {
+                     "":  {
+                              "model":  "tfe:block/plant/flame_vine_plant_dynamic"
+                          }
+                 }
+}

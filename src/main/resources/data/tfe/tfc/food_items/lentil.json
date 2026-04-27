@@ -1,0 +1,10 @@
+{
+    "ingredient":  {
+                       "item":  "tfe:food/lentil"
+                   },
+    "hunger":  4,
+    "saturation":  2,
+    "decay_modifier":  2.5,
+    "vegetables":  0.3,
+    "protein":  0.3
+}

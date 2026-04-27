@@ -1,0 +1,79 @@
+{
+  "name": "New Terra Earth",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/entisol",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "This addon backports parts of local $(thing)1.21 TerraFirmaCraft$() worldgen, climate semantics, shorelines, ocean depth, and crop behavior to $(thing)1.20.1$().$(br2)This entry only documents content that is actually wired into the current project, so you can quickly judge local climate, crop suitability, and what terrain families may appear nearby."
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "climate",
+      "title": "Climate and Seasons",
+      "text": "The addon still uses TFC's $(thing)Calendar$() and $(thing)Climate$() screens. Press $(item)$(k:key.inventory)$() to open the inventory, then check the calendar tab for the season and date. A year is divided into Spring, Summer, Autumn, and Winter, with Early / Mid / Late months for each.$(br2)This project aligns the 1.21 temperature, rainfall, and seasonal semantics back onto 1.20, and those values now directly affect weather, crops, and part of the plant growth logic."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(l:the_world/climate#temperature)Temperature$() is driven mainly by latitude Z, season, and day to day variation. $(l:mechanics/hydration)Rainfall / Hydration$() is driven mainly by longitude X, distance from the coast, and seasonal rainfall patterns. In general, areas farther east are wetter, inland regions are drier, east coasts trend toward wet summers, and west coasts trend toward dry summers.$(br2)The current project already wires 1.21 style average temperature, current temperature, average rainfall, current rainfall, and peak rainfall into the client screens and weather backend."
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "terrain",
+      "title": "Terrain Families",
+      "text": "Worldgen currently focuses on five major families: $(thing)coasts and oceans$(), $(thing)arid landforms$(), $(thing)karst$(), $(thing)volcanic landforms$(), and $(thing)glacial / ice sheet terrain$().$(br2)These are not placed as isolated decorations. Final biome choice depends on temperature, rainfall, hotspot age, distance to the coast, and whether exposed rock is treated as karst."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Coasts and Oceans$()$(br)$(li)Shore, Rocky Shores, Coastal Dunes, Embayments, Tidal Flats$(li)Sea Stacks, Setback Cliffs$(li)Ocean, Ocean Reef, Deep Ocean, Deep Ocean Trench$(br2)$(bold)Arid Landforms$()$(br)$(li)Badlands, Mesas, Buttes, Hoodoos$(li)Whorled Canyons, Stair Step Canyons, Rocky Plateau$(li)Dune Sea, Grassy Dunes, Salt Flats, Mud Flats"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Karst$()$(br)$(li)Tower Karst Plains, Hills, Highlands, Lake, Bay$(li)Doline / Cenote / Shilin variants of plains, hills, canyons, highlands, and plateaus$(li)Extreme Doline Plateau and Extreme Doline Mountains$(br2)$(bold)Volcanic and Glacial$()$(br)$(li)Active, Dormant, Extinct, Ancient, and Sunken Shield Volcanoes$(li)Shield Volcano Shore, Old Shield Volcano Shore, Tuyas$(li)Ice Sheet, Ice Sheet Edge, Ice Sheet Shore, Subglacial Lake, Meltwater Lake$(li)Glaciated Mountains, Glacially Carved Mountains, Drumlins, Knob and Kettle, Patterned Ground, Stone Circles"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "crops",
+      "title": "Crop Rules",
+      "text": "Crop behavior in this addon follows $(thing)1.21 TFC$(). Crops still fall into $(thing)cereals$(), $(thing)legumes$(), $(thing)vegetables$(), $(thing)cover crops$(), and $(thing)miscellaneous crops$(). Temperature and $(l:mechanics/hydration)hydration$() ranges determine whether a region can support them reliably.$(br2)The following pages summarize the 1.21 temperature and hydration ranges for common crops."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Cereals$()$(br)$(li)Barley: -7~23 C / 10~70%$(li)Oat: -7~22 C / 25~85%$(li)Rye: -7~18 C / 15~80%$(li)Maize: -7~27 C / 50~100%$(li)Wheat: -7~22 C / 15~85%$(li)Rice: 8~31 C / 35~100%, must grow in shallow fresh water"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Legumes$()$(br)$(li)Cassava: 10~31 C / 45~100%$(li)Green Beans: -2~25 C / 25~90%, climbs with a stick$(li)Lentils: -5~25 C / 15~50%$(li)Peanuts: 11~31 C / 20~80%$(li)Soybean: -7~22 C / 25~90%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Vegetables$()$(br)$(li)Beet: -10~27 C / 10~70%$(li)Cabbage: -10~27 C / 10~65%$(li)Carrot: -10~27 C / 15~85%$(li)Garlic: -3~22 C / 10~70%$(li)Potato: -7~22 C / 35~90%$(li)Onion: -5~26 C / 15~85%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Vegetables$()$(br)$(li)Pumpkin: -7~27 C / 20~85%, grows side pumpkins$(li)Melon: 5~31 C / 35~100%, grows side melons$(li)Tomatoes: 2~31 C / 20~85%, climbs with a stick$(li)Red Bell Peppers: 11~31 C / 30~95%, can be harvested repeatedly$(li)Yellow Bell Peppers: 11~31 C / 30~95%, can be harvested repeatedly$(li)Squash: -7~25 C / 15~85%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Cover / Misc$()$(br)$(li)Alfalfa: -32~8 C / 40~100%$(li)Canola: -30~6 C / 20~75%$(li)Radish: -28~10 C / 30~90%$(li)Sugarcane: 16~31 C / 25~100%$(li)Jute: 2~25 C / 15~90%$(li)Papyrus: 11~31 C / 50~100%"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:seeds/cassava": 8,
+    "tfe:food/cassava": 8,
+    "tfe:food/cooked_cassava": 8,
+    "tfe:seeds/lentil": 8,
+    "tfe:food/lentil": 8,
+    "tfe:food/cooked_lentil": 8,
+    "tfe:seeds/peanut": 8,
+    "tfe:food/peanut": 8,
+    "tfe:seeds/alfalfa": 11,
+    "tfe:alfalfa": 11,
+    "tfe:seeds/canola": 11,
+    "tfe:canola": 11,
+    "tfe:seeds/radish": 11,
+    "tfe:food/radish": 11
+  },
+  "sortnum": 3
+}

@@ -1,0 +1,13 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tfe:rock/cobble/tuff_slab"
+    }
+  ],
+  "result": {
+    "item": "tfe:rock/loose/tuff",
+    "count": 2
+  }
+}

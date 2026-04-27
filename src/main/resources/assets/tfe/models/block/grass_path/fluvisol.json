@@ -1,0 +1,8 @@
+{
+    "textures":  {
+                     "dirt":  "tfe:block/dirt/fluvisol",
+                     "top":  "tfe:block/grass_path/fluvisol_top",
+                     "side":  "tfe:block/grass_path/fluvisol_side"
+                 },
+    "parent":  "tfc:block/grass_path"
+}

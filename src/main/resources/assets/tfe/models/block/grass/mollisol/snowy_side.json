@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/dirt/mollisol"
+                 },
+    "parent":  "tfc:block/grass_snowy_side"
+}

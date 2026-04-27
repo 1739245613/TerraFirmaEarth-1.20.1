@@ -1,0 +1,8 @@
+{
+  "replace": true,
+  "values": [
+    "tfc:leopard_seal",
+    "tfc:penguin",
+    "tfc:polar_bear"
+  ]
+}

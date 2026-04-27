@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfc:block/dirt/silty_loam"
+                 },
+    "parent":  "tfc:item/duff_inv"
+}

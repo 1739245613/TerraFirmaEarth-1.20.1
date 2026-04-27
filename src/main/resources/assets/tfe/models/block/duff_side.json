@@ -1,0 +1,45 @@
+{
+    "parent":  "block/block",
+    "elements":  [
+                     {
+                         "faces":  {
+                                       "north":  {
+                                                     "cullface":  "north",
+                                                     "texture":  "#texture"
+                                                 }
+                                   },
+                         "from":  [
+                                      0,
+                                      0,
+                                      0
+                                  ],
+                         "to":  [
+                                    16,
+                                    16,
+                                    0
+                                ]
+                     },
+                     {
+                         "faces":  {
+                                       "north":  {
+                                                     "cullface":  "north",
+                                                     "texture":  "#overlay"
+                                                 }
+                                   },
+                         "from":  [
+                                      0,
+                                      0,
+                                      0
+                                  ],
+                         "to":  [
+                                    16,
+                                    16,
+                                    0
+                                ]
+                     }
+                 ],
+    "textures":  {
+                     "overlay":  "tfe:block/duff_side",
+                     "particle":  "tfe:block/duff_side"
+                 }
+}

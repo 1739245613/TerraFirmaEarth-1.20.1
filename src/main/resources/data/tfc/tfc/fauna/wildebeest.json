@@ -1,0 +1,6 @@
+{
+  "max_forest": 2,
+  "max_groundwater": 380.0,
+  "min_groundwater": 90.0,
+  "min_temperature": 13.0
+}

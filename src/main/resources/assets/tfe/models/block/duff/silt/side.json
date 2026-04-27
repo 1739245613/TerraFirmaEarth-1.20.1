@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfc:block/dirt/silt"
+                 },
+    "parent":  "tfe:block/duff_side"
+}

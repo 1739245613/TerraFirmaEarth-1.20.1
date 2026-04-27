@@ -1,0 +1,7 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "ingredient": {
+    "item": "tfe:deposit/cassiterite/tuff"
+  },
+  "loot_table": "tfe:panning/deposits/cassiterite_tuff"
+}

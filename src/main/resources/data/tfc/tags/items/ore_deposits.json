@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:deposit/native_copper/tuff",
+                   "tfe:deposit/cassiterite/tuff",
+                   "tfe:deposit/native_silver/tuff",
+                   "tfe:deposit/native_gold/tuff"
+               ]
+}

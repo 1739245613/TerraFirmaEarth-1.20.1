@@ -1,0 +1,7 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "tfe:block/rock/spike/tuff_base",
+  "textures": {
+    "layer0": "tfe:block/rock/raw/tuff"
+  }
+}

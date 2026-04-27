@@ -1,0 +1,128 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_splayed_closed_0"
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_closed_0",
+        "x": 270,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_closed_1",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_closed_1",
+        "x": 270,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_splayed_closed_0",
+        "x": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "open": "false"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_closed_0",
+        "x": 270,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "down": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_splayed_0"
+      }
+    },
+    {
+      "when": {
+        "east": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_0",
+        "x": 270,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "north": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_1",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "south": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_1",
+        "x": 270,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "up": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_splayed_0",
+        "x": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true",
+        "open": "true"
+      },
+      "apply": {
+        "model": "tfc:block/plant/mussels_directional_0",
+        "x": 270,
+        "y": 270
+      }
+    }
+  ]
+}

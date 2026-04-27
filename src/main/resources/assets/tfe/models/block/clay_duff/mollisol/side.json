@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/clay/mollisol"
+                 },
+    "parent":  "tfe:block/duff_side"
+}

@@ -1,0 +1,12 @@
+{
+    "variants":  {
+                     "":  [
+                              {
+                                  "model":  "tfe:block/plant/tall_dry_grass"
+                              },
+                              {
+                                  "model":  "tfe:block/plant/short_dry_grass"
+                              }
+                          ]
+                 }
+}

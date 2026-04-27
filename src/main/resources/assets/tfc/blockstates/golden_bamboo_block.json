@@ -1,0 +1,14 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "axis=x": {
+      "model": "tfc:block/golden_bamboo_x"
+    },
+    "axis=y": {
+      "model": "tfc:block/golden_bamboo_y"
+    },
+    "axis=z": {
+      "model": "tfc:block/golden_bamboo_z"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "tfe:rock/smooth/tuff"
+    }
+  },
+  "result": {
+    "item": "tfe:rock/smooth/tuff_wall",
+    "count": 6
+  }
+}

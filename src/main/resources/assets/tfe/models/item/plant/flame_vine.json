@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/flame_vine/body_0"
+                 },
+    "parent":  "minecraft:item/generated"
+}

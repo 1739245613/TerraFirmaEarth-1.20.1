@@ -1,0 +1,8 @@
+{
+    "textures":  {
+                     "dirt":  "tfe:block/dirt/oxisol",
+                     "top":  "tfe:block/grass_path/oxisol_top",
+                     "side":  "tfe:block/grass_path/oxisol_side"
+                 },
+    "parent":  "tfc:block/grass_path"
+}

@@ -1,0 +1,7 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "tfc:chisel",
+  "ingredient": "tfe:rock/cobble/tuff",
+  "result": "tfe:rock/cobble/tuff_stairs",
+  "mode": "stair"
+}

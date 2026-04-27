@@ -1,0 +1,9 @@
+{
+    "ingredient":  {
+                       "item":  "tfe:peanut_jam"
+                   },
+    "hunger":  4,
+    "saturation":  1.0,
+    "decay_modifier":  5,
+    "protein":  1.5
+}

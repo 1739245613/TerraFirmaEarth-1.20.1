@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "fluid": "tfe:canola_oil",
+  "burn_rate": 6000,
+  "valid_lamps": {
+    "type": "tfc:tag",
+    "tag": "tfc:lamps"
+  }
+}

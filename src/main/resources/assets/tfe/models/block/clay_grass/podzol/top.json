@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/clay/podzol"
+                 },
+    "parent":  "tfc:block/grass_top"
+}

@@ -1,0 +1,13 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/poor_garnierite/tuff",
+                   "tfe:ore/normal_garnierite/tuff",
+                   "tfe:ore/rich_garnierite/tuff",
+                   "tfe:ore/cinnabar/tuff",
+                   "tfe:ore/cryolite/tuff",
+                   "tfe:ore/halite/tuff",
+                   "tfe:ore/lapis_lazuli/tuff",
+                   "tfe:ore/opal/tuff"
+               ]
+}

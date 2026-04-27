@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/dirt/mollisol"
+                 },
+    "parent":  "tfe:block/duff_bottom"
+}

@@ -1,0 +1,7 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfc:farmland/sandy_loam",
+                   "tfe:farmland/podzol"
+               ]
+}

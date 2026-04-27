@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","feature":"tfc:plant/bluegrass_patch","placement":[{"type":"minecraft:in_square"},{"type":"minecraft:heightmap","heightmap":"WORLD_SURFACE_WG"},{"type":"tfc:climate","min_temperature":-0.4,"max_temperature":14.0,"min_groundwater":110,"max_groundwater":280}]}

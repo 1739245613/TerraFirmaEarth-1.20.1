@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","type":"tfe:mapped_rivulet","config":{"states":[{"replace":"tfc:rock/raw/basalt","with":"tfc:rock/magma/basalt"},{"replace":"tfc:rock/hardened/basalt","with":"tfc:rock/magma/basalt"}]}}

@@ -1,0 +1,43 @@
+{
+    "config":  {
+                   "min_radius":  7,
+                   "max_radius":  14,
+                   "height":  7,
+                   "states":  [
+                                  {
+                                      "with":  "tfe:duff/loam",
+                                      "replace":  "tfc:grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/loam",
+                                      "replace":  "tfc:clay_grass/loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/sandy_loam",
+                                      "replace":  "tfc:grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/sandy_loam",
+                                      "replace":  "tfc:clay_grass/sandy_loam"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/oxisol",
+                                      "replace":  "tfe:grass/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/oxisol",
+                                      "replace":  "tfe:clay_grass/oxisol"
+                                  },
+                                  {
+                                      "with":  "tfe:duff/silt",
+                                      "replace":  "tfc:grass/silt"
+                                  },
+                                  {
+                                      "with":  "tfe:clay_duff/silt",
+                                      "replace":  "tfc:clay_grass/silt"
+                                  }
+                              ]
+               },
+    "__comment__":  "This file was automatically created by mcresources",
+    "type":  "tfc:soil_disc"
+}

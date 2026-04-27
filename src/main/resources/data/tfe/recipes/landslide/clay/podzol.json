@@ -1,0 +1,9 @@
+{
+    "ingredient":  [
+                       "tfe:clay/podzol",
+                       "tfe:clay_grass/podzol",
+                       "tfe:clay_duff/podzol"
+                   ],
+    "result":  "tfe:clay/podzol",
+    "type":  "tfc:landslide"
+}

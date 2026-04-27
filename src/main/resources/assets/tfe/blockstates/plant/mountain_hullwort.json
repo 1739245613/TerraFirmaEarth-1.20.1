@@ -1,0 +1,10 @@
+{
+    "variants":  {
+                     "part=lower":  {
+                                        "model":  "tfe:block/plant/mountain_hullwort_lower"
+                                    },
+                     "part=upper":  {
+                                        "model":  "tfe:block/plant/mountain_hullwort_upper_dynamic"
+                                    }
+                 }
+}

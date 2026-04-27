@@ -1,0 +1,16 @@
+{
+    "__comment__": "This file was automatically created by mcresources",
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "item": "tfe:mud/oxisol"
+        },
+        {
+            "item": "tfc:straw"
+        }
+    ],
+    "result": {
+        "item": "tfe:drying_bricks/oxisol",
+        "count": 4
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "multipart":  [
+                      {
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/plant/water_lily_empty"
+                                        }
+                                    ]
+                      },
+                      {
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/plant/white_water_lily_dynamic_east"
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/white_water_lily_dynamic_south",
+                                            "y":  90
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/white_water_lily_dynamic_west",
+                                            "y":  180
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/white_water_lily_dynamic_north",
+                                            "y":  270
+                                        }
+                                    ]
+                      }
+                  ]
+}

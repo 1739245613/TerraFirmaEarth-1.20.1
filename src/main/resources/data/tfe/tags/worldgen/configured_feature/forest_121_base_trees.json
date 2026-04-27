@@ -1,0 +1,25 @@
+{
+  "__comment__": "Pins the addon's intended 1.21-style baseline forest tree pool under tfe-owned entry ids so third-party overrides on tfc tree entries cannot rewrite it.",
+  "replace": false,
+  "values": [
+    "tfe:tree/acacia_entry",
+    "tfe:tree/ash_entry",
+    "tfe:tree/aspen_entry",
+    "tfe:tree/birch_entry",
+    "tfe:tree/blackwood_entry",
+    "tfe:tree/chestnut_entry",
+    "tfe:tree/douglas_fir_entry",
+    "tfe:tree/hickory_entry",
+    "tfe:tree/kapok_entry",
+    "tfe:tree/maple_entry",
+    "tfe:tree/oak_entry",
+    "tfe:tree/palm_entry",
+    "tfe:tree/pine_entry",
+    "tfe:tree/rosewood_entry",
+    "tfe:tree/sequoia_entry",
+    "tfe:tree/spruce_entry",
+    "tfe:tree/sycamore_entry",
+    "tfe:tree/white_cedar_entry",
+    "tfe:tree/willow_entry"
+  ]
+}

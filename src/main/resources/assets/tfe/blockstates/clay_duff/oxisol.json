@@ -1,0 +1,218 @@
+{
+    "multipart":  [
+                      {
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/bottom",
+                                        "x":  90
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  false
+                                   },
+                          "apply":  [
+                                        {
+                                            "y":  90,
+                                            "model":  "tfe:block/clay_duff/oxisol/top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "model":  "tfe:block/clay_duff/oxisol/top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "y":  180,
+                                            "model":  "tfe:block/clay_duff/oxisol/top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "y":  270,
+                                            "model":  "tfe:block/clay_duff/oxisol/top",
+                                            "x":  270
+                                        }
+                                    ]
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  true
+                                   },
+                          "apply":  [
+                                        {
+                                            "y":  90,
+                                            "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "y":  180,
+                                            "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                            "x":  270
+                                        },
+                                        {
+                                            "y":  270,
+                                            "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                            "x":  270
+                                        }
+                                    ]
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  false,
+                                       "north":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/top"
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "east":  true,
+                                       "snowy":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/top",
+                                        "y":  90
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "south":  true,
+                                       "snowy":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/top",
+                                        "y":  180
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  false,
+                                       "west":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/top",
+                                        "y":  270
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  true,
+                                       "north":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_top"
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "east":  true,
+                                       "snowy":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                        "y":  90
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "south":  true,
+                                       "snowy":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                        "y":  180
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  true,
+                                       "west":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_top",
+                                        "y":  270
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  false,
+                                       "north":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/side"
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "east":  false,
+                                       "snowy":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/side",
+                                        "y":  90
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "south":  false,
+                                       "snowy":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/side",
+                                        "y":  180
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  false,
+                                       "west":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/side",
+                                        "y":  270
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  true,
+                                       "north":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_side"
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "east":  false,
+                                       "snowy":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_side",
+                                        "y":  90
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "south":  false,
+                                       "snowy":  true
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_side",
+                                        "y":  180
+                                    }
+                      },
+                      {
+                          "when":  {
+                                       "snowy":  true,
+                                       "west":  false
+                                   },
+                          "apply":  {
+                                        "model":  "tfe:block/clay_duff/oxisol/snowy_side",
+                                        "y":  270
+                                    }
+                      }
+                  ]
+}

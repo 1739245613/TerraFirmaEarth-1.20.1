@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","feature":"tfc:plant/strawberry_bush_patch","placement":[{"type":"tfc:climate","min_temperature":-1.6,"max_temperature":17.6,"min_groundwater":140,"max_groundwater":400,"min_forest":2,"max_forest":4},{"type":"minecraft:in_square"},{"type":"minecraft:rarity_filter","chance":30}]}

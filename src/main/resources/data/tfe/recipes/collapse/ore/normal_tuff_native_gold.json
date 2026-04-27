@@ -1,0 +1,6 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "tfc:collapse",
+  "ingredient": "tfe:ore/rich_native_gold/tuff",
+  "result": "tfe:ore/normal_native_gold/tuff"
+}

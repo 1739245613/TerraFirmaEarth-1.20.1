@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/dry_grass/short_dry_grass"
+                 },
+    "parent":  "minecraft:item/generated"
+}

@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/penwortel/cross_0"
+                 },
+    "parent":  "minecraft:item/generated"
+}

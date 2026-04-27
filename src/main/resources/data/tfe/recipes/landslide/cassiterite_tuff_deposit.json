@@ -1,0 +1,6 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "tfc:landslide",
+  "ingredient": "tfe:deposit/cassiterite/tuff",
+  "result": "tfe:deposit/cassiterite/tuff"
+}

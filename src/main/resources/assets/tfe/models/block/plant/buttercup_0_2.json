@@ -1,0 +1,7 @@
+{
+    "parent":  "tfe:block/plant/flowerbed_3",
+    "textures":  {
+                     "flowerbed":  "tfe:block/plant/buttercup/petals",
+                     "stem":  "tfe:block/plant/buttercup/stem"
+                 }
+}

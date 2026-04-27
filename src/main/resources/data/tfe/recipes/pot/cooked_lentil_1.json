@@ -1,0 +1,22 @@
+{
+    "type":  "tfc:pot",
+    "ingredients":  [
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:food/lentil"
+                                           }
+                        }
+                    ],
+    "fluid_ingredient":  {
+                             "ingredient":  "minecraft:water",
+                             "amount":  100
+                         },
+    "duration":  1200,
+    "temperature":  300,
+    "item_output":  [
+                        {
+                            "item":  "tfe:food/cooked_lentil"
+                        }
+                    ]
+}

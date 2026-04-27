@@ -1,0 +1,78 @@
+{
+    "multipart":  [
+                      {
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_empty"
+                                        }
+                                    ]
+                      },
+                      {
+                          "when":  {
+                                       "part":  "upper"
+                                   },
+                          "apply":  [
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_0"
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_0",
+                                            "y":  90
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_0",
+                                            "y":  180
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_0",
+                                            "y":  270
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_1"
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_1",
+                                            "y":  90
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_1",
+                                            "y":  180
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_1",
+                                            "y":  270
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_2"
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_2",
+                                            "y":  90
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_2",
+                                            "y":  180
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_2",
+                                            "y":  270
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_3"
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_3",
+                                            "y":  90
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_3",
+                                            "y":  180
+                                        },
+                                        {
+                                            "model":  "tfe:block/plant/purple_prickly_pear_dynamic_3",
+                                            "y":  270
+                                        }
+                                    ]
+                      }
+                  ]
+}

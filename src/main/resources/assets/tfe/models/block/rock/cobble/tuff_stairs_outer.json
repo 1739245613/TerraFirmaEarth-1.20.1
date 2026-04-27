@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/outer_stairs",
+  "textures": {
+    "bottom": "tfe:block/rock/cobble/tuff",
+    "top": "tfe:block/rock/cobble/tuff",
+    "side": "tfe:block/rock/cobble/tuff"
+  }
+}

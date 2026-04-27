@@ -1,0 +1,11 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:crop/alfalfa",
+                   "tfe:crop/canola",
+                   "tfe:crop/cassava",
+                   "tfe:crop/lentil",
+                   "tfe:crop/peanut",
+                   "tfe:crop/radish"
+               ]
+}

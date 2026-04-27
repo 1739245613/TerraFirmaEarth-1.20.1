@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "tfc:hardened_clay"
+    },
+    {
+      "item": "tfc:hardened_clay"
+    },
+    {
+      "item": "tfc:hardened_clay"
+    },
+    {
+      "item": "tfc:hardened_clay"
+    },
+    {
+      "item": "tfc:hardened_clay"
+    },
+    {
+      "type": "tfc:fluid_item",
+      "fluid_ingredient": {
+        "ingredient": "minecraft:water",
+        "amount": 100
+      }
+    }
+  ],
+  "result": {
+    "item": "minecraft:clay_ball",
+    "count": 20
+  }
+}

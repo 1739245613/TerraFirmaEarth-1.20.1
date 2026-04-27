@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    "tfe:dirt/fluvisol",
+    "tfe:rooted_dirt/fluvisol",
+    "tfe:muddy_roots/fluvisol",
+    "tfe:duff/fluvisol",
+    "tfe:dirt/mollisol",
+    "tfe:rooted_dirt/mollisol",
+    "tfe:muddy_roots/mollisol",
+    "tfe:duff/mollisol",
+    "tfe:dirt/podzol",
+    "tfe:rooted_dirt/podzol",
+    "tfe:muddy_roots/podzol",
+    "tfe:duff/podzol",
+    "tfe:dirt/oxisol",
+    "tfe:rooted_dirt/oxisol",
+    "tfe:muddy_roots/oxisol",
+    "tfe:duff/oxisol",
+    "tfe:duff/silt",
+    "tfe:duff/loam",
+    "tfe:duff/sandy_loam",
+    "tfe:duff/silty_loam"
+  ]
+}

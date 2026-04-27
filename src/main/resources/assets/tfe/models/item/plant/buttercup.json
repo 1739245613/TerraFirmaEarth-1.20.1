@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/buttercup/leaves"
+                 },
+    "parent":  "minecraft:item/generated"
+}

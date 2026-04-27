@@ -1,0 +1,7 @@
+{
+    "textures":  {
+                     "end":  "tfe:block/dirt/fluvisol_top",
+                     "side":  "tfe:block/dirt/fluvisol"
+                 },
+    "parent":  "minecraft:block/cube_column"
+}

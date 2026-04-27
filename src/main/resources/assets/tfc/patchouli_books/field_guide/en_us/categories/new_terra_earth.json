@@ -1,0 +1,6 @@
+{
+  "name": "New Terra Earth",
+  "description": "A quick guide to the climate, terrain families, and crops that this addon has already backported onto 1.20.$(br2)$(br)$(bold)Note:$() For supported addon seeds, hold Ctrl while hovering the item to jump here.",
+  "icon": "tfe:seeds/canola",
+  "sortnum": 3
+}

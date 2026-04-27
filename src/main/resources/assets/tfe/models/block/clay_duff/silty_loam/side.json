@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfc:block/clay/silty_loam"
+                 },
+    "parent":  "tfe:block/duff_side"
+}

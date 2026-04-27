@@ -1,0 +1,10 @@
+{
+  "values": [
+    "#forge:stone",
+    "#forge:smooth_stone",
+    "#forge:cobblestone",
+    "#forge:gravel",
+    "#forge:sand",
+    "#forge:sandstone"
+  ]
+}

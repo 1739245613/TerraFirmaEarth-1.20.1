@@ -1,0 +1,27 @@
+{
+    "parent":  "block/block",
+    "elements":  [
+                     {
+                         "faces":  {
+                                       "north":  {
+                                                     "cullface":  "north",
+                                                     "texture":  "#overlay"
+                                                 }
+                                   },
+                         "from":  [
+                                      0,
+                                      0,
+                                      0
+                                  ],
+                         "to":  [
+                                    16,
+                                    16,
+                                    0
+                                ]
+                     }
+                 ],
+    "textures":  {
+                     "overlay":  "minecraft:block/snow",
+                     "particle":  "minecraft:block/snow"
+                 }
+}

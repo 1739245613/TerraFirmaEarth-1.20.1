@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "tfe:rock/cracked_bricks/tuff"
+  },
+  "result": "tfe:rock/cracked_bricks/tuff_slab",
+  "count": 2
+}

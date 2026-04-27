@@ -1,0 +1,7 @@
+{
+    "parent":  "tfe:block/mixed_cross",
+    "textures":  {
+                     "cross":  "tfe:block/plant/red_oat_grass/red_oat_grass_tuft",
+                     "tinted_cross":  "tfe:block/plant/red_oat_grass/red_oat_grass"
+                 }
+}

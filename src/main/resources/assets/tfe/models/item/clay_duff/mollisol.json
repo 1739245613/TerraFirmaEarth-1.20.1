@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfe:block/clay/mollisol"
+                 },
+    "parent":  "tfc:item/duff_inv"
+}

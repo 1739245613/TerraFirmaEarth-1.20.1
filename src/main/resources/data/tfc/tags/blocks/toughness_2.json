@@ -1,0 +1,8 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:rock/raw/tuff",
+                   "tfe:rock/cobble/tuff",
+                   "tfe:rock/mossy_cobble/tuff"
+               ]
+}

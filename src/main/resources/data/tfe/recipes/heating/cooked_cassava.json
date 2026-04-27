@@ -1,0 +1,18 @@
+{
+    "type":  "tfc:heating",
+    "ingredient":  {
+                       "type":  "tfc:not_rotten",
+                       "ingredient":  {
+                                          "item":  "tfe:food/cassava"
+                                      }
+                   },
+    "result_item":  {
+                        "stack":  {
+                                      "item":  "tfe:food/cooked_cassava"
+                                  },
+                        "modifiers":  [
+                                          "tfc:copy_food"
+                                      ]
+                    },
+    "temperature":  200
+}

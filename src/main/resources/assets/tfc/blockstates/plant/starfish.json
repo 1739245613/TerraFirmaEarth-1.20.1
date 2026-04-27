@@ -1,0 +1,72 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish",
+          "x": 90,
+          "y": 90
+        }
+      ]
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish",
+          "x": 90,
+          "y": 180
+        }
+      ]
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish",
+          "x": 90,
+          "y": 270
+        }
+      ]
+    },
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish",
+          "x": 90
+        }
+      ]
+    },
+    {
+      "when": {
+        "facing": "up"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish"
+        }
+      ]
+    },
+    {
+      "when": {
+        "facing": "down"
+      },
+      "apply": [
+        {
+          "model": "tfc:block/plant/starfish",
+          "x": 180
+        }
+      ]
+    }
+  ]
+}

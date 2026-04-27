@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:rock/raw/tuff",
+                   "tfe:rock/hardened/tuff",
+                   "tfe:rock/gravel/tuff",
+                   "tfe:rock/cobble/tuff"
+               ]
+}

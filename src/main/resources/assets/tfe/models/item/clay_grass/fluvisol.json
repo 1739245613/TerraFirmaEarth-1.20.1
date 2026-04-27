@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfe:block/clay/fluvisol"
+                 },
+    "parent":  "tfc:item/grass_inv"
+}

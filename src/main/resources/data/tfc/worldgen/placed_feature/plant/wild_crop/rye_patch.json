@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","feature":"tfc:plant/wild_crop/rye_patch","placement":[{"type":"minecraft:rarity_filter","chance":90},{"type":"minecraft:in_square"},{"type":"tfc:climate","min_temperature":-9.4,"max_temperature":8.6,"min_groundwater":100,"max_groundwater":350,"max_forest":2}]}

@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/slab_top",
+  "textures": {
+    "bottom": "tfe:block/rock/raw/tuff",
+    "top": "tfe:block/rock/raw/tuff",
+    "side": "tfe:block/rock/raw/tuff"
+  }
+}

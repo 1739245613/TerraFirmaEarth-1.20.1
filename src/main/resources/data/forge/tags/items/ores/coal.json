@@ -1,0 +1,7 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/bituminous_coal/tuff",
+                   "tfe:ore/lignite/tuff"
+               ]
+}

@@ -1,0 +1,7 @@
+{
+    "textures":  {
+                     "dirt":  "tfe:block/dirt/fluvisol",
+                     "top":  "tfe:block/farmland/fluvisol"
+                 },
+    "parent":  "block/template_farmland"
+}

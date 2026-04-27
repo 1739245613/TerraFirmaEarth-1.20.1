@@ -1,0 +1,23 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "replace": false,
+  "values": [
+    "tfc:ocean",
+    "tfc:ocean_reef",
+    "tfc:deep_ocean",
+    "tfc:deep_ocean_trench",
+    "tfc:shore",
+    "tfc:tidal_flats",
+    "tfc:sea_stacks",
+    "tfc:terrace_upper",
+    "tfc:terrace_lower",
+    "tfc:setback_cliffs",
+    "tfc:coastal_dunes",
+    "tfc:rocky_shores",
+    "tfc:embayments",
+    "tfc:shield_volcano_shore",
+    "tfc:old_shield_volcano_shore",
+    "tfc:ice_sheet_oceanic",
+    "tfc:ice_sheet_shore"
+  ]
+}

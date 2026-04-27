@@ -1,0 +1,7 @@
+{
+    "textures":  {
+                     "dirt":  "tfe:block/dirt/podzol",
+                     "top":  "tfe:block/farmland/podzol"
+                 },
+    "parent":  "block/template_farmland"
+}

@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/clay/fluvisol"
+                 },
+    "parent":  "tfe:block/duff_top"
+}

@@ -1,0 +1,9 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:rock/bricks/tuff",
+                   "tfe:rock/mossy_bricks/tuff",
+                   "tfe:rock/cracked_bricks/tuff",
+                   "tfe:rock/chiseled/tuff"
+               ]
+}

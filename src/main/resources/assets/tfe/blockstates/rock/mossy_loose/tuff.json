@@ -1,0 +1,56 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "count=1": [
+      {
+        "model": "tfe:block/rock/loose/tuff_1_mossy",
+        "y": 90
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_1_mossy"
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_1_mossy",
+        "y": 180
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_1_mossy",
+        "y": 270
+      }
+    ],
+    "count=2": [
+      {
+        "model": "tfe:block/rock/loose/tuff_2_mossy",
+        "y": 90
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_2_mossy"
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_2_mossy",
+        "y": 180
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_2_mossy",
+        "y": 270
+      }
+    ],
+    "count=3": [
+      {
+        "model": "tfe:block/rock/loose/tuff_3_mossy",
+        "y": 90
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_3_mossy"
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_3_mossy",
+        "y": 180
+      },
+      {
+        "model": "tfe:block/rock/loose/tuff_3_mossy",
+        "y": 270
+      }
+    ]
+  }
+}

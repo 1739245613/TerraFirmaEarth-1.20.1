@@ -1,0 +1,14 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfc:food/bison",
+                   "tfc:food/cooked_bison",
+                   "tfe:food/cassava",
+                   "tfe:food/cooked_cassava",
+                   "tfe:food/lentil",
+                   "tfe:food/cooked_lentil",
+                   "tfe:food/peanut",
+                   "tfe:food/radish",
+                   "tfe:peanut_jam"
+               ]
+}

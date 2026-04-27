@@ -1,0 +1,8 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/poor_hematite/tuff",
+                   "tfe:ore/poor_magnetite/tuff",
+                   "tfe:ore/poor_limonite/tuff"
+               ]
+}

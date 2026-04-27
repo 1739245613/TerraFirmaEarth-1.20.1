@@ -1,0 +1,43 @@
+{
+    "type":  "tfc:pot_jam",
+    "ingredients":  [
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:food/peanut"
+                                           }
+                        },
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:food/peanut"
+                                           }
+                        },
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:food/peanut"
+                                           }
+                        },
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:food/peanut"
+                                           }
+                        },
+                        {
+                            "tag":  "tfc:sweetener"
+                        }
+                    ],
+    "fluid_ingredient":  {
+                             "ingredient":  "minecraft:water",
+                             "amount":  100
+                         },
+    "duration":  500,
+    "temperature":  300,
+    "result":  {
+                   "item":  "tfe:jar/peanut",
+                   "count":  4
+               },
+    "texture":  "tfe:block/jar/peanut"
+}

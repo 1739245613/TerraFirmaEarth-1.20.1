@@ -1,0 +1,14 @@
+{
+    "type":  "minecraft:crafting_shapeless",
+    "ingredients":  [
+                        {
+                            "type":  "tfc:not_rotten",
+                            "ingredient":  {
+                                               "item":  "tfe:jar/peanut"
+                                           }
+                        }
+                    ],
+    "result":  {
+                   "item":  "tfe:jar/peanut_unsealed"
+               }
+}

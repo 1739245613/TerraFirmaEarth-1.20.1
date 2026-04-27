@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/dirt/oxisol"
+                 },
+    "parent":  "tfe:block/duff_side"
+}

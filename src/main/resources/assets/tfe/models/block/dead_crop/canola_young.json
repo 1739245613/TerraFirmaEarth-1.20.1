@@ -1,0 +1,6 @@
+{
+    "parent":  "block/crop",
+    "textures":  {
+                     "crop":  "tfe:block/crop/canola_dead_young"
+                 }
+}

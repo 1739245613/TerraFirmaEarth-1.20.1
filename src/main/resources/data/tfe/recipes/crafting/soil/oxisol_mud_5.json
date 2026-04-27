@@ -1,0 +1,32 @@
+{
+    "__comment__": "This file was automatically created by mcresources",
+    "type": "minecraft:crafting_shapeless",
+    "ingredients": [
+        {
+            "type": "tfc:fluid_item",
+            "fluid_ingredient": {
+                "ingredient": "minecraft:water",
+                "amount": 100
+            }
+        },
+        {
+            "item": "tfe:dirt/oxisol"
+        },
+        {
+            "item": "tfe:dirt/oxisol"
+        },
+        {
+            "item": "tfe:dirt/oxisol"
+        },
+        {
+            "item": "tfe:dirt/oxisol"
+        },
+        {
+            "item": "tfe:dirt/oxisol"
+        }
+    ],
+    "result": {
+        "item": "tfe:mud/oxisol",
+        "count": 5
+    }
+}

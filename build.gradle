@@ -1,0 +1,288 @@
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'idea'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+}
+
+group = 'com.newterraearth'
+version = '0.1.0'
+
+base {
+    archivesName = 'Wildfire_TerraFirmaEarth-1.20.1-forge'
+}
+
+def releaseArtifactBaseName = "${base.archivesName.get()}-${project.version}"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+def tfeTraceTaskRequested = gradle.startParameter.taskNames.any { it == 'traceVolcanoRuntimeServer' }
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    runs {
+        configureEach {
+            workingDirectory project.file("run/${it.name}")
+            property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+
+            final def traceEnabled = project.findProperty('tfeTraceEnabled') ?: (tfeTraceTaskRequested ? 'true' : null)
+            if (traceEnabled != null) {
+                property 'tfe.debug.volcanoTrace', traceEnabled.toString()
+            }
+
+            final def aquaticTraceEnabled = project.findProperty('tfeAquaticTraceEnabled')
+            if (aquaticTraceEnabled != null) {
+                property 'tfe.debug.aquaticTrace', aquaticTraceEnabled.toString()
+            }
+
+            final def traceX = project.findProperty('tfeTraceX')
+            if (traceX != null) {
+                property 'tfe.debug.x', traceX.toString()
+            }
+
+            final def traceZ = project.findProperty('tfeTraceZ')
+            if (traceZ != null) {
+                property 'tfe.debug.z', traceZ.toString()
+            }
+
+            final def traceChunkRadius = project.findProperty('tfeTraceChunkRadius')
+            if (traceChunkRadius != null) {
+                property 'tfe.debug.chunkRadius', traceChunkRadius.toString()
+            }
+
+            final def traceBlockRadius = project.findProperty('tfeTraceBlockRadius')
+            if (traceBlockRadius != null) {
+                property 'tfe.debug.blockRadius', traceBlockRadius.toString()
+            }
+
+            final def traceTop = project.findProperty('tfeTraceTop')
+            if (traceTop != null) {
+                property 'tfe.debug.summaryTopN', traceTop.toString()
+            }
+
+            final def traceSeed = project.findProperty('tfeTraceSeed')
+            if (traceSeed != null) {
+                property 'tfe.debug.expectedSeed', traceSeed.toString()
+            }
+
+            final def stopAfterTrace = project.findProperty('tfeTraceStopAfter') ?: (tfeTraceTaskRequested ? 'true' : null)
+            if (stopAfterTrace != null) {
+                property 'tfe.debug.stopAfterTrace', stopAfterTrace.toString()
+            }
+
+            mods {
+                tfe {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {}
+
+        server {
+            arg '--nogui'
+        }
+
+        data {
+            args '--mod', 'tfe', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
+}
+
+sourceSets.main.resources {
+    srcDir 'src/generated/resources'
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven {
+        url = 'https://cursemaven.com'
+        content {
+            includeGroup 'curse.maven'
+        }
+    }
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.1.3'
+    implementation fg.deobf('curse.maven:terrafirmacraft-302973:7730077')
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, 'tfe.refmap.json'
+    config 'tfe.mixins.json'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    from('LICENSE') {
+        into ''
+    }
+    from('NOTICE') {
+        into ''
+    }
+    from('DISCLAIMER.md') {
+        into ''
+    }
+    manifest {
+        attributes([
+            'Specification-Title'     : 'Wildfire_TerraFirmaEarth',
+            'Specification-Vendor'    : '交错次元',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.version,
+            'Implementation-Vendor'   : '交错次元',
+            'MixinConfigs'            : 'tfe.mixins.json'
+        ])
+    }
+}
+
+tasks.register('stageReleaseDocs', Copy) {
+    dependsOn tasks.named('jar')
+    into layout.buildDirectory.dir('libs')
+
+    from('LICENSE') {
+        rename { "${releaseArtifactBaseName}-LICENSE.txt" }
+    }
+    from('NOTICE') {
+        rename { "${releaseArtifactBaseName}-NOTICE.txt" }
+    }
+    from('DISCLAIMER.md') {
+        rename { "${releaseArtifactBaseName}-DISCLAIMER.md" }
+    }
+}
+
+tasks.named('assemble').configure {
+    finalizedBy tasks.named('stageReleaseDocs')
+}
+
+tasks.register('diagnoseVolcano', JavaExec) {
+    group = 'verification'
+    description = 'Run local JVM volcano diagnostics without launching the game client.'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.newterraearth.tfe.debug.VolcanoDiagnosticMain'
+
+    if (project.hasProperty('diagSeed')) {
+        args "--seed=${project.property('diagSeed')}"
+    }
+    if (project.hasProperty('diagSeeds')) {
+        args "--seeds=${project.property('diagSeeds')}"
+    }
+    if (project.hasProperty('diagGridRadius')) {
+        args "--grid-radius=${project.property('diagGridRadius')}"
+    }
+    if (project.hasProperty('diagSampleStep')) {
+        args "--sample-step=${project.property('diagSampleStep')}"
+    }
+    if (project.hasProperty('diagTop')) {
+        args "--top=${project.property('diagTop')}"
+    }
+}
+
+tasks.register('prepareVolcanoTraceServer') {
+    group = 'verification'
+    description = 'Prepare a dedicated TFC server working directory for runtime volcano tracing.'
+
+    doLast {
+        final def seed = (project.findProperty('tfeTraceSeed') ?: '1').toString()
+        final def traceX = (project.findProperty('tfeTraceX') ?: '0').toString()
+        final def traceZ = (project.findProperty('tfeTraceZ') ?: '0').toString()
+        final def levelName = (project.findProperty('tfeTraceLevelName') ?: "tfe_volcano_trace_s${seed}_x${traceX}_z${traceZ}").toString()
+        final def runDir = file('run/server')
+        final def levelDir = new File(runDir, levelName)
+        final def modsDir = new File(runDir, 'mods')
+        final def deobfPatchouliRoot = new File(gradle.gradleUserHomeDir, 'caches/forge_gradle/deobf_dependencies')
+        final def localMinecraftRoot = new File(System.properties['user.home'], 'Desktop/PCL/.minecraft')
+        final def deobfPatchouliCandidates = deobfPatchouliRoot.exists()
+            ? fileTree(deobfPatchouliRoot) { include '**/patchouli-306770-*_mapped_official_1.20.1.jar' }.files
+            : []
+        final def plainPatchouliCandidates = []
+
+        if (localMinecraftRoot.exists()) {
+            plainPatchouliCandidates.addAll(fileTree(localMinecraftRoot) { include '**/Patchouli-1.20.1-*-FORGE.jar' }.files)
+        }
+        if (deobfPatchouliRoot.exists()) {
+            plainPatchouliCandidates.addAll(fileTree(deobfPatchouliRoot) { include '**/Patchouli-1.20.1-*-FORGE_mapped_official_1.20.1.jar' }.files)
+        }
+
+        final def resolvedDeobfPatchouliCandidates = deobfPatchouliCandidates
+            .findAll { it.exists() }
+            .sort { a, b -> a.name <=> b.name }
+        final def resolvedPlainPatchouliCandidates = plainPatchouliCandidates
+            .findAll { it.exists() }
+            .sort { a, b -> a.name <=> b.name }
+        final def patchouliJar = resolvedDeobfPatchouliCandidates
+            ? resolvedDeobfPatchouliCandidates.last()
+            : (resolvedPlainPatchouliCandidates ? resolvedPlainPatchouliCandidates.last() : null)
+
+        runDir.mkdirs()
+        modsDir.mkdirs()
+        if (levelDir.exists()) {
+            delete(levelDir)
+        }
+        if (patchouliJar == null) {
+            throw new GradleException("Patchouli runtime jar not found under ${localMinecraftRoot} or ${deobfPatchouliRoot}")
+        }
+
+        delete(fileTree(modsDir) {
+            include '*Patchouli*.jar'
+            include '*patchouli*.jar'
+        })
+
+        copy {
+            from patchouliJar
+            into modsDir
+        }
+
+        new File(runDir, 'eula.txt').text = "eula=true${System.lineSeparator()}"
+        new File(runDir, 'server.properties').text = """allow-flight=true
+broadcast-rcon-to-ops=false
+difficulty=normal
+enable-command-block=false
+enable-query=false
+enable-rcon=false
+enforce-whitelist=false
+force-gamemode=false
+function-permission-level=2
+gamemode=survival
+generate-structures=true
+hardcore=false
+level-name=${levelName}
+level-seed=${seed}
+level-type=tfc:overworld
+max-players=1
+max-tick-time=-1
+motd=TFE Volcano Runtime Trace
+online-mode=false
+op-permission-level=4
+player-idle-timeout=0
+pvp=false
+rate-limit=0
+simulation-distance=4
+spawn-animals=false
+spawn-monsters=false
+spawn-npcs=false
+spawn-protection=0
+sync-chunk-writes=true
+view-distance=4
+white-list=false
+""".stripIndent()
+    }
+}
+
+tasks.register('traceVolcanoRuntimeServer') {
+    group = 'verification'
+    description = 'Launch a dedicated TFC server and dump real runtime volcano trace logs.'
+    dependsOn 'prepareVolcanoTraceServer', 'runServer'
+}

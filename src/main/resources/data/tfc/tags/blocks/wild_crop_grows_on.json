@@ -1,0 +1,7 @@
+{
+  "__comment__": "Wild crops should inherit the standard bush planting surface chain.",
+  "replace": false,
+  "values": [
+    "#tfc:bush_plantable_on"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:rock/spike/tuff",
+                   "minecraft:tuff"
+               ]
+}

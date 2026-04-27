@@ -1,0 +1,28 @@
+package com.newterraearth.tfe.world.plant;
+
+public enum NTEPlantType
+{
+    STANDARD,
+    SHORT_GRASS,
+    SHORT_SHRUB,
+    SHRUB,
+    FLOWERBED,
+    CACTUS_BED,
+    PASSABLE_CACTUS,
+    DRY,
+    CREEPING_STONE,
+    EPIPHYTE,
+    PERCHED_EPIPHYTE,
+    TALL_GRASS,
+    TALL_SHRUB,
+    WEEPING,
+    WEEPING_TOP,
+    TWISTING_SOLID,
+    TWISTING_SOLID_TOP,
+    OCEAN_ROCK_CREEPING,
+    OCEAN_CREEPING,
+    OCEAN_ROTATABLE,
+    FLOATING_FRESH,
+    BAMBOO_SAPLING,
+    BAMBOO
+}

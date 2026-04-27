@@ -1,0 +1,12 @@
+{
+    "ingredient":  [
+                       "tfe:dirt/mollisol",
+                       "tfe:grass/mollisol",
+                       "tfe:duff/mollisol",
+                       "tfe:grass_path/mollisol",
+                       "tfe:farmland/mollisol",
+                       "tfe:rooted_dirt/mollisol"
+                   ],
+    "result":  "tfe:dirt/mollisol",
+    "type":  "tfc:landslide"
+}

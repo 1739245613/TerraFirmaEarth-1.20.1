@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "all":  "tfe:block/coarse_dirt/oxisol"
+                 },
+    "parent":  "block/cube_all"
+}

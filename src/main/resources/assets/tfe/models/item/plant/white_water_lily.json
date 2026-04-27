@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "layer0":  "tfe:block/plant/water_lily/water_lily_0_white"
+                 },
+    "parent":  "minecraft:item/generated"
+}

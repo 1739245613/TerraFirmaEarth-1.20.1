@@ -1,0 +1,8 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "minecraft:block/bamboo_block_z",
+  "textures": {
+    "side": "tfc:block/golden_bamboo_side",
+    "end": "tfc:block/golden_bamboo_top"
+  }
+}

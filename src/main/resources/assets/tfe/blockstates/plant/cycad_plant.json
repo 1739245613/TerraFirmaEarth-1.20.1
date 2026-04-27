@@ -1,0 +1,7 @@
+{
+    "variants":  {
+                     "":  {
+                              "model":  "tfe:block/plant/cycad_plant"
+                          }
+                 }
+}

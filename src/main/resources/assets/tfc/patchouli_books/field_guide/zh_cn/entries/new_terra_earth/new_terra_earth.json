@@ -1,0 +1,79 @@
+{
+  "name": "群峦地球",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/entisol",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "本模组把本地 $(thing)1.21 TerraFirmaCraft$() 的部分世界生成、气候语义、海岸线、海洋深度和作物口径定向移植回 $(thing)1.20.1$()。$(br2)这页只整理当前仓库已经实际接入的内容，方便你快速判断一个地区的气候、适合作什么，以及附近可能出现什么地形。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "climate",
+      "title": "气候与季节",
+      "text": "群峦仍然使用 TFC 的 $(thing)日历$() 与 $(thing)气候$() 面板。按 $(item)$(k:key.inventory)$() 打开背包后，可以在日历页看到季节、日期；一年分为春夏秋冬，每季又有早 / 中 / 晚三个月。$(br2)本模组已经把 1.21 的温度、降雨和季节语义迁回 1.20，这些读数会直接影响天气表现、作物与部分植物生长。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(l:the_world/climate#temperature)温度$() 主要受纬度 Z、季节和每日波动影响；$(l:mechanics/hydration)降雨 / 湿润度$() 主要受经度 X、距海远近和季节性降水影响。一般来说，越往东越湿润，远离海岸更干燥；大陆东岸更容易出现夏季湿热，西岸更常见夏干。$(br2)当前项目已把年均气温、当前气温、年均降雨、当前降雨和峰值降雨这些 1.21 口径接入客户端面板与天气后端。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "terrain",
+      "title": "地形家族",
+      "text": "世界生成目前重点接入了 $(thing)海岸与海洋$()、$(thing)干旱地貌$()、$(thing)喀斯特$()、$(thing)火山$()、$(thing)冰川与冰盖$() 五大族群。$(br2)这些地形不是单独摆设，而是会跟温度、降雨、热点年龄、是否近海、是否为喀斯特岩面等条件一起决定最终群系。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)海岸与海洋$()$(br)$(li)海岸、岩岸、沙岸、海湾、潮滩$(li)海蚀柱、海退崖$(li)海洋、海洋暗礁、深海、深海海沟$(br2)$(bold)干旱地貌$()$(br)$(li)恶地、平顶山、孤峰、石林$(li)螺旋峡谷、阶梯峡谷、岩石高原$(li)沙海、草丘、盐滩、泥滩"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)喀斯特$()$(br)$(li)塔状喀斯特平原、丘陵、高地、湖、湾$(li)溶斗 / 溶井 / 石林 各自的平原、丘陵、峡谷、高地、高原$(li)巨型溶斗高原、巨型溶斗山脉$(br2)$(bold)火山与冰川$()$(br)$(li)活火山、眠火山、死火山、古火山、沉没火山$(li)海岸火山、海岸古火山、平顶火山$(li)冰盖、冰盖边缘、冰盖海岸、冰下湖、融水湖$(li)冰川山脉、冰蚀山脉、鼓丘、丘坑地貌、冰纹土、石环"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "crops",
+      "title": "作物口径",
+      "text": "本模组的作物口径直接跟随 $(thing)1.21 TFC$()。作物仍按 $(thing)谷物$()、$(thing)豆类$()、$(thing)蔬菜$()、$(thing)覆盖作物$() 与 $(thing)杂项作物$() 区分；温度和 $(l:mechanics/hydration)湿润度$() 范围决定一个地区能不能稳定种活。$(br2)下面列出常见作物的 1.21 温度 / 湿度范围，方便按地区挑种。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)谷物$()$(br)$(li)大麦: -7~23 C / 10~70%$(li)燕麦: -7~22 C / 25~85%$(li)黑麦: -7~18 C / 15~80%$(li)玉米: -7~27 C / 50~100%$(li)小麦: -7~22 C / 15~85%$(li)水稻: 8~31 C / 35~100%，需种在浅层淡水中"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)豆类$()$(br)$(li)木薯: 10~31 C / 45~100%$(li)青豆: -2~25 C / 25~90%，有木棍时可攀爬$(li)扁豆: -5~25 C / 15~50%$(li)花生: 11~31 C / 20~80%$(li)大豆: -7~22 C / 25~90%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)蔬菜$()$(br)$(li)甜菜: -10~27 C / 10~70%$(li)卷心菜: -10~27 C / 10~65%$(li)胡萝卜: -10~27 C / 15~85%$(li)大蒜: -3~22 C / 10~70%$(li)马铃薯: -7~22 C / 35~90%$(li)洋葱: -5~26 C / 15~85%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)蔬菜进阶$()$(br)$(li)南瓜: -7~27 C / 20~85%，会在旁边结瓜块$(li)西瓜: 5~31 C / 35~100%，会在旁边结瓜块$(li)番茄: 2~31 C / 20~85%，有木棍时可攀爬$(li)红辣椒: 11~31 C / 30~95%，可反复采收$(li)黄辣椒: 11~31 C / 30~95%，可反复采收$(li)西葫芦: -7~25 C / 15~85%"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)覆盖 / 杂项$()$(br)$(li)苜蓿: -32~8 C / 40~100%$(li)油菜: -30~6 C / 20~75%$(li)萝卜: -28~10 C / 30~90%$(li)甘蔗: 16~31 C / 25~100%$(li)黄麻: 2~25 C / 15~90%$(li)纸莎草: 11~31 C / 50~100%"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:seeds/cassava": 8,
+    "tfe:food/cassava": 8,
+    "tfe:food/cooked_cassava": 8,
+    "tfe:seeds/lentil": 8,
+    "tfe:food/lentil": 8,
+    "tfe:food/cooked_lentil": 8,
+    "tfe:seeds/peanut": 8,
+    "tfe:food/peanut": 8,
+    "tfe:seeds/alfalfa": 11,
+    "tfe:alfalfa": 11,
+    "tfe:seeds/canola": 11,
+    "tfe:canola": 11,
+    "tfe:seeds/radish": 11,
+    "tfe:food/radish": 11
+  },
+  "sortnum": 3
+}

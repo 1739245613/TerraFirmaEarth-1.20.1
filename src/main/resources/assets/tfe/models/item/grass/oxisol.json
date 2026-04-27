@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "block":  "tfe:block/dirt/oxisol"
+                 },
+    "parent":  "tfc:item/grass_inv"
+}

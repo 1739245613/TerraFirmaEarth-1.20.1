@@ -1,0 +1,10 @@
+{
+  "__comment__": "Restores the TFC base planting chain so addon soils participate via #minecraft:dirt and #tfc:farmland.",
+  "replace": false,
+  "values": [
+    "#minecraft:dirt",
+    "#tfc:duff",
+    "#tfc:grass",
+    "#tfc:farmland"
+  ]
+}

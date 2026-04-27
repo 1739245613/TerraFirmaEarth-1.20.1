@@ -1,0 +1,12 @@
+{
+    "type":  "minecraft:crafting_shapeless",
+    "ingredients":  [
+                        {
+                            "item":  "tfe:jar/peanut_unsealed"
+                        }
+                    ],
+    "result":  {
+                   "item":  "tfe:peanut_jam",
+                   "count":  1
+               }
+}

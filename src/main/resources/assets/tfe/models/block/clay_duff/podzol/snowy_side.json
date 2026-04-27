@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "texture":  "tfe:block/clay/podzol"
+                 },
+    "parent":  "tfe:block/duff_snowy_side"
+}

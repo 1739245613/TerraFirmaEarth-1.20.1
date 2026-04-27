@@ -1,0 +1,16 @@
+{
+    "variants":  {
+                     "axis=y":  {
+                                    "model":  "tfe:block/muddy_roots/fluvisol"
+                                },
+                     "axis=x":  {
+                                    "y":  90,
+                                    "model":  "tfe:block/muddy_roots/fluvisol",
+                                    "x":  90
+                                },
+                     "axis=z":  {
+                                    "model":  "tfe:block/muddy_roots/fluvisol",
+                                    "x":  90
+                                }
+                 }
+}

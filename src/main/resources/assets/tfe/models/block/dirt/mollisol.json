@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "all":  "tfe:block/dirt/mollisol"
+                 },
+    "parent":  "block/cube_all"
+}

@@ -1,0 +1,31 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "tfc:pot",
+  "ingredients": [
+    {
+      "item": "tfe:canola_paste"
+    },
+    {
+      "item": "tfe:canola_paste"
+    },
+    {
+      "item": "tfe:canola_paste"
+    },
+    {
+      "item": "tfe:canola_paste"
+    },
+    {
+      "item": "tfe:canola_paste"
+    }
+  ],
+  "fluid_ingredient": {
+    "ingredient": "minecraft:water",
+    "amount": 1000
+  },
+  "duration": 2400,
+  "temperature": 300,
+  "fluid_output": {
+    "fluid": "tfe:canola_oil_water",
+    "amount": 1000
+  }
+}

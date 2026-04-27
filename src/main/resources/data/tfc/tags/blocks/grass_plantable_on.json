@@ -1,0 +1,10 @@
+{
+  "__comment__": "Keeps addon soils eligible for grass-like plants by following the TFC base composition.",
+  "replace": false,
+  "values": [
+    "#tfc:bush_plantable_on",
+    "tfc:peat",
+    "#tfc:mud",
+    "#tfc:kaolin_clay"
+  ]
+}

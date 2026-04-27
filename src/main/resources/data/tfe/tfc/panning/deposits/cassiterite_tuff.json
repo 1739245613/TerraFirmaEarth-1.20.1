@@ -1,0 +1,10 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "ingredient": "tfe:deposit/cassiterite/tuff",
+  "model_stages": [
+    "tfe:item/pan/cassiterite/tuff_full",
+    "tfe:item/pan/cassiterite/tuff_half",
+    "tfc:item/pan/cassiterite/result"
+  ],
+  "loot_table": "tfe:panning/deposits/cassiterite_tuff"
+}

@@ -1,0 +1,6 @@
+{
+    "textures":  {
+                     "all":  "tfe:block/coarse_dirt/sandy_loam"
+                 },
+    "parent":  "block/cube_all"
+}

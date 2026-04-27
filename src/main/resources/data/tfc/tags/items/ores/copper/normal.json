@@ -1,0 +1,8 @@
+{
+    "replace":  false,
+    "values":  [
+                   "tfe:ore/normal_native_copper/tuff",
+                   "tfe:ore/normal_malachite/tuff",
+                   "tfe:ore/normal_tetrahedrite/tuff"
+               ]
+}

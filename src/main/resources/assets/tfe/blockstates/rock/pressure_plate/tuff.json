@@ -1,0 +1,11 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "powered=false": {
+      "model": "tfe:block/rock/pressure_plate/tuff"
+    },
+    "powered=true": {
+      "model": "tfe:block/rock/pressure_plate/tuff_down"
+    }
+  }
+}

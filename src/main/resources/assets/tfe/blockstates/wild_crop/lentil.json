@@ -1,0 +1,11 @@
+{
+    "__comment__":  "This file was automatically created by mcresources",
+    "variants":  {
+                     "mature=true":  {
+                                         "model":  "tfe:block/wild_crop/lentil"
+                                     },
+                     "mature=false":  {
+                                          "model":  "tfe:block/dead_crop/lentil"
+                                      }
+                 }
+}

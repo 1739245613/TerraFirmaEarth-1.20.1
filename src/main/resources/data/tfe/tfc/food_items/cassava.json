@@ -1,0 +1,10 @@
+{
+    "ingredient":  {
+                       "item":  "tfe:food/cassava"
+                   },
+    "hunger":  4,
+    "saturation":  0.5,
+    "decay_modifier":  2.5,
+    "vegetables":  0.4,
+    "protein":  0.2
+}

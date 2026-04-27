@@ -1,0 +1,1 @@
+{"__comment__":"This file was automatically created by mcresources","feature":"tfc:plant/anemone_large_orange_patch_patch","placement":[{"type":"minecraft:rarity_filter","chance":2},{"type":"minecraft:in_square"},{"type":"tfc:climate","min_temperature":0,"max_temperature":16,"min_groundwater":0,"max_groundwater":500},{"type":"minecraft:heightmap","heightmap":"OCEAN_FLOOR_WG"}]}
