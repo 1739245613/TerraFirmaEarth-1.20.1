@@ -4,18 +4,18 @@
     "parent": "tfe:block/plant/purple_prickly_pear_0_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/purple_prickly_pear_0_1"
+    "parent": "tfe:block/plant/purple_prickly_pear_0_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/purple_prickly_pear_0_2"
+    "parent": "tfe:block/plant/purple_prickly_pear_0_2"
   },
   "dormant": {
-    "parent": "tfc:block/plant/purple_prickly_pear_0_2"
+    "parent": "tfe:block/plant/purple_prickly_pear_0_2"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/purple_prickly_pear_0_2"
+    "parent": "tfe:block/plant/purple_prickly_pear_0_2"
   },
   "budding": {
-    "parent": "tfc:block/plant/purple_prickly_pear_0_3"
+    "parent": "tfe:block/plant/purple_prickly_pear_0_3"
   }
 }

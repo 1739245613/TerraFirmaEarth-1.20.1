@@ -1,6 +1,6 @@
 {
     "textures":  {
-                     "layer0":  "tfe:block/plant/prickly_pear/base"
+                     "layer0":  "tfe:item/plant/prickly_pear"
                  },
     "parent":  "minecraft:item/generated"
 }

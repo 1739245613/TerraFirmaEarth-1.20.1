@@ -211,7 +211,7 @@ public abstract class TFCChunkGeneratorMixin
                 return;
             }
 
-            try (NTESurfaceContext.Scope ignored = NTESurfaceContext.open((TFCChunkGenerator) (Object) this, cinderConeBiomeHolder[0], tuffRingBiomeHolder[0], tuyaBiomeHolder[0]))
+            try (NTESurfaceContext.Scope ignored = NTESurfaceContext.open((TFCChunkGenerator) (Object) this, chunkData, filler.surfaceHeight(), chunkPos, cinderConeBiomeHolder[0], tuffRingBiomeHolder[0], tuyaBiomeHolder[0]))
             {
                 surfaceManager.buildSurface(
                     actualLevel,
