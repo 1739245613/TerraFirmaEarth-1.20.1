@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'com.newterraearth'
-version = '0.1.0'
+version = '0.1.2'
 
 base {
     archivesName = 'Wildfire_TerraFirmaEarth-1.20.1-forge'
@@ -133,6 +133,9 @@ jar {
     from('NOTICE') {
         into ''
     }
+    from('LICENSE-MAP.md') {
+        into ''
+    }
     from('DISCLAIMER.md') {
         into ''
     }
@@ -157,6 +160,9 @@ tasks.register('stageReleaseDocs', Copy) {
     }
     from('NOTICE') {
         rename { "${releaseArtifactBaseName}-NOTICE.txt" }
+    }
+    from('LICENSE-MAP.md') {
+        rename { "${releaseArtifactBaseName}-LICENSE-MAP.md" }
     }
     from('DISCLAIMER.md') {
         rename { "${releaseArtifactBaseName}-DISCLAIMER.md" }

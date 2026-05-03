@@ -2,10 +2,11 @@
 
 Copyright (c) 2026 交错次元 and contributors.
 
-本项目按 EUPL v1.2 发布软件部分，按 CC BY-SA 4.0 发布美术 / 数据资源部分。
-完整条款见同目录下的 [LICENSE](./LICENSE) 与 [NOTICE](./NOTICE)。本免责声明
-仅就"使用风险与第三方依赖"做必要补充，不替代、不撤销、不收紧 LICENSE 与
-NOTICE 中已经写明的协议条款。
+本项目采用分区许可：TFC 派生代码按 EUPL v1.2，TFC 派生美术 / 数据资源按
+CC BY-SA 4.0，作者原创代码、兼容实现、自有数据与自有资源按作者保留权利处理。
+完整条款见同目录下的 [LICENSE](./LICENSE)、[LICENSE-MAP.md](./LICENSE-MAP.md)
+与 [NOTICE](./NOTICE)。本免责声明仅就"使用风险与第三方依赖"做必要补充，不替代、
+不撤销、不收紧 LICENSE、LICENSE-MAP.md 与 NOTICE 中已经写明的协议条款。
 
 ---
 
@@ -31,10 +32,15 @@ NOTICE 中已经写明的协议条款。
    Liability 共同适用。
 
 5. **第三方传播自负**：任何第三方对本模组的传播、二次打包、再分发、改包等
-   行为均按其自身遵守 EUPL v1.2 / CC BY-SA 4.0 的情况各自负责，不代表作者
-   立场，作者亦不对第三方的合规性、安全性、稳定性或后续修改负责。第三方传播
-   时仍须遵守 EUPL v1.2 与 CC BY-SA 4.0 的署名、Copyleft / Share-Alike、
-   提供源代码等义务。
+   行为均按其自身遵守 [LICENSE](./LICENSE) 与 [LICENSE-MAP.md](./LICENSE-MAP.md)
+   的情况各自负责，不代表作者立场，作者亦不对第三方的合规性、安全性、稳定性
+   或后续修改负责。第三方传播 TFC 派生部分时仍须遵守 EUPL v1.2 与 CC BY-SA
+   4.0 的署名、Copyleft / Share-Alike、提供源代码等义务；第三方未经作者另行
+   书面许可，不得复制、镜像、二次上传、预装、捆绑、售卖、改名发布、冒充
+   官方版本，或用于 AI 训练。不得将作者保留权利部分或包含这些部分的完整源码 /
+   构建产物纳入整合包、服务器预装包、镜像站、会员资源、广告 / 赞助变现内容等
+   打包分发场景。作者保留权利部分主要用于防止恶意倒卖、冒名、误导性分发、
+   未经许可打包变现与 AI 换版本发布等不当使用；对无正常使用不做过多限制。
 
 6. **使用前请备份**：你有责任在重要存档、世界、整合环境或服务器环境中使用本
    模组之前自行做好备份，并先在可接受风险的测试环境中验证兼容性与稳定性。
@@ -43,22 +49,30 @@ NOTICE 中已经写明的协议条款。
    社区工具协同工作；相关第三方软件和服务各自受其自身许可与规则约束，你仍
    须自行确认并遵守。本项目不向第三方再授予其原作者未授予的权利。
 
-8. **非官方衍生作品**：本模组为非官方作品，是 TerraFirmaCraft（TFC）按
-   EUPL v1.2 衍生的作品，并不构成对 TFC 上游团队、Mojang Studios / Microsoft、
-   Forge、整合包平台或任何第三方权利人的隶属、合作、代言、授权或背书关系；
-   文中提及的名称、商标和作品仅用于说明兼容性、依赖关系或适用范围。
+8. **非官方兼容 / 移植项目**：本模组为非官方作品，包含 TerraFirmaCraft（TFC）
+   的派生内容与作者原创兼容实现，并不构成对 TFC 上游团队、Mojang Studios /
+   Microsoft、Forge、整合包平台或任何第三方权利人的隶属、合作、代言、授权或
+   背书关系；文中提及的名称、商标和作品仅用于说明兼容性、依赖关系或适用范围。
 
 9. **第三方协议优先**：若本模组中包含的代码、贴图、模型、文本或其他材料受
    第三方开源或开放许可约束（详见 [NOTICE](./NOTICE)），则对应部分仍以其
    原始许可为准；本免责声明不构成对第三方许可的替代、撤销或覆盖。
 
 10. **接受方式**：下载、安装、运行、修改、再分发或继续使用本模组，即表示你
-    已阅读并接受 [LICENSE](./LICENSE)（含 EUPL v1.2 全文与 CC BY-SA 4.0
-    资源条款）以及本免责声明；若你不同意，请立即停止使用并删除本模组。
+    已阅读并接受 [LICENSE](./LICENSE)、[LICENSE-MAP.md](./LICENSE-MAP.md)、
+    [NOTICE](./NOTICE) 以及本免责声明；若你不同意，请立即停止使用并删除本模组。
 
 ---
 
 ## English
+
+This project uses path-based mixed licensing: TFC-derived code is licensed
+under EUPL v1.2, TFC-derived art / data assets are licensed under CC BY-SA 4.0,
+and author-original code, compatibility implementation, own data, and own
+resources are author-reserved. See [LICENSE](./LICENSE),
+[LICENSE-MAP.md](./LICENSE-MAP.md), and [NOTICE](./NOTICE) for the full terms.
+This disclaimer only supplements those files for usage risk and third-party
+dependency matters; it does not replace, revoke, or narrow them.
 
 1. **AI content disclosure**: This mod contains substantial AI-generated or
    AI-assisted code, text, descriptions, configuration and assets. If you do
@@ -89,10 +103,22 @@ NOTICE 中已经写明的协议条款。
 5. **Third-party redistribution at recipient's own risk**: Any redistribution,
    repackaging, or further modification of this mod by third parties is the
    responsibility of those third parties, who must independently comply with
-   EUPL v1.2 and CC BY-SA 4.0 (including attribution, copyleft / share-alike,
-   and source-code provision obligations). Such activities do not represent
-   the authors' position, and the authors are not liable for the compliance,
-   safety, stability, or downstream modifications introduced by third parties.
+   [LICENSE](./LICENSE) and [LICENSE-MAP.md](./LICENSE-MAP.md). Third parties
+   redistributing TFC-derived portions must comply with EUPL v1.2 and CC BY-SA
+   4.0 obligations, including attribution, copyleft / share-alike, and source
+   code provision where applicable. Without separate written permission from
+   the author, third parties are not granted permission to copy, mirror,
+   re-upload, preinstall, bundle, sell, rebrand, impersonate an official
+   release, or use the author-reserved portions for AI training. They may not
+   include the author-reserved portions or source/builds containing them in
+   modpacks, server bundles, mirror sites, membership resources,
+   ad/sponsor-monetized releases, or similar packaged distribution scenarios.
+   The author-reserved portions are mainly intended to prevent bad-faith
+   resale, impersonation, misleading redistribution, unauthorized packaged
+   monetization, AI-based version republishing, and similar misuse. Normal use
+   is not intended to be overly restricted. Such activities do not represent
+   the authors' position, and the authors are not liable for third-party
+   compliance, safety, stability, or downstream modifications.
 
 6. **Back up before use**: You are responsible for backing up important saves,
    worlds, modded setups, or server environments before installing this mod,
@@ -106,13 +132,14 @@ NOTICE 中已经写明的协议条款。
    does not sublicense to third parties any rights they were not granted by
    their respective rights holders.
 
-8. **Unofficial derivative work**: This mod is unofficial. It is a derivative
-   work of TerraFirmaCraft (TFC) under EUPL v1.2, and is not affiliated with,
-   partnered with, authorized by, sponsored by, endorsed by, or otherwise
-   connected to the upstream TerraFirmaCraft team, Mojang Studios / Microsoft,
-   Forge, any modpack platform, or any other rights holder. Any names,
-   trademarks, or works referenced in this project are used only to identify
-   compatibility, dependencies, or scope.
+8. **Unofficial compatibility / porting project**: This mod is unofficial. It
+   contains TerraFirmaCraft (TFC)-derived portions and author-original
+   compatibility implementation, and is not affiliated with, partnered with,
+   authorized by, sponsored by, endorsed by, or otherwise connected to the
+   upstream TerraFirmaCraft team, Mojang Studios / Microsoft, Forge, any
+   modpack platform, or any other rights holder. Any names, trademarks, or
+   works referenced in this project are used only to identify compatibility,
+   dependencies, or scope.
 
 9. **Third-party licenses prevail**: If this mod includes code, textures,
    models, text, or other material governed by a third-party open-source or
@@ -122,6 +149,6 @@ NOTICE 中已经写明的协议条款。
 
 10. **Acceptance**: By downloading, installing, running, modifying,
     redistributing, or continuing to use this mod, you acknowledge and accept
-    the bundled [LICENSE](./LICENSE) (including the full text of EUPL v1.2
-    and the CC BY-SA 4.0 terms for assets) and this disclaimer. If you do not
-    agree, stop using the mod and delete it.
+    the bundled [LICENSE](./LICENSE), [LICENSE-MAP.md](./LICENSE-MAP.md),
+    [NOTICE](./NOTICE), and this disclaimer. If you do not agree, stop using
+    the mod and delete it.

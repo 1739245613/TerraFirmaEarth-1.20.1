@@ -3,11 +3,14 @@ TerraFirmaEarth / 群峦地形移植 — NOTICE
 
 Copyright (c) 2026 交错次元 and contributors.
 
-本项目按 EUPL v1.2 发布软件部分，按 CC BY-SA 4.0 发布美术 / 数据资源部分。
-完整条款见仓库根目录的 LICENSE 文件。
+本项目采用分区许可：TFC 派生代码按 EUPL v1.2，TFC 派生美术 / 数据资源按
+CC BY-SA 4.0，作者原创代码、兼容实现、自有数据与自有资源按作者保留权利处理。
+完整条款与路径分类见仓库根目录的 LICENSE 与 LICENSE-MAP.md 文件。
 
-This project is licensed under the EUPL v1.2 for code and CC BY-SA 4.0 for
-art / data assets. See the LICENSE file in the repository root for full terms.
+This project uses path-based mixed licensing: TFC-derived code is licensed under
+the EUPL v1.2, TFC-derived art / data assets under CC BY-SA 4.0, and
+author-original code, compatibility implementation, own data, and own resources
+are author-reserved. See LICENSE and LICENSE-MAP.md for full terms.
 
 本文件依 EUPL v1.2 第 5 条 "Attribution right" 列示对上游作品的署名义务，及
 本项目使用的第三方组件 / 资源的原始版权与许可信息。
@@ -32,10 +35,19 @@ art / data assets. See the LICENSE file in the repository root for full terms.
     - Alex "AlcatrazEscapee" O'Neill
     - And all other TerraFirmaCraft contributors.
 
-  本项目为 TerraFirmaCraft 的衍生作品（Derivative Work），其代码部分、
-  worldgen 配置、surface builder、植物 / 作物 / 群系结构、mixin 目标、注册
-  机制等多处参考或派生自 TerraFirmaCraft 1.20.x / 1.21.x 源码及其资源。
-  本项目按 EUPL v1.2 Copyleft 条款继承上游协议。
+  本项目包含复制、改写或结构性派生自 TerraFirmaCraft 1.20.x / 1.21.x 的代码、
+  worldgen 配置、surface builder 语义、植物 / 作物 / 群系结构、mixin 目标、
+  注册机制及资源。上述能识别出 TFC 派生表达的部分按 EUPL v1.2 或 CC BY-SA
+  4.0 继续受约束；作者原创代码、兼容实现、自有数据与自有资源按
+  LICENSE-MAP.md 的分区分类处理。
+
+  This project contains code, worldgen configuration, surface builder
+  semantics, plant / crop / biome structures, mixin targets, registry
+  mechanisms, and resources copied from, adapted from, or structurally derived
+  from TerraFirmaCraft 1.20.x / 1.21.x. Portions with identifiable TFC-derived
+  expression remain governed by EUPL v1.2 or CC BY-SA 4.0 as applicable.
+  Author-original code, compatibility implementation, own data, and own
+  resources are classified separately in LICENSE-MAP.md.
 
   TerraFirmaCraft 自身亦包含来自更早期 TFC Classic（Bioxx 等于 1.7.10 时代
   发布的原始 TerraFirmaCraft）的部分编辑过的源代码，TFC 上游声明该等部分
@@ -99,3 +111,7 @@ art / data assets. See the LICENSE file in the repository root for full terms.
 如发现本 NOTICE 遗漏了应当署名的上游作者或第三方组件，请在仓库提交 issue 或
 联系维护者更新；本项目愿意按 EUPL v1.2 第 5 条 Attribution right 的精神补全
 署名信息。
+
+If this NOTICE omits an upstream author or third-party component that should be
+credited, please file an issue or contact the maintainer so the attribution can
+be corrected in the spirit of EUPL v1.2 Article 5 Attribution right.

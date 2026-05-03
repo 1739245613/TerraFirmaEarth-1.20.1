@@ -3,29 +3,63 @@ TerraFirmaEarth / 群峦地形移植 — License Notice
 
 Copyright (c) 2026 交错次元 and contributors.
 
-本项目（"TerraFirmaEarth" / "群峦地形移植"）是 TerraFirmaCraft (TFC) 1.20.x 的衍
-生作品（基于其源码的移植与扩展），TFC 本体遵循 European Union Public Licence
-v1.2（EUPL v1.2）。为与上游协议兼容，本项目整体按以下方式发布：
+本项目（"TerraFirmaEarth" / "群峦地形移植"）是面向 TerraFirmaCraft (TFC)
+1.20.x 的附属与移植项目，部分内容复制、改写或结构性派生自 TFC 1.20.x /
+1.21.x，TFC 本体遵循 European Union Public Licence v1.2（EUPL v1.2）与
+Creative Commons Attribution-ShareAlike 4.0 International（CC BY-SA 4.0）。
+本项目采用分区许可（mixed license）方式发布，具体路径分类见随附
+LICENSE-MAP.md：
 
-  - 本项目的源代码、字节码及随之分发的可执行构建：
+  - 能识别出复制、改写或结构性派生自 TFC 表达的代码部分：
         Licensed under the EUPL v1.2 (or, at your option, any later version).
         EUPL v1.2 全文随附于本文件 "Section A" 之后，亦可在
         https://eupl.eu/1.2/en/ 取得多语言官方版本。
 
-  - 本项目的美术 / 模型 / 贴图 / 音效 / 数据包 JSON 等非软件资源
-    （本仓库 src/main/resources/assets/ 与 src/main/resources/data/ 下的全部内容）：
+  - 能识别出复制、改写或结构性派生自 TFC 的美术 / 模型 / 贴图 / 音效 /
+    数据包 JSON 等非软件资源：
         Licensed under Creative Commons Attribution-ShareAlike 4.0 International
         (CC BY-SA 4.0).
         协议全文：https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
+  - 本项目作者原创的代码、兼容实现、运行时桥接、配置、自有数据与自有资源，
+    以及 LICENSE-MAP.md 中列为 author-reserved 的部分：
+        All Rights Reserved.
+        未经作者另行书面许可，第三方不得复制、镜像、二次上传、预装、捆绑、
+        售卖、改名发布、冒充官方版本，或用于 AI 训练。不得将这些
+        author-reserved 部分或包含这些部分的完整源码 / 构建产物纳入整合包、
+        服务器预装包、镜像站、会员资源、广告 / 赞助变现内容等打包分发场景。
+        第三方若只希望使用 EUPL / CC BY-SA 部分，必须剔除 author-reserved
+        部分并自行遵守对应上游许可。
+
   - 第三方上游组件按其自身原始协议继续受约束（详见随附 NOTICE 文件），本声明
     不替代、不撤销、不收紧任何上游许可。
 
-For non-Chinese readers: this project is a derivative of TerraFirmaCraft (TFC),
-licensed under the EUPL v1.2 (or any later version) for code and CC BY-SA 4.0
-for art / data assets. The full text of EUPL v1.2 is included verbatim below in
-"Section A". Upstream third-party components retain their original licenses;
-see the bundled NOTICE file for attribution.
+English summary:
+
+This project is a TerraFirmaCraft (TFC) 1.20.x addon / porting project. Some
+parts are copied from, adapted from, or structurally derived from TFC 1.20.x /
+1.21.x. This project uses path-based mixed licensing; see LICENSE-MAP.md.
+
+  - TFC-derived code is licensed under EUPL v1.2, or a later version where
+    permitted.
+
+  - TFC-derived art, models, textures, sounds, and data-pack JSON are licensed
+    under CC BY-SA 4.0.
+
+  - Author-original code, compatibility implementation, runtime logic,
+    configuration, own data, and own resources are All Rights Reserved unless
+    separately licensed in writing. Without separate written permission,
+    redistributors may not copy, mirror, re-upload, preinstall, bundle, sell,
+    rebrand, impersonate an official release, or use the author-reserved
+    portions for AI training. They may not include the author-reserved portions
+    or source/builds containing them in modpacks, server bundles, mirror sites,
+    membership resources, ad/sponsor-monetized releases, or similar packaged
+    distribution scenarios. Redistributors who only want to use the EUPL /
+    CC BY-SA portions must remove the author-reserved portions and comply with
+    the applicable upstream licenses.
+
+  - Third-party upstream components remain governed by their original licenses;
+    see NOTICE for attribution.
 
 
 ================================================================================
@@ -326,33 +360,78 @@ EUPL version.
 Section B — Notes on this Project
 ================================================================================
 
-1. 这是衍生作品 / Derivative status
+## 中文说明
+
+1. 衍生内容
 
 本项目的部分代码、数据结构、配置文件、注册项、surface builder、世界生成参数、
 mixin 目标、植物 / 作物 / 群系定义等参考自或派生自上游 TerraFirmaCraft（TFC）
-1.20.x / 1.21.x 源码，TFC 本体遵循 EUPL v1.2。按 EUPL v1.2 第 5 条 Copyleft 与
-第 5 条 Attribution，本项目整体按 EUPL v1.2（或更高版本）发布，并在 NOTICE
-文件中保留对上游作者的署名。
+1.20.x / 1.21.x 源码，TFC 本体遵循 EUPL v1.2。能识别出复制、改写或结构性派生
+自 TFC 表达的代码部分按 EUPL v1.2（或更高版本）发布，并在 NOTICE 文件中保留
+对上游作者的署名。
 
-2. 资源协议（CC BY-SA 4.0）
+仅调用 / 注入 / 兼容 TFC API 或行为，或独立实现兼容效果的作者原创代码，按
+LICENSE-MAP.md 的路径分类归作者保留权利。
 
-本仓库 `src/main/resources/assets/` 与 `src/main/resources/data/` 下的非软件资源
-（贴图、模型、音效、数据包 JSON 等）整体按 CC BY-SA 4.0 发布。其中源自 TFC
-本体的资源继续受 TFC 上游 CC-BY-SA 协议约束（TFC 1.20.x 资源原协议为
-CC-BY-SA-4.0；本项目为兼容继承采取相同条款）。
+2. 资源与数据
+
+本仓库中源自或结构性派生自 TFC 本体的非软件资源（贴图、模型、音效、数据包
+JSON 等）继续受 TFC 上游 CC-BY-SA 4.0 协议约束。本项目自有数据与自有资源是否
+开放，按 LICENSE-MAP.md 的路径分类为准。
 
 按 EUPL v1.2 第 5 条 Compatibility 与 Appendix，CC-BY-SA 系列被列为非软件作品的
-兼容协议；本项目对资源选用 CC-BY-SA-4.0 与代码侧的 EUPL v1.2 在分发时同时适用，
-互不冲突。
+兼容协议；本项目对 TFC 派生资源适用 CC-BY-SA 4.0，与 TFC 派生代码侧的 EUPL
+v1.2 在分发时同时适用。
 
-3. 第三方组件 / Third-party components
+3. 第三方组件
 
 详见仓库根目录的 `NOTICE` 文件。第三方组件按其原始许可证继续受约束，本协议不
 替代、不撤销、不收紧任何上游许可。
 
-4. 商标与署名 / Trademarks and Attribution
+4. 商标与署名
 
 "Minecraft" 是 Mojang Studios / Microsoft 的注册商标；"TerraFirmaCraft" 与 "TFC"
 名称归其各自权利人所有。本项目为非官方衍生作品，不构成对前述任何第三方的隶属、
 合作、授权、代言或背书。本项目按 EUPL v1.2 第 5 条 Legal Protection 仅在描述
 作品来源、兼容关系与依赖范围时使用上述名称。
+
+## English Notes
+
+1. Derived portions
+
+Some code, data structures, configuration files, registry entries, surface
+builder semantics, world generation parameters, mixin targets, plant / crop /
+biome definitions, and related materials in this project reference or derive
+from upstream TerraFirmaCraft (TFC) 1.20.x / 1.21.x sources. Any code portion
+with identifiable copied, adapted, or structurally derived TFC expression is
+licensed under EUPL v1.2, or a later version where permitted, with upstream
+attribution preserved in NOTICE.
+
+Author-original code that uses, injects into, or targets TFC APIs or behavior,
+or independently implements compatibility behavior, is author-reserved according
+to the path-based classification in LICENSE-MAP.md.
+
+2. Resources and data
+
+Non-software assets derived from TFC, including textures, models, sounds, and
+data-pack JSON, remain subject to TFC's upstream CC BY-SA 4.0 terms. Project-
+owned data and resources are governed by the path-based classification in
+LICENSE-MAP.md.
+
+Under the EUPL v1.2 compatibility clause and appendix, the CC BY-SA family is
+listed as compatible for works other than software. CC BY-SA 4.0 applies to
+TFC-derived resources in this project alongside EUPL v1.2 for TFC-derived code.
+
+3. Third-party components
+
+See the repository-root `NOTICE` file. Third-party components remain governed
+by their original licenses. This license notice does not replace, revoke, or
+narrow any upstream license.
+
+4. Trademarks and attribution
+
+"Minecraft" is a trademark of Mojang Studios / Microsoft. "TerraFirmaCraft"
+and "TFC" belong to their respective rights holders. This project is an
+unofficial compatibility / porting project and does not imply affiliation,
+partnership, authorization, endorsement, or sponsorship by those third parties.
+Those names are used only to describe origin, compatibility, and dependencies.
