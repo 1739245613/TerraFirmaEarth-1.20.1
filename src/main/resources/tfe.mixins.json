@@ -39,6 +39,7 @@
     "NormalSurfaceBuilderMixin",
     "PlantRegrowthMixin",
     "RegionMixin",
+    "RegionChunkDataGeneratorMixin",
     "RegionEdgeBiomeLayerMixin",
     "RegionGeneratorContextMixin",
     "RegionGeneratorMixin",

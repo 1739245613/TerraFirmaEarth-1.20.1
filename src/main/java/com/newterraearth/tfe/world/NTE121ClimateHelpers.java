@@ -15,6 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
 import net.dries007.tfc.world.ChunkGeneratorExtension;
+import net.dries007.tfc.world.chunkdata.ChunkDataGenerator;
 import net.dries007.tfc.world.chunkdata.ChunkDataProvider;
 import net.dries007.tfc.world.chunkdata.LerpFloatLayer;
 import net.dries007.tfc.world.chunkdata.RegionChunkDataGenerator;
@@ -46,6 +47,42 @@ public final class NTE121ClimateHelpers
     public static float getBaseGroundwater(ChunkGenerator generator, BlockPos pos)
     {
         return sampleGroundwater(generator, pos, false);
+    }
+
+    @Nullable
+    public static LerpFloatLayer getAverageRainfallLayer(ChunkDataGenerator generator, ChunkPos chunkPos)
+    {
+        if (!(generator instanceof RegionChunkDataGenerator regionGenerator))
+        {
+            return null;
+        }
+
+        final RegionGenerator region = regionGenerator.regionGenerator();
+        final int blockX = chunkPos.getMinBlockX();
+        final int blockZ = chunkPos.getMinBlockZ();
+        final int gridX = Units.blockToGrid(blockX);
+        final int gridZ = Units.blockToGrid(blockZ);
+
+        final Region.Point point00 = region.getOrCreateRegionPoint(gridX, gridZ);
+        final Region.Point point01 = region.getOrCreateRegionPoint(gridX, gridZ + 1);
+        final Region.Point point10 = region.getOrCreateRegionPoint(gridX + 1, gridZ);
+        final Region.Point point11 = region.getOrCreateRegionPoint(gridX + 1, gridZ + 1);
+
+        final double exactGridX = Units.blockToGridExact(blockX);
+        final double exactGridZ = Units.blockToGridExact(blockZ);
+        final double deltaX = exactGridX - gridX;
+        final double deltaZ = exactGridZ - gridZ;
+        final double dG = Units.blockToGridExact(16);
+
+        return new LerpFloatLayer(point00.rainfall, point01.rainfall, point10.rainfall, point11.rainfall)
+            .scaled(deltaX, deltaZ, dG)
+            .apply(value -> Mth.clamp(value, 0f, 500f));
+    }
+
+    public static float getAverageRainfall(ChunkDataGenerator generator, ChunkPos chunkPos, int x, int z)
+    {
+        final LerpFloatLayer rainfallLayer = getAverageRainfallLayer(generator, chunkPos);
+        return rainfallLayer != null ? rainfallLayer.getValue((x & 15) / 16f, (z & 15) / 16f) : Float.NEGATIVE_INFINITY;
     }
 
     private static float sampleGroundwater(ChunkGenerator generator, BlockPos pos, boolean includeRainfall)

@@ -1,6 +1,7 @@
 package com.newterraearth.tfe.client;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
@@ -13,7 +14,7 @@ import net.dries007.tfc.world.chunkdata.LerpFloatLayer;
 
 public final class NTEClientRainVarianceCache
 {
-    private static final Long2ObjectOpenHashMap<LerpFloatLayer> CACHE = new Long2ObjectOpenHashMap<>();
+    private static final ConcurrentMap<Long, LerpFloatLayer> CACHE = new ConcurrentHashMap<>();
 
     private NTEClientRainVarianceCache()
     {

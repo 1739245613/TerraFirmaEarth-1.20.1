@@ -8,24 +8,71 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import net.dries007.tfc.network.ChunkWatchPacket;
 import net.dries007.tfc.world.chunkdata.ChunkData;
+import net.dries007.tfc.world.chunkdata.ChunkDataGenerator;
+import net.dries007.tfc.world.chunkdata.ForestType;
+import net.dries007.tfc.world.chunkdata.LerpFloatLayer;
 
 import com.newterraearth.tfe.world.NTEChunkWeatherBridge;
+import com.newterraearth.tfe.world.NTE121ClimateHelpers;
 
 @Mixin(value = ChunkData.class, remap = false)
 public abstract class ChunkDataMixin implements NTEChunkWeatherBridge
 {
     @Unique private static final byte[] TFE$SHUFFLED_BLOCK_POSITIONS = tfe$createShuffledBlockPositions();
     @Unique private static final long TFE$RANDOM_TICK_SAVE_INTERVAL = 4_000L;
+    @Shadow private ChunkPos pos;
+    @Shadow private ChunkDataGenerator generator;
+    @Shadow private LerpFloatLayer temperatureLayer;
+    @Shadow private ForestType forestType;
+    @Shadow private float forestWeirdness;
+    @Shadow private float forestDensity;
+    @Unique private LerpFloatLayer tfe$rainfallLayerWithoutRiverBoost;
     @Unique private long tfe$lastRandomTick = Integer.MIN_VALUE;
     @Unique private long tfe$lastCalendarTick = Long.MIN_VALUE;
     @Unique private byte tfe$nextSnowPosition = 0;
+
+    @Inject(method = "getRainfall(II)F", at = @At("HEAD"), cancellable = true)
+    private void tfe$getRainfallWithoutRiverBoost(int x, int z, CallbackInfoReturnable<Float> cir)
+    {
+        final LerpFloatLayer rainfall = tfe$getRainfallLayerWithoutRiverBoost();
+        if (rainfall != null)
+        {
+            cir.setReturnValue(rainfall.getValue((x & 15) / 16f, (z & 15) / 16f));
+        }
+    }
+
+    @Inject(method = "getUpdatePacket", at = @At("HEAD"), cancellable = true)
+    private void tfe$syncRainfallWithoutRiverBoost(CallbackInfoReturnable<ChunkWatchPacket> cir)
+    {
+        final LerpFloatLayer rainfall = tfe$getRainfallLayerWithoutRiverBoost();
+        if (rainfall != null)
+        {
+            cir.setReturnValue(new ChunkWatchPacket(pos.x, pos.z, rainfall, temperatureLayer, forestType, forestDensity, forestWeirdness));
+        }
+    }
+
+    @Unique
+    private LerpFloatLayer tfe$getRainfallLayerWithoutRiverBoost()
+    {
+        if (generator == null)
+        {
+            return null;
+        }
+        if (tfe$rainfallLayerWithoutRiverBoost == null)
+        {
+            tfe$rainfallLayerWithoutRiverBoost = NTE121ClimateHelpers.getAverageRainfallLayer(generator, pos);
+        }
+        return tfe$rainfallLayerWithoutRiverBoost;
+    }
 
     @Inject(method = "serializeNBT", at = @At("RETURN"))
     private void tfe$serializeWeatherState(CallbackInfoReturnable<CompoundTag> cir)
