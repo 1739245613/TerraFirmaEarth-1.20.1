@@ -5,18 +5,18 @@
     "parent": "tfe:block/plant/cornflower_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/cornflower_1"
+    "parent": "tfe:block/plant/cornflower_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/cornflower_1"
+    "parent": "tfe:block/plant/cornflower_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/cornflower_1"
+    "parent": "tfe:block/plant/cornflower_1"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/cornflower_1"
+    "parent": "tfe:block/plant/cornflower_1"
   },
   "budding": {
-    "parent": "tfc:block/plant/cornflower_2"
+    "parent": "tfe:block/plant/cornflower_2"
   }
 }

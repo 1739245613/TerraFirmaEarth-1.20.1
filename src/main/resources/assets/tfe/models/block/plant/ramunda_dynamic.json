@@ -5,18 +5,18 @@
     "parent": "tfe:block/plant/ramunda_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/ramunda_1"
+    "parent": "tfe:block/plant/ramunda_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/ramunda_1"
+    "parent": "tfe:block/plant/ramunda_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/ramunda_1"
+    "parent": "tfe:block/plant/ramunda_1"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/ramunda_1"
+    "parent": "tfe:block/plant/ramunda_1"
   },
   "budding": {
-    "parent": "tfc:block/plant/ramunda_1"
+    "parent": "tfe:block/plant/ramunda_1"
   }
 }

@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:block/plant/cycad/frond"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:item/plant/cycad"
+  }
 }

@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:block/plant/tank_bromeliad/flower_0"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:block/plant/tank_bromeliad/flower_0"
+  }
 }

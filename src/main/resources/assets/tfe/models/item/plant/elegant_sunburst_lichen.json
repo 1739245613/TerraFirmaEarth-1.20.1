@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:block/plant/elegant_sunburst_lichen/elegant_sunburst_lichen_layer1"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:item/plant/elegant_sunburst_lichen"
+  }
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "tfe:block/plant/bear_grass/bear_grass_lower_1"
+  }
+}

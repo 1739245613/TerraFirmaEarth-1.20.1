@@ -1,9 +1,9 @@
 {
-    "parent":  "tfe:block/tfc_azalea_top",
-    "textures":  {
-                     "cross":  "tfe:block/plant/azalea/upper_cross_0",
-                     "side":  "tfe:block/plant/azalea/top_0",
-                     "top":  "tfe:block/plant/azalea/top_0",
-                     "particle":  "tfe:block/plant/azalea/top_0"
-                 }
+  "parent": "tfe:block/tfc_azalea_top",
+  "textures": {
+    "cross": "tfe:block/plant/azalea/upper_cross_0",
+    "side": "tfe:block/plant/azalea/top_0",
+    "top": "tfe:block/plant/azalea/top_0",
+    "particle": "tfe:block/plant/azalea/top_0"
+  }
 }

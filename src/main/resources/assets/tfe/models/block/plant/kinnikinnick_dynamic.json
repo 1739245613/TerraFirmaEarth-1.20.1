@@ -5,18 +5,18 @@
     "parent": "tfe:block/plant/kinnikinnick_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/kinnikinnick_1"
+    "parent": "tfe:block/plant/kinnikinnick_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/kinnikinnick_2"
+    "parent": "tfe:block/plant/kinnikinnick_2"
   },
   "dormant": {
-    "parent": "tfc:block/plant/kinnikinnick_3"
+    "parent": "tfe:block/plant/kinnikinnick_3"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/kinnikinnick_4"
+    "parent": "tfe:block/plant/kinnikinnick_4"
   },
   "budding": {
-    "parent": "tfc:block/plant/kinnikinnick_4"
+    "parent": "tfe:block/plant/kinnikinnick_4"
   }
 }

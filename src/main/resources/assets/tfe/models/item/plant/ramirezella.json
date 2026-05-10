@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:block/plant/ramirezella/base"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:item/plant/ramirezella"
+  }
 }

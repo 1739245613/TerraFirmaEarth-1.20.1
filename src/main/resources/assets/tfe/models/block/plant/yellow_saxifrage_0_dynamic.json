@@ -4,18 +4,18 @@
     "parent": "tfe:block/plant/yellow_saxifrage_0_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/yellow_saxifrage_1_0"
+    "parent": "tfe:block/plant/yellow_saxifrage_1_0"
   },
   "dying": {
-    "parent": "tfc:block/plant/yellow_saxifrage_1_0"
+    "parent": "tfe:block/plant/yellow_saxifrage_1_0"
   },
   "dormant": {
-    "parent": "tfc:block/plant/yellow_saxifrage_1_0"
+    "parent": "tfe:block/plant/yellow_saxifrage_1_0"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/yellow_saxifrage_1_0"
+    "parent": "tfe:block/plant/yellow_saxifrage_1_0"
   },
   "budding": {
-    "parent": "tfc:block/plant/yellow_saxifrage_1_0"
+    "parent": "tfe:block/plant/yellow_saxifrage_1_0"
   }
 }

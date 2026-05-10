@@ -1,0 +1,7 @@
+{
+  "parent": "block/cross",
+  "textures": {
+    "cross": "tfe:block/plant/kinnikinnick/kinnikinnick_3",
+    "particle": "tfe:block/plant/kinnikinnick/kinnikinnick_3"
+  }
+}

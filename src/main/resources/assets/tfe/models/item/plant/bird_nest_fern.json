@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:block/plant/bird_nest_fern/bird_nest_fern"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:block/plant/bird_nest_fern/bird_nest_fern"
+  }
 }

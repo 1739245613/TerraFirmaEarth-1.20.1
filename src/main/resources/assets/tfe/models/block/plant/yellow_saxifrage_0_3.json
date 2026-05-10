@@ -1,7 +1,7 @@
 {
-    "parent":  "tfe:block/plant/flowerbed_4",
-    "textures":  {
-                     "flowerbed":  "tfe:block/plant/yellow_saxifrage/petals",
-                     "stem":  "tfe:block/plant/yellow_saxifrage/stem"
-                 }
+  "parent": "tfe:block/plant/flowerbed_4",
+  "textures": {
+    "flowerbed": "tfe:block/plant/yellow_saxifrage/petals",
+    "stem": "tfe:block/plant/yellow_saxifrage/stem"
+  }
 }

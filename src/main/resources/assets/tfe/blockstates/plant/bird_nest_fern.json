@@ -1,7 +1,7 @@
 {
-    "variants":  {
-                     "":  {
-                              "model":  "tfe:block/plant/bird_nest_fern"
-                          }
-                 }
+  "variants": {
+    "": {
+      "model": "tfe:block/plant/bird_nest_fern"
+    }
+  }
 }

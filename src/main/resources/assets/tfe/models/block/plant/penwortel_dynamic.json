@@ -5,18 +5,18 @@
     "parent": "tfe:block/plant/penwortel_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/penwortel_1"
+    "parent": "tfe:block/plant/penwortel_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/penwortel_1"
+    "parent": "tfe:block/plant/penwortel_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/penwortel_1"
+    "parent": "tfe:block/plant/penwortel_1"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/penwortel_1"
+    "parent": "tfe:block/plant/penwortel_1"
   },
   "budding": {
-    "parent": "tfc:block/plant/penwortel_1"
+    "parent": "tfe:block/plant/penwortel_1"
   }
 }

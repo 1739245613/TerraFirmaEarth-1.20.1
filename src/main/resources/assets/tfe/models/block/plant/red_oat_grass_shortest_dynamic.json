@@ -7,13 +7,13 @@
     "parent": "tfe:block/plant/red_oat_grass_shortest_tuft"
   },
   "dying": {
-    "parent": "tfc:block/plant/red_oat_grass_shortest"
+    "parent": "tfe:block/plant/red_oat_grass_shortest"
   },
   "dormant": {
-    "parent": "tfc:block/plant/red_oat_grass_shortest"
+    "parent": "tfe:block/plant/red_oat_grass_shortest"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/red_oat_grass_shortest"
+    "parent": "tfe:block/plant/red_oat_grass_shortest"
   },
   "budding": {
     "parent": "tfe:block/plant/red_oat_grass_shortest_tuft"

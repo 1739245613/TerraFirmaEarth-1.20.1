@@ -1,8 +1,8 @@
 {
-    "__comment__":  "This file was automatically created by mcresources",
-    "variants":  {
-                     "":  {
-                              "model":  "tfe:block/plant/ramunda_dynamic"
-                          }
-                 }
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "": {
+      "model": "tfe:block/plant/ramunda_dynamic"
+    }
+  }
 }

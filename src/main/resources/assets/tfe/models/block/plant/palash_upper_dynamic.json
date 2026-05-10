@@ -4,18 +4,18 @@
     "parent": "tfe:block/plant/palash_upper_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/palash_upper_1"
+    "parent": "tfe:block/plant/palash_upper_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/palash_upper_1"
+    "parent": "tfe:block/plant/palash_upper_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/palash_upper_2"
+    "parent": "tfe:block/plant/palash_upper_2"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/palash_upper_2"
+    "parent": "tfe:block/plant/palash_upper_2"
   },
   "budding": {
-    "parent": "tfc:block/plant/palash_upper_2"
+    "parent": "tfe:block/plant/palash_upper_2"
   }
 }

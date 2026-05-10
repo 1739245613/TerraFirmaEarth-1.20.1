@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "tfe:block/plant/flame_vine/body_1"
+  }
+}

@@ -1,6 +1,6 @@
 {
-    "textures":  {
-                     "layer0":  "tfe:item/plant/silken_pincushion_cactus"
-                 },
-    "parent":  "minecraft:item/generated"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "tfe:item/plant/silken_pincushion_cactus"
+  }
 }

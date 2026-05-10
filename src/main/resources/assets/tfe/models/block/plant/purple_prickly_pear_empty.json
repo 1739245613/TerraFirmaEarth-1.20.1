@@ -1,5 +1,5 @@
 {
-    "textures":  {
-                     "particle":  "tfe:block/plant/prickly_pear_purple/flower_2"
-                 }
+	"textures": {
+	  "particle": "tfe:block/plant/prickly_pear_purple/flower_2"
+	}
 }

@@ -1,0 +1,7 @@
+{
+  "parent": "tfe:block/plant/template_floating_tinted_flower",
+  "textures": {
+    "pad": "tfe:block/plant/water_lily/water_lily",
+	"flower": "tfe:block/plant/water_lily/water_lily_1"
+  }
+}

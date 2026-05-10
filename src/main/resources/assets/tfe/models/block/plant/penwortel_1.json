@@ -1,0 +1,9 @@
+{
+  "parent": "tfe:block/tfc_azalea",
+  "textures": {
+    "cross": "tfe:block/plant/penwortel/cross_1",
+    "side": "tfe:block/plant/penwortel/side_1",
+    "top": "tfe:block/plant/penwortel/top_1",
+    "particle": "tfe:block/plant/penwortel/top_1"
+  }
+}

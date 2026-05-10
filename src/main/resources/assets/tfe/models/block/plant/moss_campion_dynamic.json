@@ -5,18 +5,18 @@
     "parent": "tfe:block/plant/moss_campion_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/moss_campion_1"
+    "parent": "tfe:block/plant/moss_campion_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/moss_campion_1"
+    "parent": "tfe:block/plant/moss_campion_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/moss_campion_1"
+    "parent": "tfe:block/plant/moss_campion_1"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/moss_campion_2"
+    "parent": "tfe:block/plant/moss_campion_2"
   },
   "budding": {
-    "parent": "tfc:block/plant/moss_campion_3"
+    "parent": "tfe:block/plant/moss_campion_3"
   }
 }

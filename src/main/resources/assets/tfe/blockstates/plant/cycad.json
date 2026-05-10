@@ -1,18 +1,18 @@
 {
-    "multipart":  [
-                      {
-                          "apply":  [
-                                        {
-                                            "model":  "tfe:block/empty"
-                                        }
-                                    ]
-                      },
-                      {
-                          "apply":  [
-                                        {
-                                            "model":  "tfe:block/plant/cycad_dynamic"
-                                        }
-                                    ]
-                      }
-                  ]
+  "multipart": [
+    {
+      "apply": [
+        {
+          "model": "tfc:block/empty"
+        }
+      ]
+    },
+    {
+      "apply": [
+		{
+          "model": "tfe:block/plant/cycad_dynamic"
+        }
+      ]
+    }
+  ]
 }

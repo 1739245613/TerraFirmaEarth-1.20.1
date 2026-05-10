@@ -1,6 +1,6 @@
 {
-    "parent":  "block/cross",
-    "textures":  {
-                     "cross":  "tfe:block/plant/dry_grass/short_dry_grass"
-                 }
+  "parent": "block/cross",
+  "textures": {
+    "cross": "tfe:block/plant/dry_grass/short_dry_grass"
+  }
 }

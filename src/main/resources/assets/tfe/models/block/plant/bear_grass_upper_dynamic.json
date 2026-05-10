@@ -16,6 +16,6 @@
     "parent": "tfc:block/empty"
   },
   "budding": {
-    "parent": "tfc:block/plant/bear_grass_upper_2"
+    "parent": "tfe:block/plant/bear_grass_upper_2"
   }
 }

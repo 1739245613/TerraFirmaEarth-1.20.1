@@ -1,0 +1,6 @@
+{
+  "parent": "tfe:block/moss_campion",
+  "textures": {
+    "texture": "tfe:block/plant/moss_campion/moss_campion_2"
+  }
+}

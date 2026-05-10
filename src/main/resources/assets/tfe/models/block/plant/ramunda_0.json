@@ -1,7 +1,7 @@
 {
-    "__comment__":  "This file was automatically created by mcresources",
-    "parent":  "block/cross",
-    "textures":  {
-                     "cross":  "tfe:block/plant/ramunda/ramunda_0"
-                 }
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/cross",
+  "textures": {
+    "cross": "tfe:block/plant/ramunda/ramunda_0"
+  }
 }

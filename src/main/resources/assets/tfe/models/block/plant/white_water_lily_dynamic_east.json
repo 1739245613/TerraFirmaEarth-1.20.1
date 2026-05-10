@@ -4,18 +4,18 @@
     "parent": "tfe:block/plant/water_lily_0_white"
   },
   "seeding": {
-    "parent": "tfc:block/plant/water_lily_1"
+    "parent": "tfe:block/plant/water_lily_1"
   },
   "dying": {
-    "parent": "tfc:block/plant/water_lily_1"
+    "parent": "tfe:block/plant/water_lily_1"
   },
   "dormant": {
-    "parent": "tfc:block/plant/water_lily_1"
+    "parent": "tfe:block/plant/water_lily_1"
   },
   "sprouting": {
-    "parent": "tfc:block/plant/water_lily_1"
+    "parent": "tfe:block/plant/water_lily_1"
   },
   "budding": {
-    "parent": "tfc:block/plant/water_lily_2"
+    "parent": "tfe:block/plant/water_lily_2"
   }
 }

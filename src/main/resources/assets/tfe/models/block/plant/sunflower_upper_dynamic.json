@@ -4,7 +4,7 @@
     "parent": "tfe:block/plant/sunflower_upper_0"
   },
   "seeding": {
-    "parent": "tfc:block/plant/sunflower_upper_1"
+    "parent": "tfe:block/plant/sunflower_upper_1"
   },
   "dying": {
     "parent": "tfc:block/empty"
@@ -16,6 +16,6 @@
     "parent": "tfc:block/empty"
   },
   "budding": {
-    "parent": "tfc:block/plant/sunflower_upper_4"
+    "parent": "tfe:block/plant/sunflower_upper_4"
   }
 }
