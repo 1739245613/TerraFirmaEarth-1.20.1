@@ -18,6 +18,7 @@
     "ChunkBaseBlockSourceMixin",
     "ChunkHeightFillerMixin",
     "ChunkNoiseFillerMixin",
+    "CaveSpikesFeatureMixin",
     "CropBlockMixin",
     "CropHelpersMixin",
     "DataManagerAccessor",

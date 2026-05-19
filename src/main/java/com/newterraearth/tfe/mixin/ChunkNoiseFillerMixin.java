@@ -66,7 +66,7 @@ public abstract class ChunkNoiseFillerMixin
             noise += sampler.noise(y) * entry.getDoubleValue();
         }
 
-        final double initialNoise = noise;
+        final double initialNoise = tfe$applyTerrainUpliftLayerNoise(y, noise, access);
         noise = 0;
         for (NTERiverBlendType type : NTERiverBlendType.ALL)
         {
@@ -84,27 +84,30 @@ public abstract class ChunkNoiseFillerMixin
                 }
             }
         }
+        final double riverAdjustedNoise = noise;
 
         if (access.tfe$hasShoreRuntime())
         {
             final double[] shoreBlendWeights = access.tfe$getShoreBlendWeights();
+            noise = 0;
             for (NTEShoreBlendType type : NTEShoreBlendType.ALL)
             {
                 final double weight = shoreBlendWeights[type.ordinal()];
                 if (type == NTEShoreBlendType.NONE)
                 {
-                    noise += weight * initialNoise;
+                    noise += weight * riverAdjustedNoise;
                 }
                 else if (weight > 0)
                 {
                     final NTEShoreNoiseSampler sampler = access.tfe$getShoreNoiseSamplers().get(type);
                     if (sampler != null)
                     {
-                        noise += weight * sampler.noise(y, initialNoise);
+                        noise += weight * sampler.noise(y, riverAdjustedNoise);
                     }
                 }
             }
         }
+        noise = tfe$protectTerrainUpliftLayerAfterShore(y, noise, access);
 
         noise = net.dries007.tfc.world.BiomeNoiseSampler.AIR_THRESHOLD - noise;
         if (y > heightNoiseValue)
@@ -113,6 +116,89 @@ public abstract class ChunkNoiseFillerMixin
         }
 
         return Mth.clamp(noise, -1, 1);
+    }
+
+    @Unique
+    private static double tfe$applyTerrainUpliftLayerNoise(int y, double initialNoise, NTEChunkHeightFillerAccess access)
+    {
+        final double upliftAmount = access.tfe$getTerrainUpliftAmount();
+        if (upliftAmount <= 0d)
+        {
+            return initialNoise;
+        }
+
+        final double baseHeight = access.tfe$getTerrainUpliftBaseHeight();
+        final double topHeight = access.tfe$getTerrainUpliftTopHeight();
+        if (y <= baseHeight || y > topHeight)
+        {
+            return initialNoise;
+        }
+
+        return Math.min(initialNoise, net.dries007.tfc.world.BiomeNoiseSampler.SOLID);
+    }
+
+    @Unique
+    private static double tfe$protectTerrainUpliftLayerAfterShore(int y, double noise, NTEChunkHeightFillerAccess access)
+    {
+        final double upliftAmount = access.tfe$getTerrainUpliftAmount();
+        if (upliftAmount <= 0d)
+        {
+            return noise;
+        }
+
+        final double baseHeight = access.tfe$getTerrainUpliftBaseHeight();
+        final double topHeight = access.tfe$getTerrainUpliftTopHeight();
+        if (y <= baseHeight || y > topHeight)
+        {
+            return noise;
+        }
+
+        if (tfe$hasExactRiverDensity(access))
+        {
+            return noise;
+        }
+        if (tfe$hasTerrainCarvingShoreDensity(access))
+        {
+            return noise;
+        }
+
+        return Math.min(noise, net.dries007.tfc.world.BiomeNoiseSampler.SOLID);
+    }
+
+    @Unique
+    private static boolean tfe$hasTerrainCarvingShoreDensity(NTEChunkHeightFillerAccess access)
+    {
+        if (!access.tfe$hasShoreRuntime())
+        {
+            return false;
+        }
+
+        final double[] weights = access.tfe$getShoreBlendWeights();
+        return weights[NTEShoreBlendType.SEA_STACKS.ordinal()] > 1.0e-4d
+            || weights[NTEShoreBlendType.ROCKY_SHORES.ordinal()] > 1.0e-4d
+            || weights[NTEShoreBlendType.EMBAYMENTS.ordinal()] > 1.0e-4d
+            || weights[NTEShoreBlendType.UPPER_TERRACE.ordinal()] > 1.0e-4d
+            || weights[NTEShoreBlendType.LOWER_TERRACE.ordinal()] > 1.0e-4d
+            || weights[NTEShoreBlendType.SETBACK_CLIFFS.ordinal()] > 1.0e-4d;
+    }
+
+    @Unique
+    private static boolean tfe$hasExactRiverDensity(NTEChunkHeightFillerAccess access)
+    {
+        if (access.tfe$isForceSubterraneanCaveRiver())
+        {
+            return true;
+        }
+
+        final double[] weights = access.tfe$getExactRiverBlendWeights();
+        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        {
+            if (type != NTERiverBlendType.NONE && weights[type.ordinal()] > 1.0e-4d)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

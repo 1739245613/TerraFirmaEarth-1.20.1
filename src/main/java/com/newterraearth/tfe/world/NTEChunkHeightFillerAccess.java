@@ -46,6 +46,12 @@ public interface NTEChunkHeightFillerAccess
 
     double tfe$getAdjustedExactCaveWeight();
 
+    double tfe$getTerrainUpliftBaseHeight();
+
+    double tfe$getTerrainUpliftTopHeight();
+
+    double tfe$getTerrainUpliftAmount();
+
     boolean tfe$isForceSubterraneanCaveRiver();
 
     boolean tfe$isVolcanicColumn();

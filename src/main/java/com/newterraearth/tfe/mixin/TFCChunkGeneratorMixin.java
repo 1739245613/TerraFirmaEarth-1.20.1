@@ -73,6 +73,7 @@ import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseHelpers;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseSampler;
+import com.newterraearth.tfe.world.terrain.NTETerrainUpliftSampler;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureBlendType;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureNoiseSampler;
 
@@ -122,7 +123,8 @@ public abstract class TFCChunkGeneratorMixin
             tfe$createShoreSamplersForChunk(),
             tfe$createTideHeightNoise(),
             tfe$createExactRiverSamplersForChunk(),
-            tfe$createCenteredFeatureSamplersForChunk()))
+            tfe$createCenteredFeatureSamplersForChunk(),
+            tfe$createTerrainUpliftSampler()))
         {
             return new ChunkHeightFiller(
                 biomeWeights,
@@ -169,9 +171,10 @@ public abstract class TFCChunkGeneratorMixin
             final Noise2D tideHeightNoise = tfe$createTideHeightNoise();
             final Map<NTERiverBlendType, NTERiverNoiseSampler> exactRiverSamplers = tfe$createExactRiverSamplersForChunk();
             final Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureSamplers = tfe$createCenteredFeatureSamplersForChunk();
+            final NTETerrainUpliftSampler terrainUpliftSampler = tfe$createTerrainUpliftSampler();
 
             final ChunkNoiseFiller filler;
-            try (NTEChunkShoreContext.Scope ignored = NTEChunkShoreContext.open(exactShoreSamplers, tideHeightNoise, exactRiverSamplers, centeredFeatureSamplers))
+            try (NTEChunkShoreContext.Scope ignored = NTEChunkShoreContext.open(exactShoreSamplers, tideHeightNoise, exactRiverSamplers, centeredFeatureSamplers, terrainUpliftSampler))
             {
                 filler = new ChunkNoiseFiller(
                     (ProtoChunk) chunk,
@@ -364,6 +367,12 @@ public abstract class TFCChunkGeneratorMixin
             builder.put(blendType, blendType.createNoiseSampler(seed));
         }
         return builder;
+    }
+
+    @Unique
+    private NTETerrainUpliftSampler tfe$createTerrainUpliftSampler()
+    {
+        return new NTETerrainUpliftSampler(noiseSamplerSeed, customBiomeSource);
     }
 
     @Unique

@@ -1,13 +1,20 @@
 package com.newterraearth.tfe.config;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.slf4j.Logger;
 
 import com.newterraearth.tfe.world.crop.NTECrop;
 
 public final class NTECommonConfig
 {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static volatile String lastTerrainUpliftSamplerLogSignature = "";
+
     public static final ForgeConfigSpec SPEC;
 
     private static final ForgeConfigSpec.BooleanValue WILD_CROP_ALFALFA;
@@ -37,6 +44,10 @@ public final class NTECommonConfig
     private static final ForgeConfigSpec.IntValue SNOW_MELT_MULTIPLIER;
     private static final ForgeConfigSpec.BooleanValue CROP_USE_CURRENT_RAINFALL_HYDRATION;
     private static final ForgeConfigSpec.BooleanValue FRUIT_USE_CURRENT_RAINFALL_HYDRATION;
+    private static final ForgeConfigSpec.BooleanValue TERRAIN_UPLIFT_ENABLED;
+    private static final ForgeConfigSpec.DoubleValue TERRAIN_UPLIFT_SOURCE_HEIGHT;
+    private static final ForgeConfigSpec.IntValue TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE;
+    private static final ForgeConfigSpec.IntValue TERRAIN_UPLIFT_SMALL_PLATFORM_RADIUS;
 
     static
     {
@@ -100,11 +111,76 @@ public final class NTECommonConfig
             .define("fruit_use_current_rainfall_hydration", true);
         builder.pop();
 
+        builder.comment("Controls the addon mountain terrain uplift field. Changes affect newly generated chunks only; changing these values in an existing world can create terrain borders.");
+        builder.push("terrain_uplift");
+        TERRAIN_UPLIFT_ENABLED = builder
+            .comment("When false, disables the addon mountain terrain uplift field without changing biome selection or normal TFC terrain features.")
+            .define("enabled", true);
+        TERRAIN_UPLIFT_SOURCE_HEIGHT = builder
+            .comment("Maximum height, in blocks, added by one terrain uplift source before river, lake, coast, and multi-source blending are applied.")
+            .defineInRange("source_height", 25.0d, 0.0d, 1024.0d);
+        TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE = builder
+            .comment("Distance, in blocks, from the edge of the source platform to the point where normal point-source uplift fades to zero. Default 590 plus the 10 block platform gives about 600 blocks from center.")
+            .defineInRange("source_falloff_distance", 590, 1, 2048);
+        TERRAIN_UPLIFT_SMALL_PLATFORM_RADIUS = builder
+            .comment("Flat-to-gently-curved center radius, in blocks, for normal mountain and line-volcano uplift sources. Shield volcanoes keep their own dynamic platform sizes.")
+            .defineInRange("small_platform_radius", 10, 0, 256);
+        builder.pop();
+
         SPEC = builder.build();
     }
 
     private NTECommonConfig()
     {
+    }
+
+    public static void onLoad(ModConfigEvent.Loading event)
+    {
+        if (event.getConfig().getType() == ModConfig.Type.COMMON && "tfe".equals(event.getConfig().getModId()))
+        {
+            logTerrainUpliftConfig("loaded", event.getConfig().getFullPath().toString());
+        }
+    }
+
+    public static void onReload(ModConfigEvent.Reloading event)
+    {
+        if (event.getConfig().getType() == ModConfig.Type.COMMON && "tfe".equals(event.getConfig().getModId()))
+        {
+            logTerrainUpliftConfig("reloaded", event.getConfig().getFullPath().toString());
+        }
+    }
+
+    public static void logTerrainUpliftConfig(String phase, String source)
+    {
+        LOGGER.info(
+            "[TFE][TerrainUpliftConfig] {} from {}: enabled={} source_height={} source_falloff_distance={} small_platform_radius={}",
+            phase,
+            source,
+            isTerrainUpliftEnabled(),
+            getTerrainUpliftSourceHeight(),
+            getTerrainUpliftSourceFalloffDistance(),
+            getTerrainUpliftSmallPlatformRadius()
+        );
+    }
+
+    public static void logTerrainUpliftConfigOnce(String phase, String source)
+    {
+        final String signature = isTerrainUpliftEnabled()
+            + "|" + getTerrainUpliftSourceHeight()
+            + "|" + getTerrainUpliftSourceFalloffDistance()
+            + "|" + getTerrainUpliftSmallPlatformRadius();
+        if (signature.equals(lastTerrainUpliftSamplerLogSignature))
+        {
+            return;
+        }
+        synchronized (NTECommonConfig.class)
+        {
+            if (!signature.equals(lastTerrainUpliftSamplerLogSignature))
+            {
+                lastTerrainUpliftSamplerLogSignature = signature;
+                logTerrainUpliftConfig(phase, source);
+            }
+        }
     }
 
     public static boolean isWildCropEnabled(NTECrop crop)
@@ -335,5 +411,25 @@ public final class NTECommonConfig
     public static boolean useCurrentRainfallForFruit()
     {
         return FRUIT_USE_CURRENT_RAINFALL_HYDRATION.get();
+    }
+
+    public static boolean isTerrainUpliftEnabled()
+    {
+        return TERRAIN_UPLIFT_ENABLED.get();
+    }
+
+    public static double getTerrainUpliftSourceHeight()
+    {
+        return TERRAIN_UPLIFT_SOURCE_HEIGHT.get();
+    }
+
+    public static int getTerrainUpliftSourceFalloffDistance()
+    {
+        return TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE.get();
+    }
+
+    public static int getTerrainUpliftSmallPlatformRadius()
+    {
+        return TERRAIN_UPLIFT_SMALL_PLATFORM_RADIUS.get();
     }
 }

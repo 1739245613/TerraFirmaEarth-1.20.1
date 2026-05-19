@@ -895,7 +895,7 @@ public final class NTEBiomeExtensions
             .spawnable()
             .salty()
             .shore()
-            .type(RiverBlendType.TALL_CANYON), NTEShoreBlendType.EMBAYMENTS);
+            .type(RiverBlendType.TALL_CANYON), NTEShoreBlendType.CLASSIC);
     }
 
     public static BiomeExtension oldShieldVolcanoShore()

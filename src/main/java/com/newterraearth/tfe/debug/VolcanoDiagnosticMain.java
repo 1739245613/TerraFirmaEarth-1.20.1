@@ -2035,12 +2035,6 @@ public final class VolcanoDiagnosticMain
                 height = adjustHeightForShoreContributions(height, oceanWeight, landWeight, shoreWeight, maxShoreWeight, shoreBiomeAt, shoreHeight, normalHeight);
             }
 
-            if (oceanWeight >= 0.25)
-            {
-                final double tideAdjustedSeaEdgeHeight = tideHeightNoise.noise(blockX, blockZ) - 4;
-                height = Mth.clampedMap(landWeight, 0.32, 0.36, Math.min(height, tideAdjustedSeaEdgeHeight), height);
-            }
-
             height = adjustHeightForCenteredFeatures(height);
             preExactRiverHeight = height;
             computeInitialExactRiverWeights(biomeWeights);

@@ -8,6 +8,7 @@ import com.newterraearth.tfe.world.river.NTERiverBlendType;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseSampler;
+import com.newterraearth.tfe.world.terrain.NTETerrainUpliftSampler;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureBlendType;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureNoiseSampler;
 
@@ -17,7 +18,8 @@ public final class NTEChunkShoreContext
         Map<NTEShoreBlendType, NTEShoreNoiseSampler> shoreNoiseSamplers,
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
-        Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers
+        Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
+        NTETerrainUpliftSampler terrainUpliftSampler
     ) {}
 
     public interface Scope extends AutoCloseable
@@ -36,10 +38,11 @@ public final class NTEChunkShoreContext
         Map<NTEShoreBlendType, NTEShoreNoiseSampler> shoreNoiseSamplers,
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
-        Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers
+        Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
+        NTETerrainUpliftSampler terrainUpliftSampler
     )
     {
-        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, centeredFeatureNoiseSamplers));
+        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, centeredFeatureNoiseSamplers, terrainUpliftSampler));
         return CURRENT::remove;
     }
 

@@ -109,6 +109,7 @@ public final class VolcanoRuntimeTrace
         double shoreAdjustedHeight,
         double tideAdjustedHeight,
         double centeredFeatureHeight,
+        double terrainUplift,
         double preExactRiverHeight,
         double postExactRiverHeight,
         double finalColumnHeight,
@@ -131,6 +132,7 @@ public final class VolcanoRuntimeTrace
             shoreAdjustedHeight,
             tideAdjustedHeight,
             centeredFeatureHeight,
+            terrainUplift,
             preExactRiverHeight,
             postExactRiverHeight,
             finalColumnHeight,
@@ -479,6 +481,7 @@ public final class VolcanoRuntimeTrace
         private double shoreAdjustedHeight = Double.NaN;
         private double tideAdjustedHeight = Double.NaN;
         private double centeredFeatureHeight = Double.NaN;
+        private double terrainUplift = Double.NaN;
         private double preExactRiverHeight = Double.NaN;
         private double postExactRiverHeight = Double.NaN;
         private double finalColumnHeight = Double.NaN;
@@ -510,6 +513,7 @@ public final class VolcanoRuntimeTrace
             double shoreAdjustedHeight,
             double tideAdjustedHeight,
             double centeredFeatureHeight,
+            double terrainUplift,
             double preExactRiverHeight,
             double postExactRiverHeight,
             double finalColumnHeight,
@@ -527,6 +531,7 @@ public final class VolcanoRuntimeTrace
             this.shoreAdjustedHeight = shoreAdjustedHeight;
             this.tideAdjustedHeight = tideAdjustedHeight;
             this.centeredFeatureHeight = centeredFeatureHeight;
+            this.terrainUplift = terrainUplift;
             this.preExactRiverHeight = preExactRiverHeight;
             this.postExactRiverHeight = postExactRiverHeight;
             this.finalColumnHeight = finalColumnHeight;
@@ -585,13 +590,14 @@ public final class VolcanoRuntimeTrace
                 forceSubterraneanCaveRiver
             );
             logger.info(
-                "[TFE][VolcanoTrace] column=({}, {}) heights base={} shore={} tide={} centered={} preRiver={} postRiver={} finalColumn={} cachedSurface={} cachedBiome={} cachedWeight={} worldSurface={} oceanFloor={} worldBiome={} topBlock={}",
+                "[TFE][VolcanoTrace] column=({}, {}) heights base={} shore={} tide={} centered={} uplift={} preRiver={} postRiver={} finalColumn={} cachedSurface={} cachedBiome={} cachedWeight={} worldSurface={} oceanFloor={} worldBiome={} topBlock={}",
                 blockX,
                 blockZ,
                 format(baseHeight),
                 format(shoreAdjustedHeight),
                 format(tideAdjustedHeight),
                 format(centeredFeatureHeight),
+                format(terrainUplift),
                 format(preExactRiverHeight),
                 format(postExactRiverHeight),
                 format(finalColumnHeight),

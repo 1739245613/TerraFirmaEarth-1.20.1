@@ -36,6 +36,8 @@ public final class NewTerraEarthMod
     {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NTECommonConfig.SPEC);
+        modBus.addListener(NTECommonConfig::onLoad);
+        modBus.addListener(NTECommonConfig::onReload);
         modBus.addListener(this::setup);
         NTEBuiltinPackEvents.init(modBus);
         modBus.addListener(NTEEntities::onEntityAttributeCreation);
