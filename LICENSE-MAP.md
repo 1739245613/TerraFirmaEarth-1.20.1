@@ -57,7 +57,6 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/java/com/newterraearth/tfe/config/**` | `All Rights Reserved` | 本项目配置项与开关。 |
 | `src/main/java/com/newterraearth/tfe/event/**` | `All Rights Reserved` | 本项目事件入口与内置数据包注入逻辑。 |
 | `src/main/java/com/newterraearth/tfe/network/**` | `All Rights Reserved` | 本项目网络同步与数据包逻辑。 |
-| `src/main/java/com/newterraearth/tfe/debug/**` | `All Rights Reserved` | 本项目调试与诊断工具。 |
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | 本项目地形、气候、季节、海洋、森林、河流、火山、植物、作物、刷怪与世界生成兼容实现；多数为 1.20 侧新增桥接 / 运行时逻辑。 |
 | `src/main/java/com/newterraearth/tfe/mixin/**` | `All Rights Reserved` | 本项目 mixin 注入、访问器、重定向与兼容 glue。注入 TFC 方法本身不等于复制 TFC 表达。 |
 | `src/main/java/com/newterraearth/tfe/NewTerraEarthMod.java` | `All Rights Reserved` | 本项目主类与初始化入口。 |
@@ -143,7 +142,6 @@ derived from TFC expression, only that portion follows section A.
 | `src/main/java/com/newterraearth/tfe/config/**` | `All Rights Reserved` | Project-owned configuration keys and switches. |
 | `src/main/java/com/newterraearth/tfe/event/**` | `All Rights Reserved` | Project-owned event entry points and built-in data-pack injection logic. |
 | `src/main/java/com/newterraearth/tfe/network/**` | `All Rights Reserved` | Project-owned network sync and packet logic. |
-| `src/main/java/com/newterraearth/tfe/debug/**` | `All Rights Reserved` | Project-owned debug and diagnostic tools. |
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | Project-owned terrain, climate, season, ocean, forest, river, volcano, plant, crop, spawn, and worldgen compatibility implementation; much of it is new 1.20-side bridge/runtime logic. |
 | `src/main/java/com/newterraearth/tfe/mixin/**` | `All Rights Reserved` | Project-owned mixin injections, accessors, redirects, and compatibility glue. Injecting into TFC methods is not itself copied TFC expression. |
 | `src/main/java/com/newterraearth/tfe/NewTerraEarthMod.java` | `All Rights Reserved` | Project main class and initialization entry point. |

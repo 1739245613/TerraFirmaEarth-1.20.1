@@ -25,7 +25,6 @@ import net.dries007.tfc.world.river.RiverBlendType;
 import net.dries007.tfc.world.river.RiverInfo;
 import net.dries007.tfc.world.river.RiverNoiseSampler;
 
-import com.newterraearth.tfe.debug.VolcanoRuntimeTrace;
 import com.newterraearth.tfe.world.NTEBiomeExtensionAccess;
 import com.newterraearth.tfe.world.NTEChunkHeightFillerAccess;
 import com.newterraearth.tfe.world.NTEChunkShoreContext;
@@ -63,17 +62,11 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     @Unique private Noise2D tfe$tideHeightNoise;
     @Unique private Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> tfe$centeredFeatureNoiseSamplers = Collections.emptyMap();
     @Unique private NTETerrainUpliftSampler tfe$terrainUpliftSampler;
-    @Unique private double tfe$preExactRiverHeight;
-    @Unique private double tfe$currentColumnHeight;
-    @Unique private double tfe$initialExactCaveWeight;
-    @Unique private double tfe$adjustedExactCaveWeight;
     @Unique private double tfe$terrainUpliftBaseHeight;
     @Unique private double tfe$terrainUpliftTopHeight;
     @Unique private double tfe$terrainUpliftAmount;
     @Unique private boolean tfe$forceSubterraneanCaveRiver;
-    @Unique private boolean tfe$isVolcanicColumn;
     @Unique private boolean tfe$couldBeSalty;
-    @Unique private String tfe$lastCenteredFeatureType = "none";
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void tfe$init(Object2DoubleMap<BiomeExtension>[] sampledBiomeWeights, BiomeSourceExtension biomeSource, Map<BiomeExtension, BiomeNoiseSampler> biomeNoiseSamplers, Map<RiverBlendType, RiverNoiseSampler> riverNoiseSamplers, Noise2D shoreSampler, int seaLevel, CallbackInfo ci)
@@ -99,7 +92,6 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         }
         tfe$exactRiverBlendWeights = new double[NTERiverBlendType.SIZE];
         tfe$shoreBlendWeights = new double[NTEShoreBlendType.SIZE];
-        tfe$isVolcanicColumn = false;
         tfe$couldBeSalty = false;
     }
 
@@ -164,30 +156,6 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     }
 
     @Override
-    public double tfe$getPreExactRiverHeight()
-    {
-        return tfe$preExactRiverHeight;
-    }
-
-    @Override
-    public double tfe$getCurrentColumnHeight()
-    {
-        return tfe$currentColumnHeight;
-    }
-
-    @Override
-    public double tfe$getInitialExactCaveWeight()
-    {
-        return tfe$initialExactCaveWeight;
-    }
-
-    @Override
-    public double tfe$getAdjustedExactCaveWeight()
-    {
-        return tfe$adjustedExactCaveWeight;
-    }
-
-    @Override
     public double tfe$getTerrainUpliftBaseHeight()
     {
         return tfe$terrainUpliftBaseHeight;
@@ -209,12 +177,6 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     public boolean tfe$isForceSubterraneanCaveRiver()
     {
         return tfe$forceSubterraneanCaveRiver;
-    }
-
-    @Override
-    public boolean tfe$isVolcanicColumn()
-    {
-        return tfe$isVolcanicColumn;
     }
 
     @Override
@@ -274,21 +236,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         double maxNormalWeight = 0;
         double maxShoreWeight = 0;
         double maxOceanWeight = 0;
-        tfe$isVolcanicColumn = false;
         tfe$couldBeSalty = false;
-        final boolean traceColumn = VolcanoRuntimeTrace.matchesColumn(blockX, blockZ);
-        final String dominantBiomes = traceColumn ? VolcanoRuntimeTrace.summarizeBiomeWeights(biomeWeights, 5) : "";
-
         for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
         {
             final double biomeWeight = entry.getDoubleValue();
             final BiomeExtension biome = entry.getKey();
             final BiomeNoiseSampler sampler = biomeNoiseSamplers.get(biome);
 
-            if (tfe$isVolcanicBiome(biome))
-            {
-                tfe$isVolcanicColumn = true;
-            }
             if (biome.isSalty())
             {
                 tfe$couldBeSalty = true;
@@ -370,41 +324,11 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights);
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
-        tfe$preExactRiverHeight = height;
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
-        tfe$initialExactCaveWeight = initialCaveWeight;
-        tfe$adjustedExactCaveWeight = tfe$exactRiverBlendWeights[NTERiverBlendType.CAVE.ordinal()];
         final double caveTransitionTerrainUplift = terrainUplift * tfe$caveTransitionTerrainUpliftProtection(initialCaveWeight);
         tfe$forceSubterraneanCaveRiver = false;
-        final double postExactRiverHeight = tfe$adjustHeightForExactRiverContributions(height, info, initialCaveWeight, caveTransitionTerrainUplift);
-        height = postExactRiverHeight;
-        tfe$currentColumnHeight = height;
+        height = tfe$adjustHeightForExactRiverContributions(height, info, initialCaveWeight, caveTransitionTerrainUplift);
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
-
-        if (traceColumn)
-        {
-            VolcanoRuntimeTrace.recordHeightPipeline(
-                blockX,
-                blockZ,
-                useCache,
-                dominantBiomes,
-                tfe$lastCenteredFeatureType,
-                tfe$isVolcanicColumn,
-                tfe$couldBeSalty,
-                baseHeight,
-                shoreAdjustedHeight,
-                tideAdjustedHeight,
-                centeredFeatureHeight,
-                terrainUplift,
-                tfe$preExactRiverHeight,
-                postExactRiverHeight,
-                height,
-                tfe$initialExactCaveWeight,
-                tfe$adjustedExactCaveWeight,
-                tfe$forceSubterraneanCaveRiver,
-                info
-            );
-        }
 
         if (useCache)
         {
@@ -429,21 +353,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         BiomeExtension shoreBiomeAt = null;
         double maxNormalWeight = 0;
         double maxShoreWeight = 0;
-        tfe$isVolcanicColumn = false;
         tfe$couldBeSalty = false;
-        final boolean traceColumn = VolcanoRuntimeTrace.matchesColumn(blockX, blockZ);
-        final String dominantBiomes = traceColumn ? VolcanoRuntimeTrace.summarizeBiomeWeights(biomeWeights, 5) : "";
-
         for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
         {
             final double biomeWeight = entry.getDoubleValue();
             final BiomeExtension biome = entry.getKey();
             final BiomeNoiseSampler sampler = biomeNoiseSamplers.get(biome);
 
-            if (tfe$isVolcanicBiome(biome))
-            {
-                tfe$isVolcanicColumn = true;
-            }
             if (biome.isSalty())
             {
                 tfe$couldBeSalty = true;
@@ -531,41 +447,11 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights);
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
-        tfe$preExactRiverHeight = height;
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
-        tfe$initialExactCaveWeight = initialCaveWeight;
-        tfe$adjustedExactCaveWeight = tfe$exactRiverBlendWeights[NTERiverBlendType.CAVE.ordinal()];
         final double caveTransitionTerrainUplift = terrainUplift * tfe$caveTransitionTerrainUpliftProtection(initialCaveWeight);
         tfe$forceSubterraneanCaveRiver = false;
-        final double postExactRiverHeight = tfe$adjustHeightForExactRiverContributions(height, info, initialCaveWeight, caveTransitionTerrainUplift);
-        height = postExactRiverHeight;
-        tfe$currentColumnHeight = height;
+        height = tfe$adjustHeightForExactRiverContributions(height, info, initialCaveWeight, caveTransitionTerrainUplift);
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
-
-        if (traceColumn)
-        {
-            VolcanoRuntimeTrace.recordHeightPipeline(
-                blockX,
-                blockZ,
-                useCache,
-                dominantBiomes,
-                tfe$lastCenteredFeatureType,
-                tfe$isVolcanicColumn,
-                tfe$couldBeSalty,
-                baseHeight,
-                shoreAdjustedHeight,
-                shoreAdjustedHeight,
-                centeredFeatureHeight,
-                terrainUplift,
-                tfe$preExactRiverHeight,
-                postExactRiverHeight,
-                height,
-                tfe$initialExactCaveWeight,
-                tfe$adjustedExactCaveWeight,
-                tfe$forceSubterraneanCaveRiver,
-                info
-            );
-        }
 
         if (useCache)
         {
@@ -609,7 +495,6 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     private double tfe$adjustHeightForCenteredFeatures(double heightIn)
     {
         double centeredFeatureHeight = NTECenteredFeatureNoiseSampler.NOT_PRESENT_RETURN;
-        String centeredFeatureType = "none";
         for (NTECenteredFeatureBlendType type : NTECenteredFeatureBlendType.ALL)
         {
             if (type == NTECenteredFeatureBlendType.NONE)
@@ -623,11 +508,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 if (sampledHeight > centeredFeatureHeight)
                 {
                     centeredFeatureHeight = sampledHeight;
-                    centeredFeatureType = type.name();
                 }
             }
         }
-        tfe$lastCenteredFeatureType = centeredFeatureHeight == NTECenteredFeatureNoiseSampler.NOT_PRESENT_RETURN ? "none" : centeredFeatureType;
         return centeredFeatureHeight == NTECenteredFeatureNoiseSampler.NOT_PRESENT_RETURN ? heightIn : centeredFeatureHeight;
     }
 
@@ -757,12 +640,5 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         Arrays.fill(tfe$exactRiverBlendWeights, 0);
         tfe$exactRiverBlendWeights[NTERiverBlendType.NONE.ordinal()] = 1.0;
         return height;
-    }
-
-    @Unique
-    private static boolean tfe$isVolcanicBiome(BiomeExtension biome)
-    {
-        final String path = biome.key().location().getPath();
-        return path.contains("volcano") || path.contains("volcanic") || path.contains("tuya");
     }
 }

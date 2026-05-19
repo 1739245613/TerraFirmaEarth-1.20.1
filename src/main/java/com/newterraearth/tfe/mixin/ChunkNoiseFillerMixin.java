@@ -20,7 +20,6 @@ import net.dries007.tfc.world.noise.ChunkNoiseSamplingSettings;
 import net.dries007.tfc.world.noise.TrilinearInterpolator;
 import net.dries007.tfc.world.river.RiverInfo;
 
-import com.newterraearth.tfe.debug.VolcanoRuntimeTrace;
 import com.newterraearth.tfe.world.NTEChunkBaseBlockSourceAccess;
 import com.newterraearth.tfe.world.NTEChunkHeightFillerAccess;
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
@@ -261,7 +260,6 @@ public abstract class ChunkNoiseFillerMixin
         surfaceHeight[localIndex] = (int) height;
 
         ((NTEChunkBaseBlockSourceAccess) baseBlockSource).tfe$useAccurateBiome(localX, localZ, biomeAt, biomeWeightAt, couldBeSalty);
-        VolcanoRuntimeTrace.recordLocalCache(access.tfe$getBlockX(), access.tfe$getBlockZ(), biomeAt.key().location().toString(), biomeWeightAt, height);
     }
 
 }

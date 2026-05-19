@@ -70,7 +70,6 @@ public final class NTETerrainUpliftSampler
         this.smallPlatformRadius = NTECommonConfig.getTerrainUpliftSmallPlatformRadius();
         final int sourceSearchRadius = sourceFalloffDistance + Math.max(MAX_SHIELD_VOLCANO_PLATFORM_RADIUS, smallPlatformRadius + LINE_VOLCANO_HALF_LENGTH);
         this.sourceRadiusCells = Math.max(1, (sourceSearchRadius + SOURCE_GRID_SIZE - 1) / SOURCE_GRID_SIZE);
-        NTECommonConfig.logTerrainUpliftConfigOnce("sampler", "seed=" + seed);
     }
 
     public double sample(int blockX, int blockZ)

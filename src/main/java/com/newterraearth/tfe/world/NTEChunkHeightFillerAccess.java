@@ -38,14 +38,6 @@ public interface NTEChunkHeightFillerAccess
 
     Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> tfe$getCenteredFeatureNoiseSamplers();
 
-    double tfe$getPreExactRiverHeight();
-
-    double tfe$getCurrentColumnHeight();
-
-    double tfe$getInitialExactCaveWeight();
-
-    double tfe$getAdjustedExactCaveWeight();
-
     double tfe$getTerrainUpliftBaseHeight();
 
     double tfe$getTerrainUpliftTopHeight();
@@ -53,8 +45,6 @@ public interface NTEChunkHeightFillerAccess
     double tfe$getTerrainUpliftAmount();
 
     boolean tfe$isForceSubterraneanCaveRiver();
-
-    boolean tfe$isVolcanicColumn();
 
     int tfe$getBlockX();
 

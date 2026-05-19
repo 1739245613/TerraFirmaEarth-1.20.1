@@ -62,7 +62,6 @@ import net.dries007.tfc.world.river.RiverBlendType;
 import net.dries007.tfc.world.river.RiverNoiseSampler;
 import net.dries007.tfc.world.surface.SurfaceManager;
 
-import com.newterraearth.tfe.debug.VolcanoRuntimeTrace;
 import com.newterraearth.tfe.world.NTEChunkShoreContext;
 import com.newterraearth.tfe.world.NTESeed;
 import com.newterraearth.tfe.world.NTESurfaceContext;
@@ -199,9 +198,7 @@ public abstract class TFCChunkGeneratorMixin
             filler.sampleAquiferSurfaceHeight(this::tfe$sampleBiomeNoRiver);
             chunkData.generateFull(filler.surfaceHeight(), filler.aquifer().surfaceHeights());
             chunkData.getRockData().useCache(chunkPos);
-            VolcanoRuntimeTrace.recordChunkPhase("before_fill", chunkPos);
             filler.fillFromNoise();
-            VolcanoRuntimeTrace.recordChunkPhase("after_fill", chunkPos);
 
             aquiferCache.set(chunkPos.x, chunkPos.z, filler.aquifer());
             return chunk;
@@ -229,7 +226,6 @@ public abstract class TFCChunkGeneratorMixin
                     ((TFCChunkGenerator) (Object) this).getSeaLevel(),
                     settings.minY()
                 );
-                VolcanoRuntimeTrace.recordChunkPhase("after_surface", chunkPos);
             }
         }, mainExecutor);
     }

@@ -1,20 +1,13 @@
 package com.newterraearth.tfe.config;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.slf4j.Logger;
 
 import com.newterraearth.tfe.world.crop.NTECrop;
 
 public final class NTECommonConfig
 {
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private static volatile String lastTerrainUpliftSamplerLogSignature = "";
-
     public static final ForgeConfigSpec SPEC;
 
     private static final ForgeConfigSpec.BooleanValue WILD_CROP_ALFALFA;
@@ -118,7 +111,7 @@ public final class NTECommonConfig
             .define("enabled", true);
         TERRAIN_UPLIFT_SOURCE_HEIGHT = builder
             .comment("Maximum height, in blocks, added by one terrain uplift source before river, lake, coast, and multi-source blending are applied.")
-            .defineInRange("source_height", 25.0d, 0.0d, 1024.0d);
+            .defineInRange("source_height", 150.0d, 0.0d, 1024.0d);
         TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE = builder
             .comment("Distance, in blocks, from the edge of the source platform to the point where normal point-source uplift fades to zero. Default 590 plus the 10 block platform gives about 600 blocks from center.")
             .defineInRange("source_falloff_distance", 590, 1, 2048);
@@ -132,55 +125,6 @@ public final class NTECommonConfig
 
     private NTECommonConfig()
     {
-    }
-
-    public static void onLoad(ModConfigEvent.Loading event)
-    {
-        if (event.getConfig().getType() == ModConfig.Type.COMMON && "tfe".equals(event.getConfig().getModId()))
-        {
-            logTerrainUpliftConfig("loaded", event.getConfig().getFullPath().toString());
-        }
-    }
-
-    public static void onReload(ModConfigEvent.Reloading event)
-    {
-        if (event.getConfig().getType() == ModConfig.Type.COMMON && "tfe".equals(event.getConfig().getModId()))
-        {
-            logTerrainUpliftConfig("reloaded", event.getConfig().getFullPath().toString());
-        }
-    }
-
-    public static void logTerrainUpliftConfig(String phase, String source)
-    {
-        LOGGER.info(
-            "[TFE][TerrainUpliftConfig] {} from {}: enabled={} source_height={} source_falloff_distance={} small_platform_radius={}",
-            phase,
-            source,
-            isTerrainUpliftEnabled(),
-            getTerrainUpliftSourceHeight(),
-            getTerrainUpliftSourceFalloffDistance(),
-            getTerrainUpliftSmallPlatformRadius()
-        );
-    }
-
-    public static void logTerrainUpliftConfigOnce(String phase, String source)
-    {
-        final String signature = isTerrainUpliftEnabled()
-            + "|" + getTerrainUpliftSourceHeight()
-            + "|" + getTerrainUpliftSourceFalloffDistance()
-            + "|" + getTerrainUpliftSmallPlatformRadius();
-        if (signature.equals(lastTerrainUpliftSamplerLogSignature))
-        {
-            return;
-        }
-        synchronized (NTECommonConfig.class)
-        {
-            if (!signature.equals(lastTerrainUpliftSamplerLogSignature))
-            {
-                lastTerrainUpliftSamplerLogSignature = signature;
-                logTerrainUpliftConfig(phase, source);
-            }
-        }
     }
 
     public static boolean isWildCropEnabled(NTECrop crop)

@@ -14,8 +14,6 @@ import com.newterraearth.tfe.common.NTEFluids;
 import com.newterraearth.tfe.common.NTERockBlocks;
 import com.newterraearth.tfe.common.blockentities.NTEBlockEntities;
 import com.newterraearth.tfe.config.NTECommonConfig;
-import com.newterraearth.tfe.debug.NTEAquaticSpawnTraceHooks;
-import com.newterraearth.tfe.debug.NTEVolcanoRuntimeTraceHooks;
 import com.newterraearth.tfe.common.entity.NTEEntities;
 import com.newterraearth.tfe.common.entity.NTEEntitySounds;
 import com.newterraearth.tfe.common.entity.NTEFaunas;
@@ -36,8 +34,6 @@ public final class NewTerraEarthMod
     {
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NTECommonConfig.SPEC);
-        modBus.addListener(NTECommonConfig::onLoad);
-        modBus.addListener(NTECommonConfig::onReload);
         modBus.addListener(this::setup);
         NTEBuiltinPackEvents.init(modBus);
         modBus.addListener(NTEEntities::onEntityAttributeCreation);
@@ -55,8 +51,6 @@ public final class NewTerraEarthMod
         NTEFeatures.register(modBus);
         NTEPlacements.register(modBus);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> NTEClientEventHandler.init(modBus));
-        NTEAquaticSpawnTraceHooks.init();
-        NTEVolcanoRuntimeTraceHooks.init();
     }
 
     private void setup(FMLCommonSetupEvent event)
