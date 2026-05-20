@@ -126,3 +126,149 @@ tasks.register('stageReleaseDocs', Copy) {
 tasks.named('assemble').configure {
     finalizedBy tasks.named('stageReleaseDocs')
 }
+
+def tfeRuntimeTraceTaskRequested = gradle.startParameter.taskNames.any { it == 'traceRuntimeServer' || it == 'traceTerrainCutRuntimeServer' }
+def tfeRuntimeTraceMode = (project.findProperty('tfeTraceMode') ?: 'terrain_cut').toString()
+def tfeRuntimeTraceSeed = (project.findProperty('tfeTraceSeed') ?: project.findProperty('tfeTerrainCutSeed') ?: '-8547423016982190715').toString()
+def tfeRuntimeTraceX = (project.findProperty('tfeTraceX') ?: project.findProperty('tfeTerrainCutX') ?: '2695').toString()
+def tfeRuntimeTraceZ = (project.findProperty('tfeTraceZ') ?: project.findProperty('tfeTerrainCutZ') ?: '6738').toString()
+def tfeRuntimeTraceRadius = (project.findProperty('tfeTraceRadius') ?: '8').toString()
+def tfeRuntimeTraceAxis = (project.findProperty('tfeTraceAxis') ?: 'x').toString()
+def tfeRuntimeTraceConfigFile = project.findProperty('tfeTraceConfigFile')?.toString()
+def tfeRuntimeTraceResetWorld = (project.findProperty('tfeTraceResetWorld') ?: 'true').toString().toBoolean()
+
+minecraft {
+    runs {
+        configureEach {
+            final def traceEnabled = project.findProperty('tfeTraceEnabled') ?: project.findProperty('tfeTerrainCutTrace') ?: (tfeRuntimeTraceTaskRequested ? 'true' : null)
+            if (traceEnabled != null) {
+                property 'tfe.debug.runtimeTrace', traceEnabled.toString()
+                property 'tfe.debug.traceMode', tfeRuntimeTraceMode
+            }
+
+            property 'tfe.debug.traceSeed', tfeRuntimeTraceSeed
+            property 'tfe.debug.traceX', tfeRuntimeTraceX
+            property 'tfe.debug.traceZ', tfeRuntimeTraceZ
+            property 'tfe.debug.traceRadius', tfeRuntimeTraceRadius
+            property 'tfe.debug.traceAxis', tfeRuntimeTraceAxis
+        }
+    }
+}
+
+tasks.register('prepareRuntimeTraceServer') {
+    group = 'verification'
+    description = 'Prepare a dedicated server working directory for coordinate-based runtime tracing.'
+
+    doLast {
+        final def seed = tfeRuntimeTraceSeed
+        final def traceX = tfeRuntimeTraceX
+        final def traceZ = tfeRuntimeTraceZ
+        final def traceMode = tfeRuntimeTraceMode
+        final def levelName = "tfe_${traceMode}_trace_s${seed}_x${traceX}_z${traceZ}".replace('-', 'm').replaceAll('[^A-Za-z0-9_]', '_')
+        final def runDir = file('run/server')
+        final def levelDir = new File(runDir, levelName)
+        final def modsDir = new File(runDir, 'mods')
+        final def configDir = new File(runDir, 'config')
+        final def deobfPatchouliRoot = new File(gradle.gradleUserHomeDir, 'caches/forge_gradle/deobf_dependencies')
+        final def localMinecraftRoot = new File(System.properties['user.home'], 'Desktop/PCL/.minecraft')
+        final def traceConfigFile = tfeRuntimeTraceConfigFile
+            ? file(tfeRuntimeTraceConfigFile)
+            : new File(localMinecraftRoot, 'versions/TerraFirmaFarHorizons/config/tfe-common.toml')
+        final def patchouliCandidates = []
+
+        if (localMinecraftRoot.exists()) {
+            patchouliCandidates.addAll(fileTree(localMinecraftRoot) { include '**/Patchouli-1.20.1-*-FORGE.jar' }.files)
+        }
+        if (deobfPatchouliRoot.exists()) {
+            patchouliCandidates.addAll(fileTree(deobfPatchouliRoot) {
+                include '**/patchouli-306770-*_mapped_official_1.20.1.jar'
+                include '**/Patchouli-1.20.1-*-FORGE_mapped_official_1.20.1.jar'
+            }.files)
+        }
+
+        final def resolvedPatchouliCandidates = patchouliCandidates
+            .findAll { it.exists() }
+            .sort { a, b -> a.name <=> b.name }
+        final def patchouliJar = resolvedPatchouliCandidates ? resolvedPatchouliCandidates.last() : null
+
+        runDir.mkdirs()
+        modsDir.mkdirs()
+        configDir.mkdirs()
+        if (tfeRuntimeTraceResetWorld && levelDir.exists()) {
+            delete(levelDir)
+        }
+        if (patchouliJar == null) {
+            throw new GradleException("Patchouli runtime jar not found under ${localMinecraftRoot} or ${deobfPatchouliRoot}")
+        }
+
+        delete(fileTree(modsDir) {
+            include '*Patchouli*.jar'
+            include '*patchouli*.jar'
+        })
+
+        copy {
+            from patchouliJar
+            into modsDir
+        }
+
+        if (traceConfigFile.exists()) {
+            copy {
+                from traceConfigFile
+                into configDir
+            }
+            println "Using TFE trace config: ${traceConfigFile}"
+        }
+
+        new File(runDir, 'eula.txt').text = "eula=true${System.lineSeparator()}"
+        new File(runDir, 'server.properties').text = """allow-flight=true
+broadcast-rcon-to-ops=false
+difficulty=normal
+enable-command-block=false
+enable-query=false
+enable-rcon=false
+enforce-whitelist=false
+force-gamemode=false
+function-permission-level=2
+gamemode=survival
+generate-structures=true
+hardcore=false
+level-name=${levelName}
+level-seed=${seed}
+level-type=tfc:overworld
+max-players=1
+max-tick-time=-1
+motd=TFE Runtime Trace
+online-mode=false
+op-permission-level=4
+player-idle-timeout=0
+pvp=false
+rate-limit=0
+simulation-distance=4
+spawn-animals=false
+spawn-monsters=false
+spawn-npcs=false
+spawn-protection=0
+sync-chunk-writes=true
+view-distance=4
+white-list=false
+""".stripIndent()
+    }
+}
+
+tasks.register('traceRuntimeServer') {
+    group = 'verification'
+    description = 'Launch a dedicated TFC server and dump coordinate-based runtime trace logs.'
+    dependsOn 'prepareRuntimeTraceServer', 'runServer'
+}
+
+tasks.configureEach {
+    if (name == 'runServer') {
+        mustRunAfter tasks.named('prepareRuntimeTraceServer')
+    }
+}
+
+tasks.register('traceTerrainCutRuntimeServer') {
+    group = 'verification'
+    description = 'Alias for traceRuntimeServer with tfeTraceMode=terrain_cut.'
+    dependsOn 'traceRuntimeServer'
+}

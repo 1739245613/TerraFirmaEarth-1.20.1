@@ -56,6 +56,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/java/com/newterraearth/tfe/client/model/**` | `All Rights Reserved` | 本项目客户端模型适配与动态模型加载逻辑。 |
 | `src/main/java/com/newterraearth/tfe/compat/**` | `All Rights Reserved` | 本项目对可选前置 / 兼容模组的反射与兼容逻辑。 |
 | `src/main/java/com/newterraearth/tfe/config/**` | `All Rights Reserved` | 本项目配置项与开关。 |
+| `src/main/java/com/newterraearth/tfe/debug/**` | `All Rights Reserved` | 本项目按系统属性启用的运行时诊断入口与本地复现辅助逻辑；默认关闭，不属于 TFC 上游表达复制。 |
 | `src/main/java/com/newterraearth/tfe/event/**` | `All Rights Reserved` | 本项目事件入口与内置数据包注入逻辑。 |
 | `src/main/java/com/newterraearth/tfe/network/**` | `All Rights Reserved` | 本项目网络同步与数据包逻辑。 |
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | 本项目地形、气候、季节、海洋、森林、河流、火山、植物、作物、刷怪与世界生成兼容实现；多数为 1.20 侧新增桥接 / 运行时逻辑。 |
@@ -142,6 +143,7 @@ derived from TFC expression, only that portion follows section A.
 | `src/main/java/com/newterraearth/tfe/client/model/**` | `All Rights Reserved` | Project-owned client model adaptation and dynamic model loading logic. |
 | `src/main/java/com/newterraearth/tfe/compat/**` | `All Rights Reserved` | Project-owned optional dependency and compatibility-mod integration logic. |
 | `src/main/java/com/newterraearth/tfe/config/**` | `All Rights Reserved` | Project-owned configuration keys and switches. |
+| `src/main/java/com/newterraearth/tfe/debug/**` | `All Rights Reserved` | Project-owned property-gated runtime diagnostics and local reproduction helpers; disabled by default and not copied TFC upstream expression. |
 | `src/main/java/com/newterraearth/tfe/event/**` | `All Rights Reserved` | Project-owned event entry points and built-in data-pack injection logic. |
 | `src/main/java/com/newterraearth/tfe/network/**` | `All Rights Reserved` | Project-owned network sync and packet logic. |
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | Project-owned terrain, climate, season, ocean, forest, river, volcano, plant, crop, spawn, and worldgen compatibility implementation; much of it is new 1.20-side bridge/runtime logic. |

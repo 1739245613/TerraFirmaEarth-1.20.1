@@ -3,6 +3,7 @@ package com.newterraearth.tfe.mixin;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.minecraft.util.Mth;
@@ -28,6 +29,7 @@ import net.dries007.tfc.world.river.RiverNoiseSampler;
 import com.newterraearth.tfe.world.NTEBiomeExtensionAccess;
 import com.newterraearth.tfe.world.NTEChunkHeightFillerAccess;
 import com.newterraearth.tfe.world.NTEChunkShoreContext;
+import com.newterraearth.tfe.debug.NTERuntimeTrace;
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
@@ -237,6 +239,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         double maxShoreWeight = 0;
         double maxOceanWeight = 0;
         tfe$couldBeSalty = false;
+        final boolean trace = NTERuntimeTrace.isTargetColumn(blockX, blockZ);
         for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
         {
             final double biomeWeight = entry.getDoubleValue();
@@ -296,6 +299,10 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         biomeAt = normalBiomeAt;
         tfe$computeInitialShoreWeights(biomeWeights);
         final double baseHeight = height;
+        if (trace)
+        {
+            tfe$trace("base", biomeWeights, baseHeight, normalHeight, shoreHeight, shoreWeight, oceanWeight, 0d, 0d, null);
+        }
 
         final double landWeight = 1 - oceanWeight - shoreWeight;
         if (shoreWeight > 0 && shoreBiomeAt != null)
@@ -314,6 +321,10 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
 
         final double shoreAdjustedHeight = height;
         final double tideAdjustedHeight = height;
+        if (trace)
+        {
+            tfe$trace("shore", biomeWeights, height, normalHeight, shoreHeight, shoreWeight, oceanWeight, landWeight, maxShoreWeight, shoreBiomeAt);
+        }
 
         assert biomeAt != null;
 
@@ -328,6 +339,10 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double caveTransitionTerrainUplift = terrainUplift * tfe$caveTransitionTerrainUpliftProtection(initialCaveWeight);
         tfe$forceSubterraneanCaveRiver = false;
         height = tfe$adjustHeightForExactRiverContributions(height, info, initialCaveWeight, caveTransitionTerrainUplift);
+        if (trace)
+        {
+            tfe$traceFinal(biomeWeights, baseHeight, shoreAdjustedHeight, centeredFeatureHeight, terrainUpliftBaseHeight, terrainUplift, initialCaveWeight, caveTransitionTerrainUplift, info, height);
+        }
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
 
         if (useCache)
@@ -640,5 +655,91 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         Arrays.fill(tfe$exactRiverBlendWeights, 0);
         tfe$exactRiverBlendWeights[NTERiverBlendType.NONE.ordinal()] = 1.0;
         return height;
+    }
+
+    @Unique
+    private void tfe$trace(String stage, Object2DoubleMap<BiomeExtension> biomeWeights, double height, double normalHeight, double shoreHeight, double shoreWeight, double oceanWeight, double landWeight, double maxShoreWeight, @Nullable BiomeExtension shoreBiomeAt)
+    {
+        System.out.printf(
+            "[TFE][RuntimeTrace][terrain_cut][%s] x=%d z=%d h=%.3f normalH=%.3f shoreH=%.3f landW=%.3f shoreW=%.3f oceanW=%.3f maxShoreW=%.3f shoreBiome=%s biomeWeights=%s shoreWeights=%s%n",
+            stage,
+            blockX,
+            blockZ,
+            height,
+            normalHeight,
+            shoreHeight,
+            landWeight,
+            shoreWeight,
+            oceanWeight,
+            maxShoreWeight,
+            tfe$biomeName(shoreBiomeAt),
+            tfe$formatBiomeWeights(biomeWeights),
+            tfe$formatShoreWeights()
+        );
+    }
+
+    @Unique
+    private void tfe$traceFinal(Object2DoubleMap<BiomeExtension> biomeWeights, double baseHeight, double shoreAdjustedHeight, double centeredFeatureHeight, double terrainUpliftBaseHeight, double terrainUplift, double initialCaveWeight, double caveTransitionTerrainUplift, @Nullable RiverInfo info, double finalHeight)
+    {
+        System.out.printf(
+            "[TFE][RuntimeTrace][terrain_cut][final] x=%d z=%d base=%.3f shore=%.3f centered=%.3f upliftBase=%.3f uplift=%.3f caveInitial=%.3f caveTransitionUplift=%.3f final=%.3f river=%s exactWeights=%s biomeWeights=%s noRiverBiome=%s%n",
+            blockX,
+            blockZ,
+            baseHeight,
+            shoreAdjustedHeight,
+            centeredFeatureHeight,
+            terrainUpliftBaseHeight,
+            terrainUplift,
+            initialCaveWeight,
+            caveTransitionTerrainUplift,
+            finalHeight,
+            tfe$formatRiverInfo(info),
+            tfe$formatExactRiverWeights(),
+            tfe$formatBiomeWeights(biomeWeights),
+            tfe$biomeName(biomeSource.getBiomeExtensionNoRiver(net.minecraft.core.QuartPos.fromBlock(blockX), net.minecraft.core.QuartPos.fromBlock(blockZ)))
+        );
+    }
+
+    @Unique
+    private static String tfe$biomeName(@Nullable BiomeExtension biome)
+    {
+        return biome == null ? "null" : biome.key().location().getPath();
+    }
+
+    @Unique
+    private static String tfe$formatRiverInfo(@Nullable RiverInfo info)
+    {
+        if (info == null)
+        {
+            return "null";
+        }
+        return String.format("normDistSq=%.3f widthSq=%.3f", info.normDistSq(), info.widthSq());
+    }
+
+    @Unique
+    private static String tfe$formatBiomeWeights(Object2DoubleMap<BiomeExtension> biomeWeights)
+    {
+        return biomeWeights.object2DoubleEntrySet().stream()
+            .sorted((a, b) -> Double.compare(b.getDoubleValue(), a.getDoubleValue()))
+            .map(entry -> tfe$biomeName(entry.getKey()) + "=" + String.format("%.3f", entry.getDoubleValue()))
+            .collect(Collectors.joining(","));
+    }
+
+    @Unique
+    private String tfe$formatExactRiverWeights()
+    {
+        return Arrays.stream(NTERiverBlendType.ALL)
+            .filter(type -> tfe$exactRiverBlendWeights[type.ordinal()] > 1.0e-6d)
+            .map(type -> type.name() + "=" + String.format("%.3f", tfe$exactRiverBlendWeights[type.ordinal()]))
+            .collect(Collectors.joining(","));
+    }
+
+    @Unique
+    private String tfe$formatShoreWeights()
+    {
+        return Arrays.stream(NTEShoreBlendType.ALL)
+            .filter(type -> tfe$shoreBlendWeights[type.ordinal()] > 1.0e-6d)
+            .map(type -> type.name() + "=" + String.format("%.3f", tfe$shoreBlendWeights[type.ordinal()]))
+            .collect(Collectors.joining(","));
     }
 }
