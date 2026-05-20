@@ -20,6 +20,7 @@ import com.newterraearth.tfe.common.entity.NTEFaunas;
 import com.newterraearth.tfe.common.entity.NTEItems;
 import com.newterraearth.tfe.common.entity.NTEVanillaFaunas;
 import com.newterraearth.tfe.event.NTEBuiltinPackEvents;
+import com.newterraearth.tfe.event.NTECactusEvents;
 import com.newterraearth.tfe.event.NTEDeviceEvents;
 import com.newterraearth.tfe.network.NTEPacketHandler;
 import com.newterraearth.tfe.world.feature.NTEFeatures;
@@ -37,6 +38,7 @@ public final class NewTerraEarthMod
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NTECommonConfig.SPEC);
         modBus.addListener(this::setup);
         NTEBuiltinPackEvents.init(modBus);
+        NTECactusEvents.init();
         NTEDeviceEvents.init();
         NTEDeviceEvents.initModBus(modBus);
         modBus.addListener(NTEEntities::onEntityAttributeCreation);
