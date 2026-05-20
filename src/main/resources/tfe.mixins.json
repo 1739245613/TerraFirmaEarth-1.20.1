@@ -9,6 +9,7 @@
     "AnnotateClimateMixin",
     "BananaPlantBlockMixin",
     "BiomeExtensionMixin",
+    "BlockEntityTypeMixin",
     "ClimatePlacementMixin",
     "CreepingPlantBlockMixin",
     "ChooseBiomesMixin",

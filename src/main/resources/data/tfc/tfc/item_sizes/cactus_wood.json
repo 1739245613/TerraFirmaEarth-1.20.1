@@ -1,0 +1,12 @@
+{
+  "ingredient": [
+    {
+      "item": "tfc:cactus_wood"
+    },
+    {
+      "item": "tfc:dried_cactus_wood"
+    }
+  ],
+  "size": "very_large",
+  "weight": "medium"
+}

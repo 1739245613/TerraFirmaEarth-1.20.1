@@ -1,0 +1,37 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": -9.4,
+      "max_temperature": 6.8,
+      "min_groundwater": 210,
+      "max_groundwater": 500,
+      "min_rain_variance": 0.3,
+      "max_rain_variance": 1,
+      "rain_variance_absolute": false,
+      "min_elevation": 60,
+      "max_elevation": 170
+    },
+    "groundcover": [
+      {
+        "block": "tfc:wood/twig/pine"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/red_pine"
+      }
+    ],
+    "normal_tree": "tfc:tree/red_pine",
+    "dead_tree": "tfc:tree/red_pine_dead",
+    "soil_disc": "tfc:duff_disc",
+    "fallen_log": "tfc:wood/log/pine",
+    "bush_log": {
+      "Name": "tfc:wood/wood/pine",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/red_pine"
+  }
+}

@@ -79,6 +79,8 @@ public final class NTEBlocks
     public static final RegistryObject<Item> PEANUT_JAM = ITEMS.register("peanut_jam", () -> new Item(jamFoodProperties()));
     public static final RegistryObject<Item> PEANUT_JAR = ITEMS.register("jar/peanut", () -> new JarItem(new Item.Properties(), new ResourceLocation(NewTerraEarthMod.MOD_ID, "block/jar/peanut"), false));
     public static final RegistryObject<Item> PEANUT_JAR_UNSEALED = ITEMS.register("jar/peanut_unsealed", () -> new JarItem(new Item.Properties(), new ResourceLocation(NewTerraEarthMod.MOD_ID, "block/jar/peanut_unsealed"), true));
+    public static final RegistryObject<Item> CACTUS_WOOD = TFC_ITEMS.register("cactus_wood", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> DRIED_CACTUS_WOOD = TFC_ITEMS.register("dried_cactus_wood", () -> new Item(new Item.Properties()));
 
     public static final RegistryObject<Block> HARDENED_CLAY = register(
         TFC_BLOCKS,
@@ -173,6 +175,7 @@ public final class NTEBlocks
 
     public static void register(IEventBus bus)
     {
+        NTEDevices.touch();
         BLOCKS.register(bus);
         ITEMS.register(bus);
         TFC_BLOCKS.register(bus);

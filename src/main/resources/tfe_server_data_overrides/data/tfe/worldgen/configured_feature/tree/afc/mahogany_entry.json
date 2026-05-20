@@ -1,0 +1,37 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": 17.6,
+      "max_temperature": 28.4,
+      "min_groundwater": 280,
+      "max_groundwater": 460,
+      "min_rain_variance": -0.65,
+      "max_rain_variance": 0.65,
+      "rain_variance_absolute": false,
+      "min_elevation": 60,
+      "max_elevation": 120
+    },
+    "groundcover": [
+      {
+        "block": "afc:wood/twig/mahogany"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/mahogany"
+      }
+    ],
+    "normal_tree": "tfc:tree/mahogany",
+    "dead_tree": "tfc:tree/mahogany_dead",
+    "soil_disc": "tfc:duff_disc",
+    "fallen_log": "afc:wood/log/mahogany",
+    "bush_log": {
+      "Name": "afc:wood/wood/mahogany",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/mahogany"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "__comment__": "Ported from 1.21 TFC; 1.20 heating result uses item instead of id.",
+  "type": "tfc:heating",
+  "ingredient": {
+    "item": "tfc:cactus_wood"
+  },
+  "result_item": {
+    "item": "tfc:dried_cactus_wood",
+    "count": 1
+  },
+  "temperature": 700
+}

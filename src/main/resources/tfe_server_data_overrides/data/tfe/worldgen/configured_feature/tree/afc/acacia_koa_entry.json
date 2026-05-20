@@ -1,0 +1,37 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": 17.6,
+      "max_temperature": 26.6,
+      "min_groundwater": 325,
+      "max_groundwater": 500,
+      "min_rain_variance": -0.6,
+      "max_rain_variance": 0.6,
+      "rain_variance_absolute": false,
+      "min_elevation": 70,
+      "max_elevation": 150
+    },
+    "groundcover": [
+      {
+        "block": "tfc:wood/twig/acacia"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/acacia_koa"
+      }
+    ],
+    "normal_tree": "tfc:tree/acacia_koa",
+    "dead_tree": "tfc:tree/acacia_koa_dead",
+    "soil_disc": "tfc:duff_disc",
+    "fallen_log": "tfc:wood/log/acacia",
+    "bush_log": {
+      "Name": "tfc:wood/wood/acacia",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/acacia_koa"
+  }
+}

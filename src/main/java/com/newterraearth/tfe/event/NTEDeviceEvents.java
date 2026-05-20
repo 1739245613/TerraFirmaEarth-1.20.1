@@ -1,0 +1,75 @@
+package com.newterraearth.tfe.event;
+
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import net.dries007.tfc.common.TFCCreativeTabs;
+import net.dries007.tfc.common.blockentities.AbstractFirepitBlockEntity;
+import net.dries007.tfc.util.advancements.TFCAdvancements;
+import net.dries007.tfc.util.events.StartFireEvent;
+
+import com.newterraearth.tfe.common.NTEBlocks;
+import com.newterraearth.tfe.common.NTEDevices;
+
+/**
+ * Forge-bus event glue for the stove / stove pot devices.
+ *
+ * <ul>
+ *   <li>Adds the stove and stove pot to TFC's misc creative tab so they appear alongside the
+ *       firepit and pot in creative search results.</li>
+ *   <li>Mirrors 1.20 TFC's {@code ForgeEventHandler#onFireStart} branch so flint and steel,
+ *       firestarter and similar trigger the firepit lighting routine on stove blocks.</li>
+ * </ul>
+ */
+public final class NTEDeviceEvents
+{
+    private NTEDeviceEvents() {}
+
+    public static void init()
+    {
+        MinecraftForge.EVENT_BUS.register(NTEDeviceEvents.class);
+    }
+
+    public static void initModBus(IEventBus modBus)
+    {
+        modBus.addListener(NTEDeviceEvents::onBuildCreativeTab);
+    }
+
+    private static void onBuildCreativeTab(BuildCreativeModeTabContentsEvent event)
+    {
+        if (event.getTab() == TFCCreativeTabs.MISC.tab().get())
+        {
+            event.accept(NTEBlocks.CACTUS_WOOD.get());
+            event.accept(NTEBlocks.DRIED_CACTUS_WOOD.get());
+            event.accept(NTEDevices.STOVE_ITEM.get());
+            event.accept(NTEDevices.STOVE_POT_ITEM.get());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onFireStart(StartFireEvent event)
+    {
+        if (!event.isStrong()) return;
+        final Level level = event.getLevel();
+        final BlockState state = event.getState();
+        final Block block = state.getBlock();
+        if (block == NTEDevices.STOVE.get() || block == NTEDevices.STOVE_POT.get())
+        {
+            final BlockEntity entity = level.getBlockEntity(event.getPos());
+            if (entity instanceof AbstractFirepitBlockEntity<?> firepit && firepit.light(state))
+            {
+                event.setCanceled(true);
+                if (event.getPlayer() instanceof net.minecraft.server.level.ServerPlayer serverPlayer)
+                {
+                    TFCAdvancements.LIT.trigger(serverPlayer, state);
+                }
+            }
+        }
+    }
+}

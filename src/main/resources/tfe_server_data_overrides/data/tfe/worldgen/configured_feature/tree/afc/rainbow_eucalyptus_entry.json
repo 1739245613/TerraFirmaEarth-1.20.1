@@ -1,0 +1,38 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": 17.6,
+      "max_temperature": 26.6,
+      "min_groundwater": 300,
+      "max_groundwater": 500,
+      "min_rain_variance": -0.4,
+      "max_rain_variance": 1,
+      "rain_variance_absolute": false,
+      "min_elevation": 60,
+      "max_elevation": 95
+    },
+    "groundcover": [
+      {
+        "block": "afc:wood/twig/rainbow_eucalyptus"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/rainbow_eucalyptus"
+      }
+    ],
+    "normal_tree": "tfc:tree/rainbow_eucalyptus",
+    "dead_tree": "tfc:tree/rainbow_eucalyptus_dead",
+    "soil_disc": "tfc:duff_disc",
+    "old_growth_chance": 1,
+    "fallen_log": "afc:wood/log/rainbow_eucalyptus",
+    "bush_log": {
+      "Name": "afc:wood/wood/rainbow_eucalyptus",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/rainbow_eucalyptus"
+  }
+}

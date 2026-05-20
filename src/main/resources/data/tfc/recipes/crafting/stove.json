@@ -1,0 +1,18 @@
+{
+  "__comment__": "Stove crafting recipe ported from 1.21 TFC. 4 cast iron double sheets arranged in a plus pattern.",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "S S",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "tag": "forge:double_sheets/cast_iron"
+    }
+  },
+  "result": {
+    "item": "tfc:stove",
+    "count": 1
+  }
+}

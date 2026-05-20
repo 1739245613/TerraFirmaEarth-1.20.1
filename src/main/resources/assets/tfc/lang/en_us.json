@@ -8653,5 +8653,9 @@
     "biome.tfc.patterned_ground":  "Patterned Ground",
     "biome.tfc.inverted_patterned_ground":  "Inverted Patterned Ground",
     "biome.tfc.stone_circles":  "Stone Circles",
-    "tfc.tooltip.farmland.average_hydration":  "Average Hydration: %s%%"
+    "tfc.tooltip.farmland.average_hydration":  "Average Hydration: %s%%",
+    "block.tfc.stove":  "Stove",
+    "block.tfc.stove_pot":  "Stove Pot",
+    "item.tfc.cactus_wood":  "Cactus Wood",
+    "item.tfc.dried_cactus_wood":  "Dried Cactus Wood"
 }

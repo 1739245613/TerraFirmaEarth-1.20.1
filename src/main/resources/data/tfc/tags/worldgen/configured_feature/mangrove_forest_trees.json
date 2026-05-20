@@ -1,0 +1,7 @@
+{
+  "__comment__": "Replace 1.20 upstream's mangrove_entry with the tfe 1.21-style mangrove_entry so NTEForestFeature parses the climate fields consistently.",
+  "replace": true,
+  "values": [
+    "tfe:tree/mangrove_entry"
+  ]
+}

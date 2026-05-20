@@ -23,6 +23,7 @@ import net.dries007.tfc.common.entities.prey.Pest;
 
 import com.newterraearth.tfe.client.model.NTEPlantBlockModel;
 import com.newterraearth.tfe.client.model.entity.NTEBisonModel;
+import com.newterraearth.tfe.common.NTEDevices;
 import com.newterraearth.tfe.client.model.entity.NTEJerboaModel;
 import com.newterraearth.tfe.client.model.entity.NTELeopardSealModel;
 import com.newterraearth.tfe.client.model.entity.NTELemmingModel;
@@ -64,6 +65,8 @@ public final class NTEClientEventHandler
             final RenderType translucent = RenderType.translucent();
             forEachTintedSoilBlock(block -> ItemBlockRenderTypes.setRenderLayer(block, cutoutMipped));
             forEachRockCutoutBlock(block -> ItemBlockRenderTypes.setRenderLayer(block, cutout));
+            ItemBlockRenderTypes.setRenderLayer(NTEDevices.STOVE.get(), cutout);
+            ItemBlockRenderTypes.setRenderLayer(NTEDevices.STOVE_POT.get(), cutout);
             for (NTEFluid fluid : NTEFluid.values())
             {
                 ItemBlockRenderTypes.setRenderLayer(NTEFluids.getBlock(fluid).get(), translucent);

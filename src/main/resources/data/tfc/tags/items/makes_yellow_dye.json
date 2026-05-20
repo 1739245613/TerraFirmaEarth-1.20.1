@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "tfe:plant/yellow_water_lily",
+    "tfe:plant/elegant_sunburst_lichen",
+    "tfe:plant/yellow_saxifrage",
+    "tfe:plant/buttercup",
+    "tfe:plant/sunflower"
+  ]
+}

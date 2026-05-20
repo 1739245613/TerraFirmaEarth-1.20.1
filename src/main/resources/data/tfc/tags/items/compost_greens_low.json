@@ -1,6 +1,30 @@
 {
-    "replace":  false,
-    "values":  [
-                   "tfe:alfalfa"
-               ]
+  "replace": false,
+  "values": [
+    "tfe:alfalfa",
+    "tfe:plant/azalea",
+    "tfe:plant/bear_grass",
+    "tfe:plant/buttercup",
+    "tfe:plant/cornflower",
+    "tfe:plant/edelweiss",
+    "tfe:plant/elegant_sunburst_lichen",
+    "tfe:plant/kinnikinnick",
+    "tfe:plant/mountain_hullwort",
+    "tfe:plant/moss_campion",
+    "tfe:plant/palash",
+    "tfe:plant/penwortel",
+    "tfe:plant/prickly_pear",
+    "tfe:plant/prickly_pear_purple",
+    "tfe:plant/qantu",
+    "tfe:plant/ramunda",
+    "tfe:plant/shawiash",
+    "tfe:plant/silken_pincushion_cactus",
+    "tfe:plant/silver_bromeliad",
+    "tfe:plant/sunflower",
+    "tfe:plant/tank_bromeliad",
+    "tfe:plant/white_water_lily",
+    "tfe:plant/purple_water_lily",
+    "tfe:plant/yellow_water_lily",
+    "tfe:plant/yellow_saxifrage"
+  ]
 }

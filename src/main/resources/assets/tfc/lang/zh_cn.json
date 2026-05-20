@@ -8666,5 +8666,9 @@
     "block.tfc.plant.mussels":  "贻贝",
     "block.tfc.plant.starfish":  "海星",
     "block.tfc.plant.anemone_large_purple":  "大紫海葵",
-    "block.tfc.plant.anemone_large_orange":  "大橙海葵"
+    "block.tfc.plant.anemone_large_orange":  "大橙海葵",
+    "block.tfc.stove":  "炉灶",
+    "block.tfc.stove_pot":  "炉灶锅",
+    "item.tfc.cactus_wood":  "仙人掌木",
+    "item.tfc.dried_cactus_wood":  "干仙人掌木"
 }

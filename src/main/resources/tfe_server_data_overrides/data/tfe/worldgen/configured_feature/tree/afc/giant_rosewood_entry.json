@@ -1,0 +1,37 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": 17.6,
+      "max_temperature": 40,
+      "min_groundwater": 330,
+      "max_groundwater": 500,
+      "min_rain_variance": 0.35,
+      "max_rain_variance": 1,
+      "rain_variance_absolute": true,
+      "min_elevation": 60,
+      "max_elevation": 120
+    },
+    "groundcover": [
+      {
+        "block": "tfc:wood/twig/rosewood"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/giant_rosewood"
+      }
+    ],
+    "normal_tree": "tfc:tree/giant_rosewood",
+    "dead_tree": "tfc:tree/giant_rosewood_dead",
+    "soil_disc": "tfc:duff_disc",
+    "fallen_log": "tfc:wood/log/rosewood",
+    "bush_log": {
+      "Name": "tfc:wood/wood/rosewood",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/giant_rosewood"
+  }
+}

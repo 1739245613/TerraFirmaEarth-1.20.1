@@ -1,0 +1,14 @@
+{
+  "__comment__": "Ported from 1.21 TFC; 1.20 recipe result uses item instead of id.",
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "tfc:plant/barrel_cactus"
+    }
+  ],
+  "result": {
+    "item": "tfc:cactus_wood",
+    "count": 1
+  }
+}

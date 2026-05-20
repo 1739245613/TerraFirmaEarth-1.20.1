@@ -1,0 +1,39 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": -2.2,
+      "max_temperature": 14.0,
+      "min_groundwater": 260,
+      "max_groundwater": 500,
+      "min_rain_variance": -1,
+      "max_rain_variance": -0.5,
+      "rain_variance_absolute": false,
+      "min_elevation": 60,
+      "max_elevation": 120
+    },
+    "groundcover": [
+      {
+        "block": "tfc:wood/twig/maple"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/bigleaf_maple"
+      }
+    ],
+    "normal_tree": "tfc:tree/bigleaf_maple",
+    "dead_tree": "tfc:tree/bigleaf_maple_dead",
+    "soil_disc": "tfc:duff_disc",
+    "old_growth_chance": 4,
+    "spoiler_old_growth_chance": 50,
+    "fallen_log": "tfc:wood/log/maple",
+    "bush_log": {
+      "Name": "tfc:wood/wood/maple",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/bigleaf_maple"
+  }
+}

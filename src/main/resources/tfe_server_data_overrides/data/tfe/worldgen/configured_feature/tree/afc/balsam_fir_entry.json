@@ -1,0 +1,38 @@
+{
+  "__comment__": "AFC 1.20 tree body with AFC 1.21 forest climate, loaded only by the conditional TFE AFC override pack.",
+  "type": "tfe:forest_entry_121",
+  "config": {
+    "climate": {
+      "min_temperature": -11.2,
+      "max_temperature": 1.4,
+      "min_groundwater": 210,
+      "max_groundwater": 500,
+      "min_rain_variance": -0.55,
+      "max_rain_variance": 0.45,
+      "rain_variance_absolute": false,
+      "min_elevation": 60,
+      "max_elevation": 150
+    },
+    "groundcover": [
+      {
+        "block": "tfc:wood/twig/douglas_fir"
+      },
+      {
+        "block": "afc:wood/fallen_leaves/balsam_fir"
+      }
+    ],
+    "normal_tree": "tfc:tree/balsam_fir",
+    "dead_tree": "tfc:tree/balsam_fir_dead",
+    "soil_disc": "tfc:duff_disc",
+    "fallen_log": "tfc:wood/log/douglas_fir",
+    "bush_log": {
+      "Name": "tfc:wood/wood/douglas_fir",
+      "Properties": {
+        "natural": "true",
+        "axis": "y"
+      }
+    },
+    "bush_leaves": "afc:wood/leaves/balsam_fir",
+    "old_growth_tree": "tfc:tree/balsam_fir_large"
+  }
+}
