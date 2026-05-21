@@ -1,0 +1,350 @@
+{
+  "name": "Ported Crops",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:seeds/canola",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "anchor": "cassava",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): 10 - 31 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 45 - 100 %$(br)$(bold)Category$(): Legume$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Potassium (K)$(br2)Cassava is a single block crop. Cassava seeds can be planted on farmland and will produce $(thing)Cassava$() and $(thing)Cassava Seeds$() as a product.",
+      "title": "Cassava"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=0]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=1]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=2]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=3]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=4]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/cassava[age=5]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        }
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "lentil",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -5 - 25 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 15 - 50 %$(br)$(bold)Category$(): Legume$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Nitrogen (N)$(br2)Lentils are a single block crop. Lentil seeds can be planted on farmland and will produce $(thing)Lentils$() and $(thing)Lentil Seeds$() as a product.",
+      "title": "Lentils"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=0]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=1]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=2]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=3]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=4]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/lentil[age=5]",
+            "Y": "tfc:farmland/silty_loam"
+          }
+        }
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "peanut",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): 11 - 31 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 20 - 80 %$(br)$(bold)Category$(): Legume$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Nitrogen (N)$(br2)Peanuts are a single block crop. Peanut seeds can be planted on farmland and will produce $(thing)Peanuts$() and $(thing)Peanut Seeds$() as a product.",
+      "title": "Peanuts"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=0]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=1]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=2]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=3]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=4]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/peanut[age=5]",
+            "Y": "tfe:farmland/oxisol"
+          }
+        }
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "alfalfa",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -32 - 8 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 40 - 100 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Nitrogen (N)$(br2)Alfalfa is a single block crop adapted to cold temperatures. Alfalfa seeds can be planted on farmland and will produce $(thing)Alfalfa$() and $(thing)Alfalfa Seeds$() as a product. Alfalfa can be used as a source of straw, or compost.",
+      "title": "Alfalfa"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=0]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=1]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=2]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=3]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=4]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/alfalfa[age=5]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        }
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "canola",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -30 - 6 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 20 - 75 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Phosphorus (P)$(br2)Canola is a single block crop adapted to cold temperatures. Canola seeds can be planted on farmland and will produce $(thing)Canola$() and $(thing)Canola Seeds$() as a product. Canola can be used as a source of straw, or compost, and the seeds can be used for oil.",
+      "title": "Canola"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=0]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=1]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=2]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=3]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=4]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/canola[age=5]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        }
+      ]
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "radish",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -28 - 10 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 30 - 90 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Potassium (K)$(br2)Radishes are a single block crop adapted to cold temperatures. Radish seeds can be planted on farmland and will produce $(thing)Radishes$() and $(thing)Radish Seeds$() as a product. Radishes are not a very nutritious vegetable, but can be fed to many animals.",
+      "title": "Radish"
+    },
+    {
+      "type": "tfc:multimultiblock",
+      "text": "",
+      "multiblocks": [
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=0]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=1]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=2]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=3]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=4]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        },
+        {
+          "pattern": [["X"], ["Y"], ["0"]],
+          "mapping": {
+            "X": "tfe:crop/radish[age=5]",
+            "Y": "tfe:farmland/mollisol"
+          }
+        }
+      ]
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:seeds/cassava": 0,
+    "tfe:food/cassava": 0,
+    "tfe:food/cooked_cassava": 0,
+    "tfe:seeds/lentil": 2,
+    "tfe:food/lentil": 2,
+    "tfe:food/cooked_lentil": 2,
+    "tfe:seeds/peanut": 4,
+    "tfe:food/peanut": 4,
+    "tfe:seeds/alfalfa": 6,
+    "tfe:alfalfa": 6,
+    "tfe:seeds/canola": 8,
+    "tfe:canola": 8,
+    "tfe:canola_paste": 8,
+    "tfe:seeds/radish": 10,
+    "tfe:food/radish": 10
+  },
+  "sortnum": 4
+}

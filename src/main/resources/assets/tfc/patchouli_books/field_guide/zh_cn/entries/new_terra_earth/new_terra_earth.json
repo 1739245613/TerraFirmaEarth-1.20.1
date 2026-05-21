@@ -35,7 +35,7 @@
       "type": "patchouli:text",
       "anchor": "crops",
       "title": "作物口径",
-      "text": "本模组的作物口径直接跟随 $(thing)1.21 TFC$()。作物仍按 $(thing)谷物$()、$(thing)豆类$()、$(thing)蔬菜$()、$(thing)覆盖作物$() 与 $(thing)杂项作物$() 区分；温度和 $(l:mechanics/hydration)湿润度$() 范围决定一个地区能不能稳定种活。$(br2)下面列出常见作物的 1.21 温度 / 湿度范围，方便按地区挑种。"
+      "text": "本模组的作物口径直接跟随 $(thing)1.21 TFC$()。作物仍按 $(thing)谷物$()、$(thing)豆类$()、$(thing)蔬菜$()、$(thing)覆盖作物$() 与 $(thing)杂项作物$() 区分；温度和 $(l:mechanics/hydration)湿润度$() 范围决定一个地区能不能稳定种活。$(br2)本模组作物的详细页见 $(l:new_terra_earth/ported_crops)移植作物$()。下面列出常见作物的 1.21 温度 / 湿度范围，方便按地区挑种。"
     },
     {
       "type": "patchouli:text",
@@ -59,21 +59,5 @@
     }
   ],
   "read_by_default": true,
-  "extra_recipe_mappings": {
-    "tfe:seeds/cassava": 8,
-    "tfe:food/cassava": 8,
-    "tfe:food/cooked_cassava": 8,
-    "tfe:seeds/lentil": 8,
-    "tfe:food/lentil": 8,
-    "tfe:food/cooked_lentil": 8,
-    "tfe:seeds/peanut": 8,
-    "tfe:food/peanut": 8,
-    "tfe:seeds/alfalfa": 11,
-    "tfe:alfalfa": 11,
-    "tfe:seeds/canola": 11,
-    "tfe:canola": 11,
-    "tfe:seeds/radish": 11,
-    "tfe:food/radish": 11
-  },
   "sortnum": 3
 }

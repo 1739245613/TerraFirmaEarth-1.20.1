@@ -33,6 +33,7 @@ import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateModel;
 import net.dries007.tfc.util.climate.ClimateRange;
 import net.dries007.tfc.util.climate.OverworldClimateModel;
+import net.dries007.tfc.world.chunkdata.ChunkData;
 
 import com.newterraearth.tfe.client.NTEClientRainVarianceCache;
 import com.newterraearth.tfe.compat.NTEFirmalifeGreenhouseCompat;
@@ -155,6 +156,11 @@ public final class NTESeasonalHelpers
     public static int getInstantRainHydration(float rainfall)
     {
         return (int) Mth.clampedMap(rainfall, ClimateModel.MINIMUM_RAINFALL, ClimateModel.MAXIMUM_RAINFALL, 0f, MAX_RAIN_HYDRATION);
+    }
+
+    public static int getAverageRainHydration(LevelAccessor level, BlockPos pos)
+    {
+        return getInstantRainHydration(ChunkData.get(level, pos).getRainfall(pos));
     }
 
     public static int getInstantHydrationFromRainHydration(Level level, BlockPos pos, int rainHydration)
@@ -311,10 +317,10 @@ public final class NTESeasonalHelpers
 
     private static Component getAverageHydrationTooltip(LevelAccessor level, BlockPos pos, ClimateRange validRange, boolean allowWiggle)
     {
-        return getNamedHydrationTooltip(validRange, allowWiggle, FarmlandBlock.getHydration(level, pos), "tfc.tooltip.farmland.average_hydration");
+        return getNamedHydrationTooltip(validRange, allowWiggle, getAverageRainHydration(level, pos), "tfc.tooltip.farmland.average_hydration");
     }
 
-    private static boolean useAverageHydrationInControlledGreenhouse(LevelAccessor level, BlockPos pos)
+    public static boolean useAverageHydrationInControlledGreenhouse(LevelAccessor level, BlockPos pos)
     {
         return level instanceof Level world && (
             NTEFirmalifeGreenhouseCompat.isControlledGreenhouse(world, pos)

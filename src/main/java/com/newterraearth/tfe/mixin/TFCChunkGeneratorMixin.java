@@ -2,12 +2,15 @@ package com.newterraearth.tfe.mixin;
 
 import java.util.EnumMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.ToIntFunction;
 
 import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.minecraft.Util;
 import net.minecraft.core.QuartPos;
@@ -20,12 +23,14 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.biome.FeatureSorter;
 import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.XoroshiroRandomSource;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -88,6 +93,36 @@ public abstract class TFCChunkGeneratorMixin
     @Shadow(remap = false) private ChunkDataProvider chunkDataProvider;
     @Unique private Noise2D tfe$tideHeightNoise;
     @Unique private Noise2D tfe$legacyShoreNoise;
+
+    @Redirect(
+        method = "applyBiomeDecoration",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/biome/FeatureSorter$StepFeatureData;indexMapping()Ljava/util/function/ToIntFunction;"
+        )
+    )
+    private ToIntFunction<PlacedFeature> tfe$skipUnindexedDecorationFeatures(FeatureSorter.StepFeatureData step)
+    {
+        final ToIntFunction<PlacedFeature> indexMapping = step.indexMapping();
+        final List<PlacedFeature> features = step.features();
+        return feature -> {
+            final int index = indexMapping.applyAsInt(feature);
+            return index >= 0 && index < features.size() && features.get(index) == feature ? index : -1;
+        };
+    }
+
+    @Redirect(
+        method = "applyBiomeDecoration",
+        at = @At(
+            value = "INVOKE",
+            target = "Lit/unimi/dsi/fastutil/ints/IntSet;add(I)Z",
+            remap = false
+        )
+    )
+    private boolean tfe$addDecorationFeatureIndexIfValid(IntSet indices, int index)
+    {
+        return index >= 0 && indices.add(index);
+    }
 
     @Redirect(
         method = "initRandomState",

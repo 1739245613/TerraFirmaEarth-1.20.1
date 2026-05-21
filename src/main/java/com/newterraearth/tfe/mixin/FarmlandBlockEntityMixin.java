@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 
 import net.dries007.tfc.common.blockentities.FarmlandBlockEntity;
 import net.dries007.tfc.common.blockentities.IFarmland;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 
 import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
@@ -29,9 +28,9 @@ public abstract class FarmlandBlockEntityMixin
         if (includeHydration)
         {
             text.add(Component.translatable("tfc.tooltip.farmland.hydration", NTESeasonalHelpers.getConfiguredCropHydration(level, pos)));
-            if (NTECommonConfig.useCurrentRainfallForCrops())
+            if (NTECommonConfig.useCurrentRainfallForCrops() && !NTESeasonalHelpers.useAverageHydrationInControlledGreenhouse(level, pos))
             {
-                text.add(Component.translatable("tfc.tooltip.farmland.average_hydration", FarmlandBlock.getHydration(level, pos)));
+                text.add(Component.translatable("tfc.tooltip.farmland.average_hydration", NTESeasonalHelpers.getAverageRainHydration(level, pos)));
             }
         }
 

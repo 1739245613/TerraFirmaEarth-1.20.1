@@ -1,14 +1,26 @@
 package com.newterraearth.tfe.mixin;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.CommonLevelAccessor;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -23,6 +35,10 @@ import com.newterraearth.tfe.world.NTEBiomeExtensions;
 @Mixin(value = TFCBiomes.class, remap = false)
 public abstract class TFCBiomesMixin
 {
+    @Unique private static final Logger TFE_LOGGER = LogManager.getLogger();
+    @Unique private static final Set<String> tfe$warnedMissingBiomeExtensions = ConcurrentHashMap.newKeySet();
+    @Unique private static final Map<ResourceLocation, BiomeExtension> tfe$extensionsByLocation = new ConcurrentHashMap<>();
+
     @Shadow @Final private static Map<ResourceKey<Biome>, BiomeExtension> EXTENSIONS;
 
     @Shadow @Final @Mutable public static BiomeExtension OCEAN;
@@ -164,6 +180,97 @@ public abstract class TFCBiomesMixin
         replace("patterned_ground", NTEBiomeExtensions.patternedGround());
         replace("inverted_patterned_ground", NTEBiomeExtensions.invertedPatternedGround());
         replace("stone_circles", NTEBiomeExtensions.stoneCircles());
+    }
+
+    /**
+     * @author Codex
+     * @reason Avoid stale BiomeBridge extension caches and IdentityHashMap key identity misses after addon biome extension replacement.
+     */
+    @Overwrite(remap = false)
+    public static BiomeExtension getExtension(CommonLevelAccessor level, Biome biome)
+    {
+        return tfe$getDirectExtension(level, biome);
+    }
+
+    /**
+     * @author Codex
+     * @reason External datapacks can place adjacent biomes without TFC extensions; chunk decoration should not hard-crash on them.
+     */
+    @Overwrite(remap = false)
+    public static BiomeExtension getExtensionOrThrow(LevelAccessor level, Biome biome)
+    {
+        final BiomeExtension extension = tfe$getDirectExtension(level, biome);
+        if (extension != null)
+        {
+            return extension;
+        }
+
+        final String biomeId = tfe$getBiomeId(level, biome);
+        if (tfe$warnedMissingBiomeExtensions.add(biomeId))
+        {
+            TFE_LOGGER.warn("Missing TFC biome extension for {} during chunk decoration; using tfc:plains climate fallback and skipping unindexed decoration features.", biomeId);
+        }
+        return PLAINS;
+    }
+
+    /**
+     * @author Codex
+     * @reason Match biome extensions by location as well as by ResourceKey identity.
+     */
+    @Overwrite(remap = false)
+    public static BiomeExtension getById(ResourceLocation id)
+    {
+        return tfe$getExtensionByLocation(id, null);
+    }
+
+    @Nullable
+    @Unique
+    private static BiomeExtension tfe$getDirectExtension(CommonLevelAccessor level, Biome biome)
+    {
+        final Registry<Biome> registry = level.registryAccess().registryOrThrow(Registries.BIOME);
+        return registry.getResourceKey(biome)
+            .map(key -> tfe$getExtensionByLocation(key.location(), key))
+            .orElse(null);
+    }
+
+    @Nullable
+    @Unique
+    private static BiomeExtension tfe$getExtensionByLocation(ResourceLocation id, @Nullable ResourceKey<Biome> preferredKey)
+    {
+        final BiomeExtension cached = tfe$extensionsByLocation.get(id);
+        if (cached != null)
+        {
+            return cached;
+        }
+
+        if (preferredKey != null)
+        {
+            final BiomeExtension extension = EXTENSIONS.get(preferredKey);
+            if (extension != null)
+            {
+                tfe$extensionsByLocation.putIfAbsent(id, extension);
+                return extension;
+            }
+        }
+
+        for (Map.Entry<ResourceKey<Biome>, BiomeExtension> entry : EXTENSIONS.entrySet())
+        {
+            if (entry.getKey().location().equals(id))
+            {
+                tfe$extensionsByLocation.putIfAbsent(id, entry.getValue());
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Unique
+    private static String tfe$getBiomeId(CommonLevelAccessor level, Biome biome)
+    {
+        final Registry<Biome> registry = level.registryAccess().registryOrThrow(Registries.BIOME);
+        return registry.getResourceKey(biome)
+            .map(key -> key.location().toString())
+            .orElse("registry_id=" + registry.getId(biome));
     }
 
     private static BiomeExtension replace(String name, BiomeExtension extension)

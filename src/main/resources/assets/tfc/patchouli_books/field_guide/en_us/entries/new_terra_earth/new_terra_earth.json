@@ -35,7 +35,7 @@
       "type": "patchouli:text",
       "anchor": "crops",
       "title": "Crop Rules",
-      "text": "Crop behavior in this addon follows $(thing)1.21 TFC$(). Crops still fall into $(thing)cereals$(), $(thing)legumes$(), $(thing)vegetables$(), $(thing)cover crops$(), and $(thing)miscellaneous crops$(). Temperature and $(l:mechanics/hydration)hydration$() ranges determine whether a region can support them reliably.$(br2)The following pages summarize the 1.21 temperature and hydration ranges for common crops."
+      "text": "Crop behavior in this addon follows $(thing)1.21 TFC$(). Crops still fall into $(thing)cereals$(), $(thing)legumes$(), $(thing)vegetables$(), $(thing)cover crops$(), and $(thing)miscellaneous crops$(). Temperature and $(l:mechanics/hydration)hydration$() ranges determine whether a region can support them reliably.$(br2)The addon crops have detailed pages in $(l:new_terra_earth/ported_crops)Ported Crops$(). The following pages summarize the 1.21 temperature and hydration ranges for common crops."
     },
     {
       "type": "patchouli:text",
@@ -59,21 +59,5 @@
     }
   ],
   "read_by_default": true,
-  "extra_recipe_mappings": {
-    "tfe:seeds/cassava": 8,
-    "tfe:food/cassava": 8,
-    "tfe:food/cooked_cassava": 8,
-    "tfe:seeds/lentil": 8,
-    "tfe:food/lentil": 8,
-    "tfe:food/cooked_lentil": 8,
-    "tfe:seeds/peanut": 8,
-    "tfe:food/peanut": 8,
-    "tfe:seeds/alfalfa": 11,
-    "tfe:alfalfa": 11,
-    "tfe:seeds/canola": 11,
-    "tfe:canola": 11,
-    "tfe:seeds/radish": 11,
-    "tfe:food/radish": 11
-  },
   "sortnum": 3
 }
