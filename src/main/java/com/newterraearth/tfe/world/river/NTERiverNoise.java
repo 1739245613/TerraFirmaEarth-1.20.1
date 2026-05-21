@@ -17,8 +17,26 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
  */
 public final class NTERiverNoise
 {
+    private static final double CAVE_FULL_DELEGATION_WEIGHT = 0.25d;
+
     private NTERiverNoise()
     {
+    }
+
+    private static double caveMouthBlend(double caveWeight)
+    {
+        final double t = Mth.clamp(caveWeight / CAVE_FULL_DELEGATION_WEIGHT, 0d, 1d);
+        return t * t * t;
+    }
+
+    private static double caveMouthHeight(RiverInfo info, double heightIn)
+    {
+        return Math.min(55 + info.normDistSq() * 1.3 * 16, heightIn);
+    }
+
+    private static double blendTowardCaveMouth(double riverHeight, RiverInfo info, double heightIn, double caveWeight)
+    {
+        return Mth.lerp(caveMouthBlend(caveWeight), riverHeight, caveMouthHeight(info, heightIn));
     }
 
     public static NTERiverNoiseSampler banked(NTESeed seed)
@@ -107,7 +125,7 @@ public final class NTERiverNoise
                     riverHeight = 61.5 * riverWeight + heightIn * heightInWeight;
                 }
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -133,7 +151,7 @@ public final class NTERiverNoise
                 final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
                 final double riverHeight = 58 + distFac * 7 + baseNoise.noise(x, z);
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -159,7 +177,7 @@ public final class NTERiverNoise
                 final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
                 final double riverHeight = 55 + distFac * 7 + baseNoise.noise(x, z);
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -187,7 +205,7 @@ public final class NTERiverNoise
                 final double adjDistFac = distFac > 0.6 ? distFac * 0.4 + 0.8 : distFac;
                 final double riverHeight = 55 + Mth.lerp(lowFreqCliffNoise.noise(x, z), distFac, adjDistFac) * 16 + baseNoise.noise(x, z);
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -222,7 +240,7 @@ public final class NTERiverNoise
                 this.x = x;
                 this.z = z;
 
-                return Math.min(riverHeight, heightIn);
+                return Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -274,7 +292,7 @@ public final class NTERiverNoise
                 final double canyonRiverHeight = 55 + info.normDistSq() * 1.3 * 16;
                 final double riverHeight = Mth.clampedMap(thisWeight, 0.9, 1, canyonRiverHeight, talusRiverHeight);
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -309,7 +327,7 @@ public final class NTERiverNoise
                 final double canyonRiverHeight = 55 + info.normDistSq() * 1.3 * 16;
                 final double riverHeight = Mth.clampedMap(thisWeight, 0.9, 1, canyonRiverHeight, terraceRiverHeight);
 
-                return height = Math.min(riverHeight, heightIn);
+                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -345,7 +363,7 @@ public final class NTERiverNoise
                     return heightIn;
                 }
 
-                final double canyonMaxHeight = Math.min(55 + info.normDistSq() * 1.3 * 16, heightIn);
+                final double canyonMaxHeight = caveMouthHeight(info, heightIn);
                 if (caveWeight > 0.5)
                 {
                     final double interiorHeight = Mth.map(caveWeight, 0.5d, 0.75d, Math.min(maxHeight, heightIn), heightIn);
