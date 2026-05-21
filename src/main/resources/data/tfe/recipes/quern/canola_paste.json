@@ -1,7 +1,7 @@
 {
     "type":  "tfc:quern",
     "ingredient":  {
-                       "item":  "tfe:seeds/canola"
+                       "item":  "tfe:canola_oilseed"
                    },
     "result":  {
                    "item":  "tfe:canola_paste",

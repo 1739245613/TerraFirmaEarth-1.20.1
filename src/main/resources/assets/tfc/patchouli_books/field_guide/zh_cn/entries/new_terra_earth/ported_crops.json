@@ -168,7 +168,7 @@
     {
       "type": "patchouli:text",
       "anchor": "alfalfa",
-      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -32 - 8 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 40 - 100 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含氮肥料 (N)$(br2)苜蓿是适应寒冷温度的单格作物。苜蓿种子可以种植在耕地上，产出$(thing)苜蓿$()和$(thing)苜蓿种子$()。苜蓿可以用作干草或堆肥的来源。",
+      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -32 - 8 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 40 - 100 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含氮肥料 (N)$(br2)苜蓿是适应寒冷温度的单格作物。栽培苜蓿成熟后产量更高，也可以喂给多数常见家畜、家禽和草食动物。苜蓿仍可用作干草或堆肥来源。",
       "title": "苜蓿"
     },
     {
@@ -222,7 +222,7 @@
     {
       "type": "patchouli:text",
       "anchor": "canola",
-      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -30 - 6 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 20 - 75 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含磷肥料 (P)$(br2)油菜是适应寒冷温度的单格作物。油菜种子可以种植在耕地上，产出$(thing)油菜$()和$(thing)油菜种子$()。油菜可以用作干草或堆肥的来源，种子可用于榨油。",
+      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -30 - 6 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 20 - 75 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含磷肥料 (P)$(br2)油菜是适应寒冷温度的单格作物。油菜种子只用于种植，成熟作物产出$(thing)油菜$()。用小刀切割油菜可得到$(thing)油菜籽$()，并副产稻草；油菜籽可进一步用于榨油。",
       "title": "油菜"
     },
     {
@@ -342,6 +342,7 @@
     "tfe:alfalfa": 6,
     "tfe:seeds/canola": 8,
     "tfe:canola": 8,
+    "tfe:canola_oilseed": 8,
     "tfe:canola_paste": 8,
     "tfe:seeds/radish": 10,
     "tfe:food/radish": 10

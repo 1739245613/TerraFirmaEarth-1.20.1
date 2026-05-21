@@ -168,7 +168,7 @@
     {
       "type": "patchouli:text",
       "anchor": "alfalfa",
-      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -32 - 8 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 40 - 100 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Nitrogen (N)$(br2)Alfalfa is a single block crop adapted to cold temperatures. Alfalfa seeds can be planted on farmland and will produce $(thing)Alfalfa$() and $(thing)Alfalfa Seeds$() as a product. Alfalfa can be used as a source of straw, or compost.",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -32 - 8 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 40 - 100 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Nitrogen (N)$(br2)Alfalfa is a single block crop adapted to cold temperatures. Cultivated alfalfa yields more when mature, and can feed most common livestock, poultry, and grazing animals. It can still be used as a source of straw or compost.",
       "title": "Alfalfa"
     },
     {
@@ -222,7 +222,7 @@
     {
       "type": "patchouli:text",
       "anchor": "canola",
-      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -30 - 6 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 20 - 75 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Phosphorus (P)$(br2)Canola is a single block crop adapted to cold temperatures. Canola seeds can be planted on farmland and will produce $(thing)Canola$() and $(thing)Canola Seeds$() as a product. Canola can be used as a source of straw, or compost, and the seeds can be used for oil.",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -30 - 6 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 20 - 75 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Phosphorus (P)$(br2)Canola is a single block crop adapted to cold temperatures. Canola seeds are only for planting, while mature crops produce $(thing)Canola$(). Cutting canola with a knife produces $(thing)Canola Oilseed$() as the main product and straw as a byproduct; oilseed can then be crushed for oil.",
       "title": "Canola"
     },
     {
@@ -342,6 +342,7 @@
     "tfe:alfalfa": 6,
     "tfe:seeds/canola": 8,
     "tfe:canola": 8,
+    "tfe:canola_oilseed": 8,
     "tfe:canola_paste": 8,
     "tfe:seeds/radish": 10,
     "tfe:food/radish": 10

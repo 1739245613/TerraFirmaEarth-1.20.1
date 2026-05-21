@@ -75,6 +75,7 @@ public final class NTEBlocks
     private static final Map<NTECrop, RegistryObject<Item>> CROP_PRODUCE = new EnumMap<>(NTECrop.class);
     private static final Map<NTECrop, RegistryObject<Item>> COOKED_CROP_PRODUCE = new EnumMap<>(NTECrop.class);
     private static final Map<NTESoil, RegistryObject<Item>> DRIED_MUD_BRICKS = new EnumMap<>(NTESoil.class);
+    public static final RegistryObject<Item> CANOLA_OILSEED = ITEMS.register("canola_oilseed", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> CANOLA_PASTE = ITEMS.register("canola_paste", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> PEANUT_JAM = ITEMS.register("peanut_jam", () -> new Item(jamFoodProperties()));
     public static final RegistryObject<Item> PEANUT_JAR = ITEMS.register("jar/peanut", () -> new JarItem(new Item.Properties(), new ResourceLocation(NewTerraEarthMod.MOD_ID, "block/jar/peanut"), false));
