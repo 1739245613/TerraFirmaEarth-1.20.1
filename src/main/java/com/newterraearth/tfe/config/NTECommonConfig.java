@@ -46,7 +46,7 @@ public final class NTECommonConfig
     {
         final ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
-        builder.comment("Only controls natural generation for addon-managed plantable content. It does not disable blocks, items, or planting logic.");
+        builder.comment("只控制本模组管理的可种植内容是否自然生成；不会禁用方块、物品或手动种植逻辑。");
         builder.push("wild_crops");
         WILD_CROP_ALFALFA = builder.define("alfalfa", true);
         WILD_CROP_CANOLA = builder.define("canola", true);
@@ -72,7 +72,7 @@ public final class NTECommonConfig
         GOLDEN_BAMBOO = builder.define("golden_bamboo", true);
         builder.pop();
 
-        builder.comment("Controls natural spawn selection only, including biome spawns and infestation-selected pests. Disabled entities remain registered and usable by spawn eggs, commands, or custom scripts.");
+        builder.comment("只控制自然刷新选择，包括群系刷新和虫害系统选择的害虫；关闭后实体仍会注册，仍可通过刷怪蛋、命令或自定义脚本使用。");
         builder.push("entity_spawns");
         ENTITY_SPAWN_BISON = builder.define("bison", true);
         ENTITY_SPAWN_LEOPARD_SEAL = builder.define("leopard_seal", true);
@@ -81,42 +81,42 @@ public final class NTECommonConfig
         ENTITY_SPAWN_JERBOA = builder.define("jerboa", true);
         builder.pop();
 
-        builder.comment("Controls the 1.21-style runtime snow catch-up backend. Vanilla 1.20 rain/thunder scheduling stays unchanged.");
+        builder.comment("控制 1.21 风格的运行时积雪追赶后端；原版 1.20 的降雨和雷暴调度不会改变。");
         builder.push("weather_runtime");
         SNOW_MAX_ACCUMULATION_ON_UPDATE = builder
-            .comment("Maximum snow/ice/icicle updates applied when re-entering an unloaded chunk. Lower values match nearby loaded chunks more closely.")
+            .comment("重新进入未加载区块时最多执行的雪、冰、冰锥更新次数。数值越低，越接近周围已加载区块的变化速度。")
             .defineInRange("snow_max_accumulation_on_update", 64, 0, 256);
         TICKS_PER_SNOW_ACCUMULATION = builder
-            .comment("Game ticks between snow accumulation attempts. Lower values accumulate snow faster, but cost more runtime work.")
+            .comment("两次积雪尝试之间的游戏刻间隔。数值越低积雪越快，但运行时开销越高。")
             .defineInRange("ticks_per_snow_accumulation", 80, 1, Integer.MAX_VALUE);
         SNOW_MELT_MULTIPLIER = builder
-            .comment("Multiplier applied to the accumulation interval when scheduling melt attempts. Default matches 1.21 TFC: 3.")
+            .comment("安排融雪尝试时套用在积雪间隔上的倍率。默认值 3 与 1.21 TFC 一致。")
             .defineInRange("snow_melt_multiplier", 3, 1, Integer.MAX_VALUE);
         builder.pop();
 
-        builder.comment("Controls whether crops and fruiting plants use current seasonal rainfall or legacy annual-average hydration.");
+        builder.comment("控制作物和结果植物使用当前季节降雨湿度，还是使用旧版年均湿度。");
         builder.push("plant_hydration");
         CROP_USE_CURRENT_RAINFALL_HYDRATION = builder
-            .comment("When true, crop growth and crop tooltips use the current seasonal rainfall-derived hydration.")
+            .comment("设为 true 时，作物生长和作物提示使用当前季节降雨换算出的湿度。")
             .define("crop_use_current_rainfall_hydration", true);
         FRUIT_USE_CURRENT_RAINFALL_HYDRATION = builder
-            .comment("When true, fruit trees, berry bushes, and banana plants use current seasonal rainfall-derived hydration.")
+            .comment("设为 true 时，果树、浆果灌木和香蕉植株使用当前季节降雨换算出的湿度。")
             .define("fruit_use_current_rainfall_hydration", true);
         builder.pop();
 
-        builder.comment("Controls the addon mountain terrain uplift field. Changes affect newly generated chunks only; changing these values in an existing world can create terrain borders.");
+        builder.comment("控制本模组的山区地势抬高场。改动只影响新生成区块；在已有世界中途修改可能造成新旧区块地形边界。");
         builder.push("terrain_uplift");
         TERRAIN_UPLIFT_ENABLED = builder
-            .comment("When false, disables the addon mountain terrain uplift field without changing biome selection or normal TFC terrain features.")
+            .comment("设为 false 时关闭本模组的山区地势抬高场；不会改变群系选择或普通 TFC 地形地物。")
             .define("enabled", true);
         TERRAIN_UPLIFT_SOURCE_HEIGHT = builder
-            .comment("Maximum height, in blocks, added by one terrain uplift source before river, lake, coast, and multi-source blending are applied.")
-            .defineInRange("source_height", 150.0d, 0.0d, 1024.0d);
+            .comment("单个地势抬高源的强度参数，之后还会经过河流、湖泊、海岸和多源融合折算；默认 150.0 实际约按 15.8% 增加高山最高高度")
+            .defineInRange("source_height", 150.0d, 0.0d, 4096.0d);
         TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE = builder
-            .comment("Distance, in blocks, from the edge of the source platform to the point where normal point-source uplift fades to zero. Default 590 plus the 10 block platform gives about 600 blocks from center.")
+            .comment("普通点源从平台边缘衰减到 0 的距离，单位为方块。默认 590 加上 10 格平台半径，约等于从中心到外缘 600 格。")
             .defineInRange("source_falloff_distance", 590, 1, 2048);
         TERRAIN_UPLIFT_SMALL_PLATFORM_RADIUS = builder
-            .comment("Flat-to-gently-curved center radius, in blocks, for normal mountain and line-volcano uplift sources. Shield volcanoes keep their own dynamic platform sizes.")
+            .comment("普通山地和线状火山抬高源中心平缓平台半径，单位为方块。盾火山仍使用自己的动态平台大小。")
             .defineInRange("small_platform_radius", 10, 0, 256);
         builder.pop();
 
