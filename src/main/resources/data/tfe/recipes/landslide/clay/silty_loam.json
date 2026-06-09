@@ -1,0 +1,5 @@
+{
+    "type":  "tfc:landslide",
+    "ingredient":  "tfe:clay_duff/silty_loam",
+    "result":  "tfc:clay/silty_loam"
+}
