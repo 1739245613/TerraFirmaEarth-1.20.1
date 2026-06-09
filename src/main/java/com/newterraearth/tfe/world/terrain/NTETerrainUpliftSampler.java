@@ -54,7 +54,6 @@ public final class NTETerrainUpliftSampler
     private final int sourceRadiusCells;
     private Noise2D activeShieldVolcanoSourceNoise;
     private Noise2D dormantShieldVolcanoSourceNoise;
-    private Noise2D extinctShieldVolcanoSourceNoise;
     private Noise2D ancientShieldVolcanoSourceNoise;
     private Noise2D shieldVolcanoIntensitySourceNoise;
 
@@ -405,7 +404,6 @@ public final class NTETerrainUpliftSampler
             {
                 case ACTIVE_SHIELD_VOLCANO -> activeShieldVolcanoSourceNoise();
                 case DORMANT_SHIELD_VOLCANO -> dormantShieldVolcanoSourceNoise();
-                case EXTINCT_SHIELD_VOLCANO -> extinctShieldVolcanoSourceNoise();
                 case ANCIENT_SHIELD_VOLCANO -> ancientShieldVolcanoSourceNoise();
                 case ICE_SHEET_SHIELD_VOLCANO, GLACIATED_SHIELD_VOLCANO -> shieldVolcanoIntensitySourceNoise();
                 case NORMAL, LINE_VOLCANO -> (x, z) -> Double.NEGATIVE_INFINITY;
@@ -428,15 +426,6 @@ public final class NTETerrainUpliftSampler
             dormantShieldVolcanoSourceNoise = NTERegionNoise.dormantHotSpots(seed);
         }
         return dormantShieldVolcanoSourceNoise;
-    }
-
-    private Noise2D extinctShieldVolcanoSourceNoise()
-    {
-        if (extinctShieldVolcanoSourceNoise == null)
-        {
-            extinctShieldVolcanoSourceNoise = NTERegionNoise.extinctHotSpots(seed);
-        }
-        return extinctShieldVolcanoSourceNoise;
     }
 
     private Noise2D ancientShieldVolcanoSourceNoise()
@@ -578,7 +567,6 @@ public final class NTETerrainUpliftSampler
                 case "volcanic_mountains" -> SourceProfile.LINE_VOLCANO;
                 case "active_shield_volcano" -> SourceProfile.ACTIVE_SHIELD_VOLCANO;
                 case "dormant_shield_volcano" -> SourceProfile.DORMANT_SHIELD_VOLCANO;
-                case "extinct_shield_volcano" -> SourceProfile.EXTINCT_SHIELD_VOLCANO;
                 case "ancient_shield_volcano" -> SourceProfile.ANCIENT_SHIELD_VOLCANO;
                 case "ice_sheet_shield_volcano" -> SourceProfile.ICE_SHEET_SHIELD_VOLCANO;
                 case "glaciated_shield_volcano" -> SourceProfile.GLACIATED_SHIELD_VOLCANO;
@@ -672,7 +660,6 @@ public final class NTETerrainUpliftSampler
         LINE_VOLCANO(DEFAULT_SMALL_PLATFORM_RADIUS, DEFAULT_SMALL_PLATFORM_RADIUS, 0d, SourceShape.LINE, 0.78d),
         ACTIVE_SHIELD_VOLCANO(96, 288, 0.75d, SourceShape.POINT, 0.94d),
         DORMANT_SHIELD_VOLCANO(192, 544, 0.70d, SourceShape.POINT, 0.90d),
-        EXTINCT_SHIELD_VOLCANO(192, 544, 0.60d, SourceShape.POINT, 0.86d),
         ANCIENT_SHIELD_VOLCANO(192, 544, 0.60d, SourceShape.POINT, 0.86d),
         ICE_SHEET_SHIELD_VOLCANO(192, 544, 0.72d, SourceShape.POINT, 0.91d),
         GLACIATED_SHIELD_VOLCANO(192, 544, 0.72d, SourceShape.POINT, 0.91d);
