@@ -41,8 +41,13 @@ import com.newterraearth.tfe.world.NTE121ClimateHelpers;
 import com.newterraearth.tfe.world.forest.NTE121ForestHelpers;
 import com.newterraearth.tfe.world.forest.NTEForestType;
 
+import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
+
 public class NTEForestFeature extends Feature<NTEForestConfig>
 {
+    private static final int MAX_NON_FLOATING_TREE_WATER_DEPTH = 5;
+    private static final int MIN_NON_FLOATING_TREE_Y = SEA_LEVEL_Y - MAX_NON_FLOATING_TREE_WATER_DEPTH;
+
     public NTEForestFeature(Codec<NTEForestConfig> codec)
     {
         super(codec);
@@ -103,10 +108,14 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         {
             return false;
         }
-
-        if (entry.floating())
+        final boolean floating = entry.floating();
+        if (floating)
         {
             mutablePos.setY(level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, mutablePos.getX(), mutablePos.getZ()) + random.nextInt(2));
+        }
+        if (!floating && mutablePos.getY() < MIN_NON_FLOATING_TREE_Y)
+        {
+            return false;
         }
 
         final ConfiguredFeature<?, ?> feature;
@@ -141,13 +150,36 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         }
 
         final BlockPos featurePos = mutablePos.immutable();
+        final BlockState clearedBaseState = floating ? null : clearTreeBaseObstacle(level, featurePos);
         final boolean placed = feature.place(level, generator, random, featurePos);
+        if (!placed && clearedBaseState != null)
+        {
+            level.setBlock(featurePos, clearedBaseState, 2);
+        }
         if (placed && typeConfig.getDensity() >= 3)
         {
             mutablePos.set(featurePos);
             placeSoilDisc(level, generator, random, mutablePos, entry);
         }
         return placed;
+    }
+
+    @Nullable
+    private static BlockState clearTreeBaseObstacle(WorldGenLevel level, BlockPos pos)
+    {
+        final BlockState state = level.getBlockState(pos);
+        if (isTreeBaseObstacle(level, pos, state))
+        {
+            level.setBlock(pos, state.getFluidState().createLegacyBlock(), 2);
+            return state;
+        }
+        return null;
+    }
+
+    private static boolean isTreeBaseObstacle(WorldGenLevel level, BlockPos pos, BlockState state)
+    {
+        return !FluidHelpers.isAirOrEmptyFluid(state)
+            && (state.canBeReplaced() || EnvironmentHelpers.isWorldgenReplaceable(state) || state.getCollisionShape(level, pos).isEmpty());
     }
 
     private boolean placeBush(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType type, ChunkGenerator generator, long levelSeed)
