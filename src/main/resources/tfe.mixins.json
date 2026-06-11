@@ -32,6 +32,7 @@
     "HelpersMixin",
     "InteractionManagerMixin",
     "InventoryBlockEntityMixin",
+    "KaolinDiscVeinFeatureMixin",
     "LogPileBlockMixin",
     "LogPileBlockEntityMixin",
     "FruitTreeBranchBlockMixin",

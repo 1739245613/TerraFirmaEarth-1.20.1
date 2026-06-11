@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBlock;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.RegistryObject;
 
 import net.dries007.tfc.common.blocks.OreDeposit;
@@ -63,7 +64,7 @@ public final class NTERockBlocks
 
     public static final Map<NTERock, Map<OreDeposit, RegistryObject<Block>>> ORE_DEPOSITS = Helpers.mapOfKeys(NTERock.class, rock ->
         Helpers.mapOfKeys(OreDeposit.class, deposit ->
-            register("deposit/" + deposit.name() + "/" + rock.getSerializedName(), () -> new Block(Block.Properties.of().mapColor(rock.color()).sound(net.minecraft.world.level.block.SoundType.GRAVEL).strength(rock.category().hardness(2.0f))), block -> new BlockItem(block, new Item.Properties()))
+            register("deposit/" + deposit.name() + "/" + rock.getSerializedName(), () -> new Block(Block.Properties.of().mapColor(MapColor.STONE).sound(net.minecraft.world.level.block.SoundType.GRAVEL).strength(rock.category().hardness(2.0f))), block -> new BlockItem(block, new Item.Properties()))
         )
     );
 

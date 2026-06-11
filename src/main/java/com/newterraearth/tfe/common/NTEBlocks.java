@@ -308,7 +308,7 @@ public final class NTEBlocks
                 getBlock(soil, NTESoilBlockType.FARMLAND)
             );
             case DUFF -> new ConnectedDuffBlock(
-                Block.Properties.of().mapColor(MapColor.GRASS).randomTicks().strength(1.6f).sound(SoundType.GRASS),
+                Block.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(1.6f).sound(SoundType.GRASS),
                 getBlock(soil, NTESoilBlockType.DIRT),
                 getBlock(soil, NTESoilBlockType.GRASS_PATH),
                 getBlock(soil, NTESoilBlockType.FARMLAND)
@@ -332,7 +332,7 @@ public final class NTEBlocks
                 getBlock(soil, NTESoilBlockType.FARMLAND)
             );
             case CLAY_DUFF -> new ConnectedDuffBlock(
-                Block.Properties.of().mapColor(MapColor.GRASS).randomTicks().strength(1.8f).sound(SoundType.GRASS),
+                Block.Properties.of().mapColor(MapColor.DIRT).randomTicks().strength(1.8f).sound(SoundType.GRASS),
                 getBlock(soil, NTESoilBlockType.CLAY),
                 getBlock(soil, NTESoilBlockType.GRASS_PATH),
                 getBlock(soil, NTESoilBlockType.FARMLAND)
