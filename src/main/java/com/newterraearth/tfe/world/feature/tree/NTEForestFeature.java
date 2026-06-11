@@ -46,7 +46,9 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 public class NTEForestFeature extends Feature<NTEForestConfig>
 {
     private static final int MAX_NON_FLOATING_TREE_WATER_DEPTH = 5;
-    private static final int MIN_NON_FLOATING_TREE_Y = SEA_LEVEL_Y - MAX_NON_FLOATING_TREE_WATER_DEPTH;
+    private static final int MAX_FLOATING_TREE_WATER_DEPTH = 8;
+    private static final int MIN_NON_FLOATING_TREE_OCEAN_FLOOR_Y = SEA_LEVEL_Y - MAX_NON_FLOATING_TREE_WATER_DEPTH;
+    private static final int MIN_FLOATING_TREE_OCEAN_FLOOR_Y = SEA_LEVEL_Y - MAX_FLOATING_TREE_WATER_DEPTH;
 
     public NTEForestFeature(Codec<NTEForestConfig> codec)
     {
@@ -109,13 +111,14 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
             return false;
         }
         final boolean floating = entry.floating();
+        final int minOceanFloorY = floating ? MIN_FLOATING_TREE_OCEAN_FLOOR_Y : MIN_NON_FLOATING_TREE_OCEAN_FLOOR_Y;
+        if (mutablePos.getY() < minOceanFloorY)
+        {
+            return false;
+        }
         if (floating)
         {
             mutablePos.setY(level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, mutablePos.getX(), mutablePos.getZ()) + random.nextInt(2));
-        }
-        if (!floating && mutablePos.getY() < MIN_NON_FLOATING_TREE_Y)
-        {
-            return false;
         }
 
         final ConfiguredFeature<?, ?> feature;
