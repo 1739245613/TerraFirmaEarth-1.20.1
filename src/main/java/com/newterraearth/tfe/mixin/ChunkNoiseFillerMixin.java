@@ -101,7 +101,7 @@ public abstract class ChunkNoiseFillerMixin
                     final NTEShoreNoiseSampler sampler = access.tfe$getShoreNoiseSamplers().get(type);
                     if (sampler != null)
                     {
-                        noise += weight * sampler.noise(y, riverAdjustedNoise);
+                        noise += weight * sampler.noise(tfe$shoreNoiseY(type, y, access), riverAdjustedNoise);
                     }
                 }
             }
@@ -120,15 +120,7 @@ public abstract class ChunkNoiseFillerMixin
     @Unique
     private static double tfe$applyTerrainUpliftLayerNoise(int y, double initialNoise, NTEChunkHeightFillerAccess access)
     {
-        final double upliftAmount = access.tfe$getTerrainUpliftAmount();
-        if (upliftAmount <= 0d)
-        {
-            return initialNoise;
-        }
-
-        final double baseHeight = access.tfe$getTerrainUpliftBaseHeight();
-        final double topHeight = access.tfe$getTerrainUpliftTopHeight();
-        if (y <= baseHeight || y > topHeight)
+        if (!tfe$isTerrainUpliftLayer(y, access))
         {
             return initialNoise;
         }
@@ -137,17 +129,17 @@ public abstract class ChunkNoiseFillerMixin
     }
 
     @Unique
+    private static boolean tfe$isTerrainUpliftLayer(int y, NTEChunkHeightFillerAccess access)
+    {
+        return access.tfe$getTerrainUpliftAmount() > 0d
+            && y > access.tfe$getTerrainUpliftBaseHeight()
+            && y <= access.tfe$getTerrainUpliftTopHeight();
+    }
+
+    @Unique
     private static double tfe$protectTerrainUpliftLayerAfterShore(int y, double noise, NTEChunkHeightFillerAccess access)
     {
-        final double upliftAmount = access.tfe$getTerrainUpliftAmount();
-        if (upliftAmount <= 0d)
-        {
-            return noise;
-        }
-
-        final double baseHeight = access.tfe$getTerrainUpliftBaseHeight();
-        final double topHeight = access.tfe$getTerrainUpliftTopHeight();
-        if (y <= baseHeight || y > topHeight)
+        if (!tfe$isTerrainUpliftLayer(y, access))
         {
             return noise;
         }
@@ -165,6 +157,29 @@ public abstract class ChunkNoiseFillerMixin
     }
 
     @Unique
+    private static int tfe$shoreNoiseY(NTEShoreBlendType type, int y, NTEChunkHeightFillerAccess access)
+    {
+        if (!tfe$isTerrainCarvingShoreType(type))
+        {
+            return y;
+        }
+
+        if (!tfe$isTerrainUpliftAffectedHeight(y, access))
+        {
+            return y;
+        }
+
+        return Mth.floor(y - access.tfe$getTerrainUpliftAmount());
+    }
+
+    @Unique
+    private static boolean tfe$isTerrainUpliftAffectedHeight(int y, NTEChunkHeightFillerAccess access)
+    {
+        return access.tfe$getTerrainUpliftAmount() > 0d
+            && y <= access.tfe$getTerrainUpliftTopHeight();
+    }
+
+    @Unique
     private static boolean tfe$hasTerrainCarvingShoreDensity(NTEChunkHeightFillerAccess access)
     {
         if (!access.tfe$hasShoreRuntime())
@@ -173,12 +188,25 @@ public abstract class ChunkNoiseFillerMixin
         }
 
         final double[] weights = access.tfe$getShoreBlendWeights();
-        return weights[NTEShoreBlendType.SEA_STACKS.ordinal()] > 1.0e-4d
-            || weights[NTEShoreBlendType.ROCKY_SHORES.ordinal()] > 1.0e-4d
-            || weights[NTEShoreBlendType.EMBAYMENTS.ordinal()] > 1.0e-4d
-            || weights[NTEShoreBlendType.UPPER_TERRACE.ordinal()] > 1.0e-4d
-            || weights[NTEShoreBlendType.LOWER_TERRACE.ordinal()] > 1.0e-4d
-            || weights[NTEShoreBlendType.SETBACK_CLIFFS.ordinal()] > 1.0e-4d;
+        for (NTEShoreBlendType type : NTEShoreBlendType.ALL)
+        {
+            if (tfe$isTerrainCarvingShoreType(type) && weights[type.ordinal()] > 1.0e-4d)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Unique
+    private static boolean tfe$isTerrainCarvingShoreType(NTEShoreBlendType type)
+    {
+        return type == NTEShoreBlendType.SEA_STACKS
+            || type == NTEShoreBlendType.ROCKY_SHORES
+            || type == NTEShoreBlendType.EMBAYMENTS
+            || type == NTEShoreBlendType.UPPER_TERRACE
+            || type == NTEShoreBlendType.LOWER_TERRACE
+            || type == NTEShoreBlendType.SETBACK_CLIFFS;
     }
 
     @Unique

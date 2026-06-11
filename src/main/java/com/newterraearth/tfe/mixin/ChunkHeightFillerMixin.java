@@ -320,10 +320,15 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         }
 
         final double shoreAdjustedHeight = height;
-        final double tideAdjustedHeight = height;
         if (trace)
         {
             tfe$trace("shore", biomeWeights, height, normalHeight, shoreHeight, shoreWeight, oceanWeight, landWeight, maxShoreWeight, shoreBiomeAt);
+        }
+
+        if (oceanWeight >= 0.25d && tfe$tideHeightNoise != null)
+        {
+            final double tideAdjustedSeaEdgeHeight = tfe$tideHeightNoise.noise(blockX, blockZ) - 4d;
+            height = Mth.clampedMap(landWeight, 0.32d, 0.36d, Math.min(height, tideAdjustedSeaEdgeHeight), height);
         }
 
         assert biomeAt != null;
