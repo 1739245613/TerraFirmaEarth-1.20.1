@@ -1,0 +1,25 @@
+{
+  "__comment__": "Pins the addon's intended 1.21-style dead forest tree pool under tfe-owned entry ids so dead_forest keeps groundwater/rain_variance climate semantics.",
+  "replace": false,
+  "values": [
+    "tfe:tree/dead_acacia_entry",
+    "tfe:tree/dead_ash_entry",
+    "tfe:tree/dead_aspen_entry",
+    "tfe:tree/dead_birch_entry",
+    "tfe:tree/dead_blackwood_entry",
+    "tfe:tree/dead_chestnut_entry",
+    "tfe:tree/dead_douglas_fir_entry",
+    "tfe:tree/dead_hickory_entry",
+    "tfe:tree/dead_kapok_entry",
+    "tfe:tree/dead_maple_entry",
+    "tfe:tree/dead_oak_entry",
+    "tfe:tree/dead_palm_entry",
+    "tfe:tree/dead_pine_entry",
+    "tfe:tree/dead_rosewood_entry",
+    "tfe:tree/dead_sequoia_entry",
+    "tfe:tree/dead_spruce_entry",
+    "tfe:tree/dead_sycamore_entry",
+    "tfe:tree/dead_white_cedar_entry",
+    "tfe:tree/dead_willow_entry"
+  ]
+}

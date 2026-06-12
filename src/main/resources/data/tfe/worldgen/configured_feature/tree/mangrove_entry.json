@@ -1,6 +1,6 @@
 {
   "__comment__": "TFE 1.21-style mangrove entry, ported from 1.21 TFC. Uses groundwater/rain_variance climate fields so NTEForestFeature parses it the same way as other tfe entries.",
-  "type": "tfc:forest_entry",
+  "type": "tfe:forest_entry_121",
   "config": {
     "climate": {
       "min_temperature": 15.8,

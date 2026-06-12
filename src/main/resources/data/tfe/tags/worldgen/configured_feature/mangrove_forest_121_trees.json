@@ -1,0 +1,7 @@
+{
+  "__comment__": "Pins the addon's intended 1.21-style mangrove forest tree pool under tfe-owned entry ids so public tfc tags keep vanilla-compatible entry types.",
+  "replace": false,
+  "values": [
+    "tfe:tree/mangrove_entry"
+  ]
+}
