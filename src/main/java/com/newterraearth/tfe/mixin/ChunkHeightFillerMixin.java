@@ -337,7 +337,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double centeredFeatureHeight = height;
         final RiverInfo info = sampleRiverInfo(useCache);
         tfe$computeInitialExactRiverWeights(biomeWeights);
-        final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights);
+        final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights, info);
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
@@ -464,7 +464,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double centeredFeatureHeight = height;
         final RiverInfo info = sampleRiverInfo(useCache);
         tfe$computeInitialExactRiverWeights(biomeWeights);
-        final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights);
+        final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights, info);
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
@@ -535,7 +535,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     }
 
     @Unique
-    private double tfe$sampleTerrainUplift(BiomeExtension biomeAt, Object2DoubleMap<BiomeExtension> biomeWeights)
+    private double tfe$sampleTerrainUplift(BiomeExtension biomeAt, Object2DoubleMap<BiomeExtension> biomeWeights, @Nullable RiverInfo info)
     {
         if (tfe$terrainUpliftSampler == null)
         {
@@ -554,8 +554,49 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             return 0d;
         }
 
-        final double protectedWaterWeight = tfe$lakeUpliftSuppression(biomeWeights);
+        final double protectedWaterWeight = Math.max(tfe$lakeUpliftSuppression(biomeWeights), tfe$estuaryRiverUpliftSuppression(info, biomeWeights));
         return uplift * (1d - Mth.clamp(protectedWaterWeight, 0d, 1d));
+    }
+
+    @Unique
+    private double tfe$estuaryRiverUpliftSuppression(@Nullable RiverInfo info, Object2DoubleMap<BiomeExtension> biomeWeights)
+    {
+        if (info == null || info.normDistSq() >= 1.10d)
+        {
+            return 0d;
+        }
+
+        double oceanOrShoreWeight = 0d;
+        for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
+        {
+            final BiomeExtension biome = entry.getKey();
+            if (biome.isShore() || biome.biomeBlendType() == BiomeBlendType.OCEAN)
+            {
+                oceanOrShoreWeight += entry.getDoubleValue();
+            }
+        }
+        if (oceanOrShoreWeight <= 0d)
+        {
+            return 0d;
+        }
+
+        double exactRiverWeight = 0d;
+        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        {
+            if (type != NTERiverBlendType.NONE)
+            {
+                exactRiverWeight += tfe$exactRiverBlendWeights[type.ordinal()];
+            }
+        }
+        if (exactRiverWeight <= 1.0e-4d)
+        {
+            return 0d;
+        }
+
+        final double channelCore = tfe$smoothStep(Mth.clampedMap(info.normDistSq(), 1.10d, 0.25d, 0d, 1d));
+        final double waterBlend = tfe$smoothStep(Mth.clampedMap(oceanOrShoreWeight, 0.20d, 0.50d, 0d, 1d));
+        final double riverBlend = tfe$smoothStep(Mth.clampedMap(exactRiverWeight, 0.05d, 0.30d, 0d, 1d));
+        return channelCore * waterBlend * riverBlend;
     }
 
     @Unique

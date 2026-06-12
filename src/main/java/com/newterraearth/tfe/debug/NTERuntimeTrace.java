@@ -2,6 +2,7 @@ package com.newterraearth.tfe.debug;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -14,10 +15,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public final class NTERuntimeTrace
 {
     private static final String MODE_TERRAIN_CUT = "terrain_cut";
+    private static final String MODE_BLOCK_PROBE = "block_probe";
     private static final boolean ENABLED = Boolean.getBoolean("tfe.debug.runtimeTrace");
     private static final String MODE = System.getProperty("tfe.debug.traceMode", MODE_TERRAIN_CUT);
     private static final long EXPECTED_SEED = Long.getLong("tfe.debug.traceSeed", Long.MIN_VALUE);
     private static final int TARGET_X = Integer.getInteger("tfe.debug.traceX", 2695);
+    private static final int TARGET_Y = Integer.getInteger("tfe.debug.traceY", 64);
     private static final int TARGET_Z = Integer.getInteger("tfe.debug.traceZ", 6738);
     private static final int RADIUS = Math.max(0, Integer.getInteger("tfe.debug.traceRadius", 8));
     private static final String AXIS = System.getProperty("tfe.debug.traceAxis", "x");
@@ -46,6 +49,11 @@ public final class NTERuntimeTrace
         return ENABLED && MODE_TERRAIN_CUT.equals(MODE);
     }
 
+    public static boolean blockProbeEnabled()
+    {
+        return ENABLED && MODE_BLOCK_PROBE.equals(MODE);
+    }
+
     public static boolean isTargetColumn(int x, int z)
     {
         return terrainCutEnabled() && (traceZAxis()
@@ -68,7 +76,7 @@ public final class NTERuntimeTrace
 
         final MinecraftServer server = event.getServer();
         final long actualSeed = server.getWorldData().worldGenOptions().seed();
-        System.out.printf("[TFE][RuntimeTrace] started mode=%s seed=%d target=(%d,%d) radius=%d axis=%s%n", MODE, actualSeed, TARGET_X, TARGET_Z, RADIUS, AXIS);
+        System.out.printf("[TFE][RuntimeTrace] started mode=%s seed=%d target=(%d,%d,%d) radius=%d axis=%s%n", MODE, actualSeed, TARGET_X, TARGET_Y, TARGET_Z, RADIUS, AXIS);
         if (EXPECTED_SEED != Long.MIN_VALUE && EXPECTED_SEED != actualSeed)
         {
             System.out.printf("[TFE][RuntimeTrace] expected seed %d but server seed is %d%n", EXPECTED_SEED, actualSeed);
@@ -119,6 +127,58 @@ public final class NTERuntimeTrace
         }
     }
 
+    private static void printBlockProbe(ServerLevel level)
+    {
+        final int minY = Math.max(level.getMinBuildHeight(), TARGET_Y - Math.max(8, RADIUS));
+        final int maxY = Math.min(level.getMaxBuildHeight() - 1, TARGET_Y + Math.max(32, RADIUS));
+        final int worldSurface = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, TARGET_X, TARGET_Z);
+        final int oceanFloor = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, TARGET_X, TARGET_Z);
+        final BlockPos target = new BlockPos(TARGET_X, TARGET_Y, TARGET_Z);
+        System.out.printf(
+            "[TFE][RuntimeTrace][block_probe][target] x=%d y=%d z=%d biome=%s block=%s fluid=%s worldSurfaceWG=%d oceanFloorWG=%d%n",
+            TARGET_X,
+            TARGET_Y,
+            TARGET_Z,
+            level.getBiome(target).unwrapKey().map(key -> key.location().toString()).orElse("unknown"),
+            level.getBlockState(target).getBlock(),
+            level.getFluidState(target).getType(),
+            worldSurface,
+            oceanFloor
+        );
+        for (int y = maxY; y >= minY; y--)
+        {
+            final BlockPos pos = new BlockPos(TARGET_X, y, TARGET_Z);
+            System.out.printf(
+                "[TFE][RuntimeTrace][block_probe][column] x=%d y=%d z=%d block=%s fluid=%s%n",
+                TARGET_X,
+                y,
+                TARGET_Z,
+                level.getBlockState(pos).getBlock(),
+                level.getFluidState(pos).getType()
+            );
+        }
+        for (int dz = -1; dz <= 1; dz++)
+        {
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                final int x = TARGET_X + dx;
+                final int z = TARGET_Z + dz;
+                final BlockPos pos = new BlockPos(x, TARGET_Y, z);
+                System.out.printf(
+                    "[TFE][RuntimeTrace][block_probe][plane] x=%d y=%d z=%d biome=%s block=%s fluid=%s worldSurfaceWG=%d oceanFloorWG=%d%n",
+                    x,
+                    TARGET_Y,
+                    z,
+                    level.getBiome(pos).unwrapKey().map(key -> key.location().toString()).orElse("unknown"),
+                    level.getBlockState(pos).getBlock(),
+                    level.getFluidState(pos).getType(),
+                    level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z),
+                    level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z)
+                );
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onServerTick(TickEvent.ServerTickEvent event)
     {
@@ -133,6 +193,10 @@ public final class NTERuntimeTrace
             if (terrainCutEnabled() && traceLevel != null)
             {
                 printHeightmap(traceLevel);
+            }
+            else if (blockProbeEnabled() && traceLevel != null)
+            {
+                printBlockProbe(traceLevel);
             }
             printed = true;
         }

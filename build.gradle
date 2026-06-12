@@ -131,6 +131,7 @@ def tfeRuntimeTraceTaskRequested = gradle.startParameter.taskNames.any { it == '
 def tfeRuntimeTraceMode = (project.findProperty('tfeTraceMode') ?: 'terrain_cut').toString()
 def tfeRuntimeTraceSeed = (project.findProperty('tfeTraceSeed') ?: project.findProperty('tfeTerrainCutSeed') ?: '-8547423016982190715').toString()
 def tfeRuntimeTraceX = (project.findProperty('tfeTraceX') ?: project.findProperty('tfeTerrainCutX') ?: '2695').toString()
+def tfeRuntimeTraceY = (project.findProperty('tfeTraceY') ?: '64').toString()
 def tfeRuntimeTraceZ = (project.findProperty('tfeTraceZ') ?: project.findProperty('tfeTerrainCutZ') ?: '6738').toString()
 def tfeRuntimeTraceRadius = (project.findProperty('tfeTraceRadius') ?: '8').toString()
 def tfeRuntimeTraceAxis = (project.findProperty('tfeTraceAxis') ?: 'x').toString()
@@ -148,6 +149,7 @@ minecraft {
 
             property 'tfe.debug.traceSeed', tfeRuntimeTraceSeed
             property 'tfe.debug.traceX', tfeRuntimeTraceX
+            property 'tfe.debug.traceY', tfeRuntimeTraceY
             property 'tfe.debug.traceZ', tfeRuntimeTraceZ
             property 'tfe.debug.traceRadius', tfeRuntimeTraceRadius
             property 'tfe.debug.traceAxis', tfeRuntimeTraceAxis
