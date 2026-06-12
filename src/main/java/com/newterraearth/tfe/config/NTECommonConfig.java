@@ -37,6 +37,10 @@ public final class NTECommonConfig
     private static final ForgeConfigSpec.IntValue SNOW_MELT_MULTIPLIER;
     private static final ForgeConfigSpec.BooleanValue CROP_USE_CURRENT_RAINFALL_HYDRATION;
     private static final ForgeConfigSpec.BooleanValue FRUIT_USE_CURRENT_RAINFALL_HYDRATION;
+    private static final ForgeConfigSpec.DoubleValue MOUNTAIN_CLIFF_HEIGHT_MIN;
+    private static final ForgeConfigSpec.DoubleValue MOUNTAIN_CLIFF_HEIGHT_MAX;
+    private static final ForgeConfigSpec.DoubleValue MOUNTAIN_CLIFF_FADE_RATIO_MIN;
+    private static final ForgeConfigSpec.DoubleValue MOUNTAIN_CLIFF_FADE_RATIO_MAX;
     private static final ForgeConfigSpec.BooleanValue TERRAIN_UPLIFT_ENABLED;
     private static final ForgeConfigSpec.DoubleValue TERRAIN_UPLIFT_SOURCE_HEIGHT;
     private static final ForgeConfigSpec.IntValue TERRAIN_UPLIFT_SOURCE_FALLOFF_DISTANCE;
@@ -102,6 +106,22 @@ public final class NTECommonConfig
         FRUIT_USE_CURRENT_RAINFALL_HYDRATION = builder
             .comment("设为 true 时，果树、浆果灌木和香蕉植株使用当前季节降雨换算出的湿度。")
             .define("fruit_use_current_rainfall_hydration", true);
+        builder.pop();
+
+        builder.comment("山脉 heightmap 的峰顶 cliff 噪声。改动只影响新生成区块。");
+        builder.push("mountain_heightmap");
+        MOUNTAIN_CLIFF_HEIGHT_MIN = builder
+            .comment("山脉在 y > 120 后额外叠加的峰顶 cliff 随机高度下限。默认 0 表示仍允许部分山没有明显 cliff 抬高。")
+            .defineInRange("cliff_height_min", 0.0d, 0.0d, 64.0d);
+        MOUNTAIN_CLIFF_HEIGHT_MAX = builder
+            .comment("山脉在 y > 120 后额外叠加的峰顶 cliff 随机高度上限。TFC 原生正向上限为 25 格；默认值为 30 格。")
+            .defineInRange("cliff_height_max", 30.0d, 0.0d, 64.0d);
+        MOUNTAIN_CLIFF_FADE_RATIO_MIN = builder
+            .comment("峰顶 cliff 从 0 渐变到实际抬高量所需的基础高度差比例下限。实际渐变高度 = 当前 cliff 抬高量 * ratio；0.25 约等于最陡每 1 格基础高度增加 4 格 cliff 抬高。")
+            .defineInRange("cliff_fade_ratio_min", 0.25d, 0.01d, 4.0d);
+        MOUNTAIN_CLIFF_FADE_RATIO_MAX = builder
+            .comment("峰顶 cliff 从 0 渐变到实际抬高量所需的基础高度差比例上限。0.5 约等于每 1 格基础高度增加 2 格 cliff 抬高。")
+            .defineInRange("cliff_fade_ratio_max", 0.5d, 0.01d, 4.0d);
         builder.pop();
 
         builder.comment("控制本模组的山区地势抬高场。改动只影响新生成区块；在已有世界中途修改可能造成新旧区块地形边界。");
@@ -355,6 +375,26 @@ public final class NTECommonConfig
     public static boolean useCurrentRainfallForFruit()
     {
         return FRUIT_USE_CURRENT_RAINFALL_HYDRATION.get();
+    }
+
+    public static double getMountainCliffHeightMin()
+    {
+        return MOUNTAIN_CLIFF_HEIGHT_MIN.get();
+    }
+
+    public static double getMountainCliffHeightMax()
+    {
+        return MOUNTAIN_CLIFF_HEIGHT_MAX.get();
+    }
+
+    public static double getMountainCliffFadeRatioMin()
+    {
+        return MOUNTAIN_CLIFF_FADE_RATIO_MIN.get();
+    }
+
+    public static double getMountainCliffFadeRatioMax()
+    {
+        return MOUNTAIN_CLIFF_FADE_RATIO_MAX.get();
     }
 
     public static boolean isTerrainUpliftEnabled()

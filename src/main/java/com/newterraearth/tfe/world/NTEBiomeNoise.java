@@ -7,6 +7,7 @@ import net.dries007.tfc.world.biome.BiomeNoise;
 import net.dries007.tfc.world.noise.Noise2D;
 import net.dries007.tfc.world.noise.OpenSimplex2D;
 
+import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.noise.NTECellular2D;
 import com.newterraearth.tfe.world.region.NTERegionNoise;
 
@@ -142,6 +143,65 @@ public final class NTEBiomeNoise
                 {
                     final double mappedCliffHeight = Mth.clampedMap(cliffHeight, 0, -1, 0, 1);
                     height += mappedCliffHeight * cliffNoise.noise(x, z);
+                }
+            }
+            return height;
+        };
+    }
+
+    public static Noise2D mountains(long seed, int baseHeight, int scaleHeight)
+    {
+        final Noise2D baseNoise = new OpenSimplex2D(seed)
+            .octaves(6)
+            .spread(0.14f)
+            .add(new OpenSimplex2D(seed + 1)
+                .octaves(4)
+                .spread(0.02f)
+                .scaled(-0.7f, 0.7f)
+                .ridged()
+            )
+            .map(x -> {
+                final double x0 = 0.125f * (x + 1) * (x + 1) * (x + 1);
+                return SEA_LEVEL_Y + baseHeight + scaleHeight * x0;
+            });
+
+        final double cliffMinHeight = Math.max(0, NTECommonConfig.getMountainCliffHeightMin());
+        final double cliffMaxHeight = Math.max(cliffMinHeight, NTECommonConfig.getMountainCliffHeightMax());
+        if (cliffMaxHeight <= 0)
+        {
+            return baseNoise;
+        }
+        final double fadeMinRatio = Math.max(0.01, NTECommonConfig.getMountainCliffFadeRatioMin());
+        final double fadeMaxRatio = Math.max(fadeMinRatio, NTECommonConfig.getMountainCliffFadeRatioMax());
+
+        final Noise2D cliffLiftNoise = new OpenSimplex2D(seed + 2)
+            .octaves(2)
+            .spread(0.01f)
+            .scaled(-cliffMaxHeight, cliffMaxHeight)
+            .map(value -> value > 0 ? Mth.clampedMap(value, 0, cliffMaxHeight, cliffMinHeight, cliffMaxHeight) : 0);
+        final Noise2D cliffThresholdNoise = new OpenSimplex2D(seed + 3)
+            .octaves(2)
+            .spread(0.01f)
+            .scaled(140 - 20, 140 + 20);
+        final Noise2D cliffFadeRatioNoise = new OpenSimplex2D(seed + 4)
+            .octaves(2)
+            .spread(0.01f)
+            .scaled(fadeMinRatio, fadeMaxRatio);
+
+        return (x, z) -> {
+            double height = baseNoise.noise(x, z);
+            if (height > 120)
+            {
+                final double delta = height - cliffThresholdNoise.noise(x, z);
+                if (delta > 0)
+                {
+                    final double cliffHeight = cliffLiftNoise.noise(x, z);
+                    if (cliffHeight > 0)
+                    {
+                        final double fadeHeight = Math.max(1, cliffHeight * cliffFadeRatioNoise.noise(x, z));
+                        final double t = Mth.clamp(delta / fadeHeight, 0, 1);
+                        height += t * cliffHeight;
+                    }
                 }
             }
             return height;
@@ -334,7 +394,7 @@ public final class NTEBiomeNoise
 
     public static Noise2D extremeDolineMountains(long seed)
     {
-        return tiankeng(seed, BiomeNoise.mountains(seed, 16, 40));
+        return tiankeng(seed, mountains(seed, 16, 40));
     }
 
     public static Noise2D iceSheet(long seed)
