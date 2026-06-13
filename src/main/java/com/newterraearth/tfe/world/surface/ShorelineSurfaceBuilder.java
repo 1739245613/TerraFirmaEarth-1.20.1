@@ -47,6 +47,7 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
         SEA_LEVEL_Y,
         -3
     );
+    private static final SurfaceBuilder TERRACE_LAND = ShorelineSurfaceBuilder::buildTerraceLandSurface;
     public static final SurfaceBuilderFactory NORMAL = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SURFACE, NTESurfaceStates.SHORE_UNDERLAYER, 6, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory SANDY = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SAND, NTESurfaceStates.SHORE_SANDSTONE, 6, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory FORCE_RARE_SAND = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.RARE_SHORE_SAND, NTESurfaceStates.RARE_SHORE_SANDSTONE, 6, false, false, ROCKY_LAND);
@@ -58,6 +59,7 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
     public static final SurfaceBuilderFactory MOUNTAINS = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.GRAVEL, NTESurfaceStates.RAW, 2, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory VOLCANIC_MOUNTAINS = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.GRAVEL, NTESurfaceStates.RAW, 2, false, false, SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL.apply(seed));
     public static final SurfaceBuilderFactory ROCKY_SHORE = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.RAW, NTESurfaceStates.RAW, 6, false, false, SimpleSurfaceBuilder.ROCKY_SHORE.apply(seed));
+    public static final SurfaceBuilderFactory TERRACE_CLIFFS = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SURFACE, NTESurfaceStates.SHORE_UNDERLAYER, 2, false, false, TERRACE_LAND);
 
     private final long seed;
     private final SurfaceState surface;
@@ -405,6 +407,79 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
     private static int calculateAltitudeSlopeSurfaceDepth(SurfaceBuilderContext context, int y, int minimumReturnValue)
     {
         return calculateAltitudeSlopeSurfaceDepth(context, y, minimumReturnValue, 5);
+    }
+
+    private static void buildTerraceLandSurface(SurfaceBuilderContext context, int startY, int endY)
+    {
+        int surfaceDepth = -1;
+        int firstSurfaceY = Integer.MIN_VALUE;
+
+        for (int y = startY; y >= endY; --y)
+        {
+            final BlockState stateAt = context.getBlockState(y);
+            if (stateAt.isAir())
+            {
+                surfaceDepth = -1;
+            }
+            else if (context.isDefaultBlock(stateAt))
+            {
+                if (surfaceDepth == -1)
+                {
+                    surfaceDepth = 0;
+                    if (y < context.getSeaLevel() - 1)
+                    {
+                        buildTerraceWaveCutSurface(context, y);
+                    }
+                    else if (firstSurfaceY == Integer.MIN_VALUE)
+                    {
+                        firstSurfaceY = y;
+                        buildTerraceCap(context, y, endY);
+                    }
+                    else
+                    {
+                        buildTerraceCliffFace(context, y, firstSurfaceY);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void buildTerraceCap(SurfaceBuilderContext context, int surfaceY, int endY)
+    {
+        final int seed = Helpers.hash(472893417L, context.pos());
+        final boolean thinTopsoil = context.getSlope() > 10d || (seed & 3) == 0;
+        final int soilDepth = surfaceY >= context.getSeaLevel() + 9 && !thinTopsoil ? 2 : 1;
+
+        context.setBlockState(surfaceY, NTESurfaceStates.TOP_GRASS_TO_GRAVEL);
+        int depth = 1;
+        while (depth <= soilDepth && surfaceY - depth >= endY && context.isDefaultBlock(context.getBlockState(surfaceY - depth)))
+        {
+            context.setBlockState(surfaceY - depth, NTESurfaceStates.MID_DIRT_TO_GRAVEL);
+            depth++;
+        }
+    }
+
+    private static void buildTerraceCliffFace(SurfaceBuilderContext context, int surfaceY, int topY)
+    {
+        final int depthFromTop = topY - surfaceY;
+        final int seed = Helpers.hash(812394771L, context.pos());
+        final int seaLevel = context.getSeaLevel();
+        final boolean waveCutTalus = surfaceY <= seaLevel + 3 && depthFromTop >= 5;
+        final boolean recessedGravel = surfaceY <= seaLevel + 7 && context.getSlope() > 12d && (seed & 7) <= 2;
+
+        if (waveCutTalus || recessedGravel)
+        {
+            context.setBlockState(surfaceY, NTESurfaceStates.GRAVEL);
+        }
+    }
+
+    private static void buildTerraceWaveCutSurface(SurfaceBuilderContext context, int surfaceY)
+    {
+        final int seaLevel = context.getSeaLevel();
+        if (surfaceY >= seaLevel - 5)
+        {
+            context.setBlockState(surfaceY, NTESurfaceStates.GRAVEL);
+        }
     }
 
     private static int calculateAltitudeSlopeSurfaceDepth(SurfaceBuilderContext context, int y, int minimumReturnValue, int maxDepth)

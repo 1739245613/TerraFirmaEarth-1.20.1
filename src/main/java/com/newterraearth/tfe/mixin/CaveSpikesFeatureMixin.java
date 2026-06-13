@@ -1,6 +1,7 @@
 package com.newterraearth.tfe.mixin;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,6 +21,12 @@ public abstract class CaveSpikesFeatureMixin
     @Inject(method = "replaceBlock", at = @At("HEAD"), cancellable = true, remap = false)
     private void tfe$replaceSaltWaterSpike(WorldGenLevel level, BlockPos pos, BlockState state, CallbackInfo ci)
     {
+        if (tfe$isTerraceCliffBiome(level, pos))
+        {
+            ci.cancel();
+            return;
+        }
+
         final Block block = level.getBlockState(pos).getBlock();
         if (block == TFCBlocks.SALT_WATER.get())
         {
@@ -31,11 +38,45 @@ public abstract class CaveSpikesFeatureMixin
     @Inject(method = "replaceBlockWithoutFluid", at = @At("HEAD"), cancellable = true, remap = false)
     private void tfe$replaceSaltWaterSpikeBase(WorldGenLevel level, BlockPos pos, BlockState state, CallbackInfo ci)
     {
+        if (tfe$isTerraceCliffBiome(level, pos))
+        {
+            ci.cancel();
+            return;
+        }
+
         final Block block = level.getBlockState(pos).getBlock();
         if (block == TFCBlocks.SALT_WATER.get())
         {
             level.setBlock(pos, state, 3);
             ci.cancel();
         }
+    }
+
+    private static boolean tfe$isTerraceCliffBiome(WorldGenLevel level, BlockPos pos)
+    {
+        if (tfe$isTerraceCliffBiomeAt(level, pos))
+        {
+            return true;
+        }
+
+        for (Direction direction : Direction.values())
+        {
+            if (tfe$isTerraceCliffBiomeAt(level, pos.relative(direction)))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean tfe$isTerraceCliffBiomeAt(WorldGenLevel level, BlockPos pos)
+    {
+        return level.getBiome(pos).unwrapKey()
+            .map(key -> {
+                final String namespace = key.location().getNamespace();
+                final String path = key.location().getPath();
+                return namespace.equals("tfc") && (path.equals("terrace_upper") || path.equals("terrace_lower"));
+            })
+            .orElse(false);
     }
 }

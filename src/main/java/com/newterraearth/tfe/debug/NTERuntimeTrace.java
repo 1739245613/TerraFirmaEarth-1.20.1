@@ -177,6 +177,88 @@ public final class NTERuntimeTrace
                 );
             }
         }
+        if (traceZAxis())
+        {
+            for (int z = TARGET_Z - RADIUS; z <= TARGET_Z + RADIUS; z++)
+            {
+                printBlockProbeRow(level, TARGET_X, TARGET_Y, z);
+            }
+        }
+        else
+        {
+            for (int x = TARGET_X - RADIUS; x <= TARGET_X + RADIUS; x++)
+            {
+                printBlockProbeRow(level, x, TARGET_Y, TARGET_Z);
+            }
+        }
+        printBlockProbeSurfaceRows(level);
+    }
+
+    private static void printBlockProbeRow(ServerLevel level, int x, int y, int z)
+    {
+        final BlockPos pos = new BlockPos(x, y, z);
+        System.out.printf(
+            "[TFE][RuntimeTrace][block_probe][row] x=%d y=%d z=%d biome=%s block=%s fluid=%s worldSurfaceWG=%d oceanFloorWG=%d%n",
+            x,
+            y,
+            z,
+            level.getBiome(pos).unwrapKey().map(key -> key.location().toString()).orElse("unknown"),
+            level.getBlockState(pos).getBlock(),
+            level.getFluidState(pos).getType(),
+            level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z),
+            level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z)
+        );
+    }
+
+    private static void printBlockProbeSurfaceRows(ServerLevel level)
+    {
+        final int minY = Math.max(level.getMinBuildHeight(), TARGET_Y - Math.max(8, RADIUS));
+        final int maxY = Math.min(level.getMaxBuildHeight() - 1, TARGET_Y + Math.max(32, RADIUS));
+        for (int y = maxY; y >= minY; y--)
+        {
+            if (traceZAxis())
+            {
+                printBlockProbeSurfaceRow(level, TARGET_X, y, TARGET_Z - RADIUS, TARGET_Z + RADIUS, true);
+            }
+            else
+            {
+                printBlockProbeSurfaceRow(level, TARGET_Z, y, TARGET_X - RADIUS, TARGET_X + RADIUS, false);
+            }
+        }
+    }
+
+    private static void printBlockProbeSurfaceRow(ServerLevel level, int fixed, int y, int start, int end, boolean zAxis)
+    {
+        final StringBuilder row = new StringBuilder();
+        int firstSolid = Integer.MIN_VALUE;
+        int lastSolid = Integer.MIN_VALUE;
+        for (int moving = start; moving <= end; moving++)
+        {
+            final int x = zAxis ? fixed : moving;
+            final int z = zAxis ? moving : fixed;
+            final BlockPos pos = new BlockPos(x, y, z);
+            final boolean solid = !level.getBlockState(pos).isAir() && level.getFluidState(pos).isEmpty();
+            row.append(solid ? '#' : '.');
+            if (solid)
+            {
+                if (firstSolid == Integer.MIN_VALUE)
+                {
+                    firstSolid = moving;
+                }
+                lastSolid = moving;
+            }
+        }
+        System.out.printf(
+            "[TFE][RuntimeTrace][block_probe][surface_row] %s=%d y=%d range=%d..%d solidFirst=%s solidLast=%s pattern=%s%n",
+            zAxis ? "x" : "z",
+            fixed,
+            y,
+            start,
+            end,
+            firstSolid == Integer.MIN_VALUE ? "none" : Integer.toString(firstSolid),
+            lastSolid == Integer.MIN_VALUE ? "none" : Integer.toString(lastSolid),
+            row
+        );
     }
 
     @SubscribeEvent

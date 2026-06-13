@@ -300,7 +300,7 @@ public final class NTEBiomeExtensions
     {
         return buildShore("terrace_upper", BiomeBuilder.builder()
             .heightmap(seed -> constant(0))
-            .surface(ShorelineSurfaceBuilder.SEA_CLIFFS)
+            .surface(ShorelineSurfaceBuilder.TERRACE_CLIFFS)
             .aquiferHeightOffset(-40)
             .type(BiomeBlendType.LAND)
             .salty()
@@ -314,7 +314,7 @@ public final class NTEBiomeExtensions
     {
         return buildShore("terrace_lower", BiomeBuilder.builder()
             .heightmap(seed -> constant(0))
-            .surface(ShorelineSurfaceBuilder.SEA_CLIFFS)
+            .surface(ShorelineSurfaceBuilder.TERRACE_CLIFFS)
             .aquiferHeightOffset(-40)
             .type(BiomeBlendType.LAND)
             .salty()

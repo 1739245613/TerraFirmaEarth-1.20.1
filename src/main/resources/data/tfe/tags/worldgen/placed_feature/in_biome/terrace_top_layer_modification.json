@@ -1,0 +1,7 @@
+{
+  "__comment__": "TFE terrace cliffs keep snow/ice top-layer handling but skip TFC surface loose rocks, which can appear as spike-like stones on sea-facing cuts.",
+  "replace": false,
+  "values": [
+    "tfc:ice_and_snow"
+  ]
+}

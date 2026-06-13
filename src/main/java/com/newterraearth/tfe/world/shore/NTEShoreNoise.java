@@ -468,10 +468,15 @@ public final class NTEShoreNoise
         {
             private final double noiseScale = 3;
             private final Noise3D cliffNoise = NTEShoreNoiseHelpers.cliffNoise(seed);
+            private final Noise2D erosionNoise = new OpenSimplex2D(seed.seed() + 5192371L).octaves(2).spread(0.045f);
+            private final Noise2D faceDetailNoise = new OpenSimplex2D(seed.seed() + 7483921L).octaves(2).spread(0.055f);
             private final Noise2D lowerTerraceNoise = NTEShoreNoiseHelpers.lowerTerraceNoise(seed);
+            private final Noise2D tideNoise = NTEShoreNoiseHelpers.shoreTideLevelNoise(seed);
             private final Noise2D upperTerraceNoise = NTEShoreNoiseHelpers.upperTerraceNoise(seed);
 
+            private double oceanWeight;
             private double landWeight;
+            private double lowerWallFloorHeight;
             private int x;
             private int z;
 
@@ -480,7 +485,9 @@ public final class NTEShoreNoise
             {
                 this.x = x;
                 this.z = z;
+                this.oceanWeight = oceanWeight;
                 this.landWeight = landWeight;
+                this.lowerWallFloorHeight = simpleBeach(tideNoise, x, z, heightIn, landWeight, oceanWeight);
                 return upperTerraceNoise.noise(x, z);
             }
 
@@ -490,6 +497,12 @@ public final class NTEShoreNoise
                 final double lowerHeight = lowerTerraceNoise.noise(x, z);
                 if (yIn <= lowerHeight)
                 {
+                    return lowerWallNoise(yIn, lowerHeight);
+                }
+
+                final double solidFloorHeight = Math.max(lowerHeight, SEA_LEVEL_Y + 6d);
+                if (yIn <= solidFloorHeight)
+                {
                     return 0;
                 }
 
@@ -497,16 +510,70 @@ public final class NTEShoreNoise
                 final double cliffBaseHeight = SEA_LEVEL_Y + 11;
                 final double y = yIn - cliffBaseHeight;
                 final double cliffNoiseModifier = 0.04 * Math.abs(cliffNoise.noise(x, y, z));
-                final double cliffBorderTopWeight = 0.32 + cliffNoiseModifier;
-                final double cliffBorderBaseWeight = 0.36 + cliffNoiseModifier;
                 final double height = overhangHeight - cliffBaseHeight;
+                final double heightFactor = Mth.clamp((yIn - solidFloorHeight) / Math.max(1d, overhangHeight - solidFloorHeight), 0d, 1d);
+                final double lowerGuard = Mth.clampedMap(yIn, solidFloorHeight + 1d, solidFloorHeight + 5d, 0d, 1d);
+                final double upperGuard = 1d - Mth.clampedMap(yIn, overhangHeight - 8d, overhangHeight - 1d, 0d, 1d);
+                final double detailGate = lowerGuard * upperGuard * Mth.clampedMap(oceanWeight, 0.10d, 0.35d, 0d, 1d);
+                final double detailRoll = Mth.clampedMap(faceDetailNoise.noise(x, z), -0.70d, 0.85d, 0d, 1d);
+                final double detailDepth = detailRoll < 0.24d ? 0d : detailRoll < 0.74d ? 0.020d : 0.040d;
+                final double detailCenter = 0.24d + 0.58d * Mth.clampedMap(faceDetailNoise.noise(x + 41, z - 31), -1d, 1d, 0d, 1d);
+                final double detailWidth = 0.12d + 0.10d * Mth.clampedMap(faceDetailNoise.noise(x - 19, z + 53), -1d, 1d, 0d, 1d);
+                final double faceRelief = detailDepth * detailGate * smoothBand(heightFactor, detailCenter, detailWidth);
+                final double broadErosion = 0.012d * detailGate * Mth.clampedMap(erosionNoise.noise(x, z), -0.55d, 0.85d, 0d, 1d);
+                final double leaningRetreat = 0.006d * detailGate * (1d - heightFactor);
+                final double cliffBorderTopWeight = 0.32 + cliffNoiseModifier + broadErosion + faceRelief * 0.65d;
+                final double cliffBorderBaseWeight = 0.36 + cliffNoiseModifier + broadErosion + faceRelief + leaningRetreat;
 
                 if (landWeight >= cliffBorderTopWeight)
                 {
                     final double cliffBorderWeight = widthFunction(true, y, height, cliffBorderBaseWeight, cliffBorderTopWeight);
                     return Mth.clamp((cliffBorderWeight - landWeight) * 10, 0, 1) * noiseScale;
                 }
-                return Mth.clampedMap(yIn, lowerHeight, lowerHeight + 6, 0, noiseScale);
+                return Mth.clampedMap(yIn, solidFloorHeight, solidFloorHeight + 6, 0, noiseScale);
+            }
+
+            private double lowerWallNoise(int yIn, double lowerHeight)
+            {
+                final double solidFloorHeight = lowerWallFloorHeight;
+                if (yIn <= solidFloorHeight || lowerHeight <= solidFloorHeight + 3d)
+                {
+                    return 0;
+                }
+
+                final double wallHeight = lowerHeight - solidFloorHeight;
+                final double wallY = yIn - solidFloorHeight;
+                final double wallProgress = Mth.clamp(wallY / wallHeight, 0d, 1d);
+                final double floorGuard = Mth.clampedMap(yIn, solidFloorHeight + 0.25d, solidFloorHeight + 1.5d, 0d, 1d);
+                final double topGuard = 1d - Mth.clampedMap(yIn, lowerHeight - 2d, lowerHeight, 0d, 1d);
+                final double wallGate = floorGuard * topGuard * Mth.clampedMap(oceanWeight, 0.10d, 0.35d, 0d, 1d);
+                if (wallGate <= 0d)
+                {
+                    return 0;
+                }
+
+                final double detailRoll = Mth.clampedMap(faceDetailNoise.noise(x + 101, z - 73), -0.75d, 0.90d, 0d, 1d);
+                final double erosionHeightBlocks = 3d + 7d * Mth.clampedMap(faceDetailNoise.noise(x - 53, z + 89), -1d, 1d, 0d, 1d);
+                final double outerHeight = Mth.clamp(erosionHeightBlocks / wallHeight, 0.18d, 0.68d);
+                final double innerHeight = outerHeight * (0.42d + 0.26d * Mth.clampedMap(faceDetailNoise.noise(x + 29, z + 47), -1d, 1d, 0d, 1d));
+                final double outerDepth = detailRoll < 0.12d ? 0d : detailRoll < 0.78d ? 0.060d : 0.068d;
+                final double innerDepth = detailRoll > 0.60d ? 0.036d : 0d;
+                final double outerTexture = Mth.clampedMap(cliffNoise.noise(x, wallY * 0.75d, z), -1d, 1d, 0.75d, 1.15d);
+                final double innerTexture = Mth.clampedMap(cliffNoise.noise(x + 17, wallY * 0.85d, z - 11), -1d, 1d, 0.55d, 1.00d);
+                final double outerRelief = outerDepth * bottomUpBand(wallProgress, outerHeight) * outerTexture;
+                final double innerRelief = innerDepth * bottomUpBand(wallProgress, innerHeight) * innerTexture;
+                final double faceRelief = wallGate * (outerRelief + innerRelief);
+                final double erosion = 0.010d * wallGate * Mth.clampedMap(erosionNoise.noise(x - 23, z + 61), -0.55d, 0.85d, 0d, 1d);
+                final double leaningRetreat = 0.004d * wallGate * (1d - wallProgress);
+                final double cliffBorderTopWeight = Math.max(0.205d, 0.265d - erosion - faceRelief * 0.75d);
+                final double cliffBorderBaseWeight = Math.max(0.192d, 0.245d - erosion - faceRelief - leaningRetreat);
+                final double cliffBorderWeight = widthFunction(false, wallY, wallHeight, cliffBorderBaseWeight, cliffBorderTopWeight);
+
+                if (oceanWeight >= cliffBorderWeight)
+                {
+                    return Mth.clamp((oceanWeight - cliffBorderWeight) * 16d, 0d, 1d) * noiseScale;
+                }
+                return 0;
             }
         };
     }
@@ -517,6 +584,8 @@ public final class NTEShoreNoise
         {
             private final double noiseScale = 1;
             private final Noise3D cliffNoise = NTEShoreNoiseHelpers.cliffNoise(seed);
+            private final Noise2D erosionNoise = new OpenSimplex2D(seed.seed() + 918273L).octaves(2).spread(0.055f);
+            private final Noise2D faceDetailNoise = new OpenSimplex2D(seed.seed() + 283719L).octaves(2).spread(0.060f);
             private final Noise2D lowerTerraceNoise = NTEShoreNoiseHelpers.lowerTerraceNoise(seed);
             private final Noise2D tideNoise = NTEShoreNoiseHelpers.shoreTideLevelNoise(seed);
 
@@ -538,7 +607,8 @@ public final class NTEShoreNoise
             @Override
             public double noise(int yIn, double noiseIn)
             {
-                if (yIn <= sandHeight)
+                final double solidFloorHeight = sandHeight;
+                if (yIn <= solidFloorHeight)
                 {
                     return 0;
                 }
@@ -547,13 +617,30 @@ public final class NTEShoreNoise
                 final double cliffBaseHeight = SEA_LEVEL_Y - 2;
                 final double y = yIn - cliffBaseHeight;
                 final double cliffNoiseModifier = 0.12 * Math.abs(cliffNoise.noise(x, y, z));
-                final double cliffBorderTopWeight = 0.26 - cliffNoiseModifier;
-                final double cliffBorderBaseWeight = 0.22 - cliffNoiseModifier;
                 final double height = overhangHeight - cliffBaseHeight;
+                final double wallHeight = Math.max(1d, overhangHeight - solidFloorHeight);
+                final double heightFactor = Mth.clamp((yIn - solidFloorHeight) / wallHeight, 0d, 1d);
+                final double lowerGuard = Mth.clampedMap(yIn, solidFloorHeight + 0.25d, solidFloorHeight + 1.5d, 0d, 1d);
+                final double detailRoll = Mth.clampedMap(faceDetailNoise.noise(x, z), -0.65d, 0.85d, 0d, 1d);
+                final double erosionHeightBlocks = 2d + 5d * Mth.clampedMap(faceDetailNoise.noise(x + 17, z - 29), -1d, 1d, 0d, 1d);
+                final double outerHeight = Mth.clamp(erosionHeightBlocks / wallHeight, 0.16d, 0.62d);
+                final double innerHeight = outerHeight * (0.40d + 0.24d * Mth.clampedMap(faceDetailNoise.noise(x - 37, z + 11), -1d, 1d, 0d, 1d));
+                final double outerDepth = detailRoll < 0.30d ? 0d : detailRoll < 0.80d ? 0.014d : 0.020d;
+                final double innerDepth = detailRoll > 0.70d ? 0.010d : 0d;
+                final double outerTexture = Mth.clampedMap(cliffNoise.noise(x, y * 0.75d, z), -1d, 1d, 0.75d, 1.15d);
+                final double innerTexture = Mth.clampedMap(cliffNoise.noise(x + 13, y * 0.85d, z - 7), -1d, 1d, 0.55d, 1.00d);
+                final double faceRelief = lowerGuard * (
+                    outerDepth * bottomUpBand(heightFactor, outerHeight) * outerTexture +
+                        innerDepth * bottomUpBand(heightFactor, innerHeight) * innerTexture
+                );
+                final double erosion = 0.012d * lowerGuard * Mth.clampedMap(erosionNoise.noise(x, z), -0.5d, 0.8d, 0d, 1d);
+                final double leaningRetreat = 0.006d * lowerGuard * (1d - heightFactor);
+                final double cliffBorderTopWeight = 0.26 - cliffNoiseModifier - erosion;
+                final double cliffBorderBaseWeight = 0.22 - cliffNoiseModifier - erosion - faceRelief - leaningRetreat;
+                final double cliffBorderWeight = widthFunction(false, y, height, cliffBorderBaseWeight, cliffBorderTopWeight);
 
-                if (oceanWeight >= cliffBorderBaseWeight)
+                if (oceanWeight >= cliffBorderWeight)
                 {
-                    final double cliffBorderWeight = widthFunction(false, y, height, cliffBorderBaseWeight, cliffBorderTopWeight);
                     return Mth.clamp((oceanWeight - cliffBorderWeight) * 20, 0, 1) * noiseScale;
                 }
                 return 0;
@@ -570,6 +657,20 @@ public final class NTEShoreNoise
     {
         final double curve = baseWidth + (y * y / (height * height)) * (topWidth - baseWidth);
         return inverted ? Math.max(curve, topWidth) : Math.min(curve, topWidth);
+    }
+
+    private static double smoothBand(double progress, double center, double halfWidth)
+    {
+        final double distance = Math.abs(progress - center);
+        final double weight = 1d - Mth.clamp(distance / halfWidth, 0d, 1d);
+        return weight * weight * (3d - 2d * weight);
+    }
+
+    private static double bottomUpBand(double progress, double height)
+    {
+        final double fadeStart = height * 0.62d;
+        final double fade = 1d - Mth.clampedMap(progress, fadeStart, height, 0d, 1d);
+        return fade * fade * (3d - 2d * fade);
     }
 
     private static double simpleBeach(Noise2D tideNoise, int x, int z, double heightIn, double landWeight, double oceanWeight)

@@ -554,8 +554,48 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             return 0d;
         }
 
-        final double protectedWaterWeight = Math.max(tfe$lakeUpliftSuppression(biomeWeights), tfe$estuaryRiverUpliftSuppression(info, biomeWeights));
+        final double protectedWaterWeight = Math.max(
+            Math.max(tfe$lakeUpliftSuppression(biomeWeights), tfe$terraceCliffUpliftSuppression(biomeAt, biomeWeights)),
+            tfe$estuaryRiverUpliftSuppression(info, biomeWeights)
+        );
         return uplift * (1d - Mth.clamp(protectedWaterWeight, 0d, 1d));
+    }
+
+    @Unique
+    private static double tfe$terraceCliffUpliftSuppression(BiomeExtension biomeAt, Object2DoubleMap<BiomeExtension> biomeWeights)
+    {
+        double terraceWeight = 0d;
+        double oceanOrShoreWeight = 0d;
+        for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
+        {
+            final BiomeExtension biome = entry.getKey();
+            final double weight = entry.getDoubleValue();
+            if (tfe$isTerraceCliffBiome(biome))
+            {
+                terraceWeight += weight;
+            }
+            if (biome.isShore() || biome.biomeBlendType() == BiomeBlendType.OCEAN)
+            {
+                oceanOrShoreWeight += weight;
+            }
+        }
+
+        final boolean terraceAtColumn = tfe$isTerraceCliffBiome(biomeAt);
+        if (terraceWeight <= 0d && !terraceAtColumn)
+        {
+            return 0d;
+        }
+
+        final double cliffBlend = terraceAtColumn ? 1d : tfe$smoothStep(Mth.clampedMap(terraceWeight, 0.04d, 0.28d, 0d, 1d));
+        final double waterBlend = tfe$smoothStep(Mth.clampedMap(oceanOrShoreWeight, 0.18d, 0.45d, 0d, 1d));
+        return cliffBlend * waterBlend;
+    }
+
+    @Unique
+    private static boolean tfe$isTerraceCliffBiome(BiomeExtension biome)
+    {
+        final String path = biome.key().location().getPath();
+        return path.equals("terrace_upper") || path.equals("terrace_lower");
     }
 
     @Unique

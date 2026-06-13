@@ -1,0 +1,12 @@
+{
+  "__comment__": "TFE terrace cliffs intentionally skip TFC spike-like features so sea-facing undercuts stay clean.",
+  "replace": false,
+  "values": [
+    "tfc:water_spring",
+    "tfc:lava_spring",
+    "tfc:water_surface_spring",
+    "tfc:extra_water_surface_spring",
+    "tfc:glacial_spring",
+    "tfc:ice_sheet_spring"
+  ]
+}
