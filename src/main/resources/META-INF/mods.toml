@@ -32,6 +32,13 @@ TerraFirmaEarth / 群峦地球
 - FirmalifeEnhanced 温室地窖重置兼容(0.1.3以上版本)：在受控温室范围内，作物、果树、浆果灌木等会按年均温度和湿度判定，不受外部天气影响。
 - 数据包接入说明：随附github上的《数据包兼容写法教程》，方便个人使用者或经授权整合包作者添加生物刷新、追加 fauna、协调 AFC 兼容。
 
+1.1.0 更新概括
+- 高阶地地形优化。
+- 修复山区河道入海口概率被堵的问题。
+- 平滑山体山峰生成。
+- 森林生成更匹配地形。
+- 高岭土刷新在腐殖土内时增加一层高岭土草方块覆盖。
+
 1.0.2 更新概括
 - 增加了自由放置木堆。
 - 修复了浮空树，浮空腐殖土。去掉了死火山的地势。补全了水生成逻辑水-死火山水坑生成较少的问题.
@@ -74,6 +81,13 @@ Extras
 - Map mod compatibility (e.g. JourneyMap colour support for ported terrain).
 - FirmalifeEnhanced greenhouse / cellar reset compatibility (requires FirmalifeEnhanced 0.1.3 or later): inside a controlled greenhouse, crops, fruit trees and berry bushes use annual-average temperature and hydration and ignore outside weather.
 - Datapack integration: a separate "Datapack Compatibility Guide" is provided on GitHub for personal users or authorized modpack authors who want to add fauna spawning, extend fauna entries, or coordinate AFC compatibility.
+
+1.1.0 Update Summary
+- Optimized terrace terrain.
+- Fixed mountain river mouths sometimes being blocked at the sea.
+- Smoothed mountain peak generation.
+- Made forest generation fit terrain more closely.
+- Added a kaolin clay grass cover layer when kaolin generates inside humus.
 
 1.0.2 Update Summary
 - Added freely placeable log piles.
