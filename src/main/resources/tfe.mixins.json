@@ -76,6 +76,7 @@
     "client.GrouseModelMixin",
     "client.PeafowlModelMixin",
     "client.PlantBlockMixin",
+    "client.PotBlockEntityRendererMixin",
     "client.TFCColorsMixin",
     "client.TurkeyModelMixin"
   ],

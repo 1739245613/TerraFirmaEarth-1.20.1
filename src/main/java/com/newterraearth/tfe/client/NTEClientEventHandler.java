@@ -2,6 +2,7 @@ package com.newterraearth.tfe.client;
 
 import java.util.function.Consumer;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -21,6 +22,7 @@ import net.dries007.tfc.common.blocks.rock.Rock;
 import net.dries007.tfc.common.blocks.soil.ConnectedGrassBlock;
 import net.dries007.tfc.common.entities.prey.Pest;
 
+import com.newterraearth.tfe.NewTerraEarthMod;
 import com.newterraearth.tfe.client.model.NTEPlantBlockModel;
 import com.newterraearth.tfe.client.model.entity.NTEBisonModel;
 import com.newterraearth.tfe.common.NTEDevices;
@@ -41,6 +43,8 @@ import com.newterraearth.tfe.world.soil.NTESoilBlockType;
 
 public final class NTEClientEventHandler
 {
+    private static final String[] TUFF_PAN_METALS = {"native_copper", "native_silver", "native_gold", "cassiterite"};
+
     private NTEClientEventHandler()
     {
     }
@@ -49,6 +53,7 @@ public final class NTEClientEventHandler
     {
         NTEClientRainVarianceCache.init();
         bus.addListener(NTEClientEventHandler::clientSetup);
+        bus.addListener(NTEClientEventHandler::registerSpecialModels);
         bus.addListener(NTEClientEventHandler::registerModelLoaders);
         bus.addListener(NTEClientEventHandler::registerColorHandlerBlocks);
         bus.addListener(NTEClientEventHandler::registerColorHandlerItems);
@@ -87,6 +92,20 @@ public final class NTEClientEventHandler
     private static void registerModelLoaders(ModelEvent.RegisterGeometryLoaders event)
     {
         event.register("plant", NTEPlantBlockModel.Loader.INSTANCE);
+    }
+
+    private static void registerSpecialModels(ModelEvent.RegisterAdditional event)
+    {
+        for (String metal : TUFF_PAN_METALS)
+        {
+            event.register(model("item/pan/" + metal + "/tuff_half"));
+            event.register(model("item/pan/" + metal + "/tuff_full"));
+        }
+    }
+
+    private static ResourceLocation model(String path)
+    {
+        return new ResourceLocation(NewTerraEarthMod.MOD_ID, path);
     }
 
     private static void registerColorHandlerBlocks(RegisterColorHandlersEvent.Block event)
