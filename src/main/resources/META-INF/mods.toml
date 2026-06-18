@@ -36,6 +36,7 @@ TerraFirmaEarth / 群峦地球
 - 修复香蕉树自然生成时底部可能插进土里的问题。
 - 修复凝灰岩砂砾陶盘阶段模型显示异常。
 - 修复炉灶锅液面、产物与锅内物品客户端显示位置异常。
+- 增强小萝卜，栽培成熟收获产量翻倍。
 
 1.1.0 更新概括
 - 高阶地地形优化。
@@ -91,6 +92,7 @@ Extras
 - Fixed naturally generated banana plants sometimes sinking into terrain.
 - Fixed tuff gravel pan stage model rendering.
 - Fixed client-side rendering offsets for stove pot fluid, outputs and contents.
+- Improved radishes: cultivated mature harvest yield is doubled.
 
 1.1.0 Update Summary
 - Optimized terrace terrain.

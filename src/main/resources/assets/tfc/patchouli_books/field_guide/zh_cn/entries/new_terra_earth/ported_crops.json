@@ -276,8 +276,8 @@
     {
       "type": "patchouli:text",
       "anchor": "radish",
-      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -28 - 10 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 30 - 90 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含钾肥料 (K)$(br2)萝卜是适应寒冷温度的单格作物。萝卜种子可以种植在耕地上，产出$(thing)萝卜$()和$(thing)萝卜种子$()。萝卜不是很有营养的蔬菜，但可以作为许多动物的饲料。",
-      "title": "萝卜"
+      "text": "$(bold)$(l:the_world/climate#temperature)温度$(): -28 - 10 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 30 - 90 %$(br)$(bold)类别$(): 覆盖作物$(br)$(bold)$(l:mechanics/fertilizers)肥料需求$(): 含钾肥料 (K)$(br2)小萝卜是适应寒冷温度的单格作物。小萝卜种子可以种植在耕地上，产出$(thing)小萝卜$()和$(thing)小萝卜种子$()；栽培小萝卜成熟收获时产量更高，为原先的 2 倍。小萝卜不是很有营养的蔬菜，但可以作为许多动物的饲料。",
+      "title": "小萝卜"
     },
     {
       "type": "tfc:multimultiblock",

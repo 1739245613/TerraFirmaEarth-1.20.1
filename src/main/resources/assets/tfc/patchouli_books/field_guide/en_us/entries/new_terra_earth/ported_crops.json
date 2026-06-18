@@ -276,7 +276,7 @@
     {
       "type": "patchouli:text",
       "anchor": "radish",
-      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -28 - 10 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 30 - 90 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Potassium (K)$(br2)Radishes are a single block crop adapted to cold temperatures. Radish seeds can be planted on farmland and will produce $(thing)Radishes$() and $(thing)Radish Seeds$() as a product. Radishes are not a very nutritious vegetable, but can be fed to many animals.",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): -28 - 10 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 30 - 90 %$(br)$(bold)Category$(): Cover$(br)$(bold)$(l:mechanics/fertilizers)Fertilizer Need$(): Potassium (K)$(br2)Radishes are a single block crop adapted to cold temperatures. Radish seeds can be planted on farmland and will produce $(thing)Radishes$() and $(thing)Radish Seeds$() as a product; cultivated mature radishes now yield twice as much as before. Radishes are not a very nutritious vegetable, but can be fed to many animals.",
       "title": "Radish"
     },
     {
