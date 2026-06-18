@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.util.Mth;
@@ -189,7 +188,7 @@ public final class NTESeasonalHelpers
     {
         if (showAverage && !useAverageHydrationInControlledGreenhouse(level, pos))
         {
-            text.add(getAverageHydrationTooltip(level, pos, validRange, allowWiggle));
+            text.add(getAverageHydrationTooltip(level, pos));
         }
     }
 
@@ -315,9 +314,9 @@ public final class NTESeasonalHelpers
         return normalizedTicks / (float) (resolvedTicksInYear > 0L ? resolvedTicksInYear : ticksInYear);
     }
 
-    private static Component getAverageHydrationTooltip(LevelAccessor level, BlockPos pos, ClimateRange validRange, boolean allowWiggle)
+    private static Component getAverageHydrationTooltip(LevelAccessor level, BlockPos pos)
     {
-        return getNamedHydrationTooltip(validRange, allowWiggle, getAverageRainHydration(level, pos), "tfc.tooltip.farmland.average_hydration");
+        return Component.translatable("tfc.tooltip.farmland.average_hydration", getAverageRainHydration(level, pos));
     }
 
     public static boolean useAverageHydrationInControlledGreenhouse(LevelAccessor level, BlockPos pos)
@@ -326,18 +325,6 @@ public final class NTESeasonalHelpers
             NTEFirmalifeGreenhouseCompat.isControlledGreenhouse(world, pos)
                 || NTEFirmalifeGreenhouseCompat.isControlledGreenhouse(world, pos.above())
         );
-    }
-
-    private static Component getNamedHydrationTooltip(ClimateRange validRange, boolean allowWiggle, int hydration, String translationKey)
-    {
-        final MutableComponent tooltip = Component.translatable(translationKey, hydration);
-        tooltip.append(switch (validRange.checkHydration(hydration, allowWiggle))
-            {
-                case VALID -> Component.translatable("tfc.tooltip.farmland.just_right");
-                case LOW -> Component.translatable("tfc.tooltip.farmland.hydration_too_low", validRange.getMinHydration(allowWiggle));
-                case HIGH -> Component.translatable("tfc.tooltip.farmland.hydration_too_high", validRange.getMaxHydration(allowWiggle));
-            });
-        return tooltip;
     }
 
     private static BlockPos findFruitTreeBase(LevelReader level, BlockPos startPos)
