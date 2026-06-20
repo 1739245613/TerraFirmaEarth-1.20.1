@@ -555,10 +555,41 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         }
 
         final double protectedWaterWeight = Math.max(
-            Math.max(tfe$lakeUpliftSuppression(biomeWeights), tfe$terraceCliffUpliftSuppression(biomeAt, biomeWeights)),
+            Math.max(
+                Math.max(tfe$lakeUpliftSuppression(biomeWeights), tfe$terraceCliffUpliftSuppression(biomeAt, biomeWeights)),
+                tfe$fixedShoreUpliftSuppression()
+            ),
             tfe$estuaryRiverUpliftSuppression(info, biomeWeights)
         );
         return uplift * (1d - Mth.clamp(protectedWaterWeight, 0d, 1d));
+    }
+
+    @Unique
+    private double tfe$fixedShoreUpliftSuppression()
+    {
+        if (!tfe$hasShoreRuntime)
+        {
+            return 0d;
+        }
+
+        double fixedShoreWeight = 0d;
+        for (NTEShoreBlendType type : NTEShoreBlendType.ALL)
+        {
+            if (tfe$isFixedHeightShoreType(type))
+            {
+                fixedShoreWeight += tfe$shoreBlendWeights[type.ordinal()];
+            }
+        }
+        return tfe$smoothStep(Mth.clampedMap(fixedShoreWeight, 0.20d, 0.55d, 0d, 1d));
+    }
+
+    @Unique
+    private static boolean tfe$isFixedHeightShoreType(NTEShoreBlendType type)
+    {
+        return type == NTEShoreBlendType.SANDY
+            || type == NTEShoreBlendType.DUNES
+            || type == NTEShoreBlendType.EMBAYMENTS
+            || type == NTEShoreBlendType.ROCKY_SHORES;
     }
 
     @Unique

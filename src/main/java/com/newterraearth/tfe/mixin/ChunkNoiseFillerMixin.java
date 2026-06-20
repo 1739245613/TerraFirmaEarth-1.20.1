@@ -201,7 +201,9 @@ public abstract class ChunkNoiseFillerMixin
     @Unique
     private static boolean tfe$isTerrainCarvingShoreType(NTEShoreBlendType type)
     {
-        return type == NTEShoreBlendType.SEA_STACKS
+        return type == NTEShoreBlendType.SANDY
+            || type == NTEShoreBlendType.DUNES
+            || type == NTEShoreBlendType.SEA_STACKS
             || type == NTEShoreBlendType.ROCKY_SHORES
             || type == NTEShoreBlendType.EMBAYMENTS
             || type == NTEShoreBlendType.UPPER_TERRACE
