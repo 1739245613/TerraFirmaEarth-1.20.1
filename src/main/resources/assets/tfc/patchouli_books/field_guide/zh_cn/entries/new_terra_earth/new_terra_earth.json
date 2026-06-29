@@ -5,7 +5,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "本模组把本地 $(thing)1.21 TerraFirmaCraft$() 的部分世界生成、气候语义、海岸线、海洋深度和作物口径定向移植回 $(thing)1.20.1$()。$(br2)这页只整理当前仓库已经实际接入的内容，方便你快速判断一个地区的气候、适合作什么，以及附近可能出现什么地形。"
+      "text": "本模组把本地 $(thing)1.21 TerraFirmaCraft$() 的部分世界生成、气候语义、海岸线、海洋深度和植物生长参数定向移植回 $(thing)1.20.1$()。$(br2)这页只整理当前仓库已经实际接入的内容，方便你快速判断一个地区的气候、适合作什么，以及附近可能出现什么地形。"
     },
     {
       "type": "patchouli:text",
@@ -35,7 +35,7 @@
       "type": "patchouli:text",
       "anchor": "crops",
       "title": "作物口径",
-      "text": "本模组的作物口径直接跟随 $(thing)1.21 TFC$()。作物仍按 $(thing)谷物$()、$(thing)豆类$()、$(thing)蔬菜$()、$(thing)覆盖作物$() 与 $(thing)杂项作物$() 区分；温度和 $(l:mechanics/hydration)湿润度$() 范围决定一个地区能不能稳定种活。$(br2)本模组作物的详细页见 $(l:new_terra_earth/ported_crops)移植作物$()。下面列出常见作物的 1.21 温度 / 湿度范围，方便按地区挑种。"
+      "text": "本模组的作物仍沿用 $(thing)1.20 TFC$() 的主要耕作机制；这里列出的温度和 $(l:mechanics/hydration)湿润度$() 只是当前配置采用的生长参数，方便按地区挑种。$(br2)本模组作物的详细页见 $(l:new_terra_earth/ported_crops)移植作物$()。完整农业教程仍以 $(l:mechanics/crops)作物$() 页面为准。"
     },
     {
       "type": "patchouli:text",

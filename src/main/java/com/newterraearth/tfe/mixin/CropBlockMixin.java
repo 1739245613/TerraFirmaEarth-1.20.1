@@ -16,11 +16,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.dries007.tfc.common.blockentities.CropBlockEntity;
 import net.dries007.tfc.common.blockentities.IFarmland;
 import net.dries007.tfc.common.blocks.crop.CropBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.util.calendar.Calendars;
 import net.dries007.tfc.util.climate.ClimateRange;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = CropBlock.class, remap = false)
@@ -30,7 +28,7 @@ public abstract class CropBlockMixin
 
     /**
      * @author Codex
-     * @reason Crop overlays should match the configured rainfall hydration mode.
+     * @reason Crop overlays should match the configured rainfall hydration mode and TFE current temperature.
      */
     @Overwrite(remap = false)
     public void addHoeOverlayInfo(Level level, BlockPos pos, BlockState state, List<Component> text, boolean isDebug)
@@ -38,9 +36,7 @@ public abstract class CropBlockMixin
         final ClimateRange range = climateRange.get();
         final BlockPos sourcePos = pos.below();
 
-        text.add(FarmlandBlock.getTemperatureTooltip(level, pos, range, false));
-        text.add(FarmlandBlock.getHydrationTooltip(level, sourcePos, range, false, NTESeasonalHelpers.getConfiguredCropHydration(level, sourcePos)));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, sourcePos, range, false, NTECommonConfig.useCurrentRainfallForCrops());
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, pos, sourcePos, range, NTESeasonalHelpers.getConfiguredCropHydration(level, sourcePos));
 
         IFarmland farmland = null;
         if (level.getBlockEntity(sourcePos) instanceof IFarmland found)

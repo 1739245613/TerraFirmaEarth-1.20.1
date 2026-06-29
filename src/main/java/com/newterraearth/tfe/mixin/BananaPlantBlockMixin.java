@@ -15,13 +15,10 @@ import net.dries007.tfc.common.blockentities.TFCBlockEntities;
 import net.dries007.tfc.common.blocks.plant.fruit.BananaPlantBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.Lifecycle;
 import net.dries007.tfc.common.blocks.plant.fruit.SeasonalPlantBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.util.Helpers;
 import net.dries007.tfc.util.calendar.Calendars;
-import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateRange;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = BananaPlantBlock.class, remap = false)
@@ -37,9 +34,7 @@ public abstract class BananaPlantBlockMixin
         final ClimateRange range = ((SeasonalPlantBlockAccessor) this).tfe$getClimateRange().get();
         final BlockPos rootPos = NTESeasonalHelpers.getBananaRootPos(level, pos);
 
-        text.add(FarmlandBlock.getHydrationTooltip(level, rootPos, range, false, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, rootPos)));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, rootPos, range, false, NTECommonConfig.useCurrentRainfallForFruit());
-        text.add(FarmlandBlock.getAverageTemperatureTooltip(level, rootPos, range, false));
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, rootPos, rootPos, range, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, rootPos));
     }
 
     /**
@@ -80,7 +75,7 @@ public abstract class BananaPlantBlockMixin
                         }
                     }
 
-                    final float temperatureAtNextTick = Climate.getTemperature(level, rootPos, nextCalendarTick, Calendars.SERVER.getCalendarDaysInMonth());
+                    final float temperatureAtNextTick = NTESeasonalHelpers.getPlantTemperature(level, rootPos, nextCalendarTick, Calendars.SERVER.getCalendarDaysInMonth());
                     final Lifecycle lifecycleAtNextTick = accessor.tfe$invokeGetLifecycleForMonth(NTESeasonalHelpers.getHemispheralCalendarMonthOfYear(level, pos, nextCalendarTick));
                     if (range.checkBoth(hydration, temperatureAtNextTick, false))
                     {

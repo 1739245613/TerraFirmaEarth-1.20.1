@@ -17,6 +17,7 @@ import net.dries007.tfc.common.blockentities.FarmlandBlockEntity;
 import net.dries007.tfc.common.blockentities.IFarmland;
 import net.dries007.tfc.common.blocks.crop.CropHelpers;
 import net.dries007.tfc.util.calendar.Calendars;
+import net.dries007.tfc.util.calendar.ICalendar;
 import net.dries007.tfc.util.Fertilizer;
 
 import com.newterraearth.tfe.world.NTESoilFertility;
@@ -48,6 +49,20 @@ public abstract class CropHelpersMixin
     {
         final var calendar = Calendars.get(level);
         return NTESeasonalHelpers.getConfiguredCropHydration(level, sourcePos, calendar.ticksToCalendarTicks(toTick), calendar.getCalendarDaysInMonth());
+    }
+
+    @Redirect(
+        method = "growthTickStep",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/dries007/tfc/util/climate/Climate;getTemperature(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/dries007/tfc/util/calendar/ICalendar;J)F"
+        ),
+        remap = false,
+        require = 0
+    )
+    private static float tfe$usePlantTemperatureForCropGrowth(Level level, BlockPos pos, ICalendar calendar, long calendarTick)
+    {
+        return NTESeasonalHelpers.getPlantTemperature(level, pos, calendarTick, calendar.getCalendarDaysInMonth());
     }
 
     @Redirect(

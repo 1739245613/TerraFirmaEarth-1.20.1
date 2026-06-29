@@ -309,6 +309,7 @@
     "item.tfe.bucket.canola_oil_water":  "Canola Oil Water Bucket",
     "block.tfe.cauldron.canola_oil":  "Canola Oil Cauldron",
     "block.tfe.cauldron.canola_oil_water":  "Canola Oil Water Cauldron",
+    "tfe.tooltip.climate_average_temperature":  "§cAvg. Temp: §r%s°C",
     "subtitles.tfe.entity.seal.ambient":  "Seal barks",
     "subtitles.tfe.entity.seal.death":  "Seal dies",
     "subtitles.tfe.entity.seal.hurt":  "Seal barks angrily",

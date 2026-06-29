@@ -16,20 +16,13 @@ import net.dries007.tfc.common.blockentities.BerryBushBlockEntity;
 import net.dries007.tfc.common.blocks.plant.fruit.Lifecycle;
 import net.dries007.tfc.common.blocks.plant.fruit.SeasonalPlantBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.StationaryBerryBushBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.util.calendar.Calendars;
-import net.dries007.tfc.util.climate.Climate;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = StationaryBerryBushBlock.class, remap = false)
 public abstract class StationaryBerryBushBlockMixin
 {
-    @Shadow protected abstract boolean mayDie(Level level, BlockPos pos, BlockState state, int monthsSpentDying);
-
-    @Shadow protected abstract BlockState getDeadState(BlockState state);
-
     @Shadow protected abstract BlockState growAndPropagate(Level level, BlockPos pos, net.minecraft.util.RandomSource random, BlockState state);
 
     /**
@@ -65,12 +58,11 @@ public abstract class StationaryBerryBushBlockMixin
                 final var range = accessor.tfe$getClimateRange().get();
                 final int hydration = NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, pos.below());
 
-                int monthsSpentDying = 0;
                 do
                 {
                     nextCalendarTick = Math.min(nextCalendarTick + Calendars.SERVER.getCalendarTicksInMonth(), currentCalendarTick);
 
-                    final float temperatureAtNextTick = Climate.getTemperature(level, pos, nextCalendarTick, Calendars.SERVER.getCalendarDaysInMonth());
+                    final float temperatureAtNextTick = NTESeasonalHelpers.getPlantTemperature(level, pos, nextCalendarTick, Calendars.SERVER.getCalendarDaysInMonth());
                     final Lifecycle lifecycleAtNextTick = accessor.tfe$invokeGetLifecycleForMonth(NTESeasonalHelpers.getHemispheralCalendarMonthOfYear(level, pos, nextCalendarTick));
                     if (range.checkBoth(hydration, temperatureAtNextTick, false))
                     {
@@ -80,21 +72,10 @@ public abstract class StationaryBerryBushBlockMixin
                     {
                         currentLifecycle = Lifecycle.DORMANT;
                     }
-
-                    if (lifecycleAtNextTick != Lifecycle.DORMANT && currentLifecycle == Lifecycle.DORMANT)
-                    {
-                        monthsSpentDying++;
-                    }
-                    else
-                    {
-                        monthsSpentDying = 0;
-                    }
                 }
                 while (nextCalendarTick < currentCalendarTick);
 
-                final BlockState newState = mayDie(level, pos, state, monthsSpentDying)
-                    ? getDeadState(state)
-                    : growAndPropagate(level, pos, level.getRandom(), state.setValue(StationaryBerryBushBlock.LIFECYCLE, currentLifecycle));
+                final BlockState newState = growAndPropagate(level, pos, level.getRandom(), state.setValue(StationaryBerryBushBlock.LIFECYCLE, currentLifecycle));
 
                 if (state != newState)
                 {
@@ -106,14 +87,12 @@ public abstract class StationaryBerryBushBlockMixin
 
     /**
      * @author Codex
-     * @reason Hoe overlay should reflect the ported root hydration and average temperature semantics.
+     * @reason Hoe overlay should reflect the ported root hydration and current temperature semantics.
      */
     @Overwrite(remap = false)
     public void addHoeOverlayInfo(Level level, BlockPos pos, BlockState state, List<Component> text, boolean isDebug)
     {
         final var range = ((SeasonalPlantBlockAccessor) this).tfe$getClimateRange().get();
-        text.add(FarmlandBlock.getHydrationTooltip(level, pos, range, false, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, pos.below())));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, pos.below(), range, false, NTECommonConfig.useCurrentRainfallForFruit());
-        text.add(FarmlandBlock.getAverageTemperatureTooltip(level, pos, range, false));
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, pos, pos.below(), range, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, pos.below()));
     }
 }

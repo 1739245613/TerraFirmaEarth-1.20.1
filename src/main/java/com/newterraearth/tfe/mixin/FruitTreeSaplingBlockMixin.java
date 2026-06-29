@@ -16,17 +16,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.dries007.tfc.common.blockentities.TickCounterBlockEntity;
-import net.dries007.tfc.common.blocks.TFCBlocks;
-import net.dries007.tfc.common.blocks.plant.Plant;
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeSaplingBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.Lifecycle;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.config.TFCConfig;
 import net.dries007.tfc.util.calendar.ICalendar;
-import net.dries007.tfc.util.climate.Climate;
 import net.dries007.tfc.util.climate.ClimateRange;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = FruitTreeSaplingBlock.class, remap = false)
@@ -41,18 +36,17 @@ public abstract class FruitTreeSaplingBlockMixin
 
     /**
      * @author Codex
-     * @reason Fruit tree sapling overlays should respect hemisphere months and base-elevation climate.
+     * @reason Fruit tree sapling overlays should respect hemisphere months and base-elevation current climate.
      */
     @Overwrite(remap = false)
     public void addHoeOverlayInfo(Level level, BlockPos pos, BlockState state, List<Component> text, boolean isDebug)
     {
         final ClimateRange range = climateRange.get();
         final BlockPos stemPos = NTESeasonalHelpers.getFruitTreeSaplingStemPos(level, pos);
-        final int hydration = NTESeasonalHelpers.getFruitTreeSaplingHydration(level, stemPos.below());
+        final BlockPos rootPos = stemPos.below();
+        final int hydration = NTESeasonalHelpers.getFruitTreeSaplingHydration(level, rootPos);
 
-        text.add(FarmlandBlock.getHydrationTooltip(level, stemPos, range, false, hydration));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, stemPos.below(), range, false, NTECommonConfig.useCurrentRainfallForFruit());
-        text.add(FarmlandBlock.getAverageTemperatureTooltip(level, stemPos, range, false));
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, stemPos, rootPos, range, hydration);
 
         if (!stages[NTESeasonalHelpers.getHemispheralCalendarMonthOfYear(level, pos).ordinal()].active())
         {
@@ -70,7 +64,7 @@ public abstract class FruitTreeSaplingBlockMixin
 
     /**
      * @author Codex
-     * @reason Fruit tree sapling growth should use hemisphere months and base-elevation climate, while carrying over surplus growth time.
+     * @reason Fruit tree sapling growth should use hemisphere months and base-elevation current climate without climate death.
      */
     @Overwrite(remap = true)
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random)
@@ -85,12 +79,8 @@ public abstract class FruitTreeSaplingBlockMixin
                 {
                     final BlockPos stemPos = NTESeasonalHelpers.getFruitTreeSaplingStemPos(level, pos);
                     final int hydration = NTESeasonalHelpers.getFruitTreeSaplingHydration(level, stemPos.below());
-                    final float temp = Climate.getAverageTemperature(level, stemPos);
-                    if (!climateRange.get().checkBoth(hydration, temp, false))
-                    {
-                        level.setBlockAndUpdate(pos, TFCBlocks.PLANTS.get(Plant.DEAD_BUSH).get().defaultBlockState());
-                    }
-                    else
+                    final float temp = NTESeasonalHelpers.getPlantTemperature(level, stemPos);
+                    if (climateRange.get().checkBoth(hydration, temp, false))
                     {
                         createTree(level, pos, state, random);
                         final long carriedTicks = elapsedTicks - ticksToGrow;

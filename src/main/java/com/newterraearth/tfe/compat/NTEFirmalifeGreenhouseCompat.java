@@ -13,13 +13,18 @@ import net.minecraftforge.fml.ModList;
 public final class NTEFirmalifeGreenhouseCompat
 {
     public static final String MOD_ID = "firmalife_greenhouse_patch";
+    public static final String MODERN_LIFE_MOD_ID = "tfc_modern_life";
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final String GREENHOUSE_HELPER_CLASS = "com.g1739.firmalifegreenhousepatch.common.temperature.GreenhouseTemperatureHelper";
+    private static final String LEGACY_GREENHOUSE_HELPER_CLASS = "com.g1739.firmalifegreenhousepatch.common.temperature.GreenhouseTemperatureHelper";
+    private static final String MODERN_LIFE_GREENHOUSE_HELPER_CLASS = "com.jccy.tfcmodernlife.common.climate.GreenhouseTemperatureHelper";
 
     @Nullable private static volatile Method isControlledGreenhouseMethod;
-    private static volatile boolean resolved;
-    private static volatile boolean available;
+    @Nullable private static volatile Method getControlledTemperatureMethod;
+    private static volatile boolean resolvedMethods;
+    private static volatile boolean loggedMissingMethods;
+    private static volatile boolean loggedGreenhouseQueryFailure;
+    private static volatile boolean loggedTemperatureQueryFailure;
 
     private NTEFirmalifeGreenhouseCompat()
     {
@@ -27,12 +32,13 @@ public final class NTEFirmalifeGreenhouseCompat
 
     public static boolean isControlledGreenhouse(Level level, BlockPos pos)
     {
-        if (!ModList.get().isLoaded(MOD_ID))
+        if (!isCompatModLoaded())
         {
             return false;
         }
 
-        final Method method = resolveMethod();
+        resolveMethods();
+        final Method method = isControlledGreenhouseMethod;
         if (method == null)
         {
             return false;
@@ -42,44 +48,119 @@ public final class NTEFirmalifeGreenhouseCompat
         {
             return Boolean.TRUE.equals(method.invoke(null, level, pos));
         }
-        catch (ReflectiveOperationException | RuntimeException e)
+        catch (ReflectiveOperationException | RuntimeException | LinkageError e)
         {
-            LOGGER.warn("Failed to query Firmalife greenhouse control state", e);
+            isControlledGreenhouseMethod = null;
+            warnGreenhouseQueryFailure(e);
             return false;
         }
     }
 
-    @Nullable
-    private static Method resolveMethod()
+    public static float getControlledTemperature(Level level, BlockPos pos, float fallbackTemperature)
     {
-        if (resolved)
+        if (!isCompatModLoaded())
         {
-            return available ? isControlledGreenhouseMethod : null;
+            return fallbackTemperature;
+        }
+
+        resolveMethods();
+        final Method method = getControlledTemperatureMethod;
+        if (method == null)
+        {
+            return fallbackTemperature;
+        }
+
+        try
+        {
+            final Object result = method.invoke(null, level, pos, fallbackTemperature);
+            return result instanceof Number number ? number.floatValue() : fallbackTemperature;
+        }
+        catch (ReflectiveOperationException | RuntimeException | LinkageError e)
+        {
+            getControlledTemperatureMethod = null;
+            warnTemperatureQueryFailure(e);
+            return fallbackTemperature;
+        }
+    }
+
+    private static boolean isCompatModLoaded()
+    {
+        return ModList.get().isLoaded(MODERN_LIFE_MOD_ID) || ModList.get().isLoaded(MOD_ID);
+    }
+
+    private static void resolveMethods()
+    {
+        if (resolvedMethods)
+        {
+            return;
         }
 
         synchronized (NTEFirmalifeGreenhouseCompat.class)
         {
-            if (resolved)
+            if (resolvedMethods)
             {
-                return available ? isControlledGreenhouseMethod : null;
+                return;
             }
 
-            resolved = true;
-            try
+            resolvedMethods = true;
+            if (!resolveModernLifeMethods() && !resolveLegacyMethods() && !loggedMissingMethods)
             {
-                final Class<?> helperClass = Class.forName(GREENHOUSE_HELPER_CLASS);
-                final Method method = helperClass.getMethod("isControlledGreenhouse", Level.class, BlockPos.class);
-                method.setAccessible(true);
-                isControlledGreenhouseMethod = method;
-                available = true;
-            }
-            catch (ReflectiveOperationException | RuntimeException e)
-            {
-                available = false;
-                LOGGER.warn("Failed to initialize Firmalife greenhouse compatibility hook", e);
+                loggedMissingMethods = true;
+                LOGGER.warn("Failed to initialize Firmalife greenhouse compatibility hooks");
             }
         }
+    }
 
-        return available ? isControlledGreenhouseMethod : null;
+    private static boolean resolveModernLifeMethods()
+    {
+        try
+        {
+            final Class<?> helperClass = Class.forName(MODERN_LIFE_GREENHOUSE_HELPER_CLASS);
+            final Method controlledMethod = helperClass.getMethod("getControlledTemperature", Level.class, BlockPos.class, float.class);
+            final Method greenhouseMethod = helperClass.getMethod("isControlledGreenhouse", Level.class, BlockPos.class);
+            controlledMethod.setAccessible(true);
+            greenhouseMethod.setAccessible(true);
+            getControlledTemperatureMethod = controlledMethod;
+            isControlledGreenhouseMethod = greenhouseMethod;
+            return true;
+        }
+        catch (ReflectiveOperationException | RuntimeException | LinkageError ignored)
+        {
+            return false;
+        }
+    }
+
+    private static boolean resolveLegacyMethods()
+    {
+        try
+        {
+            final Class<?> helperClass = Class.forName(LEGACY_GREENHOUSE_HELPER_CLASS);
+            final Method method = helperClass.getMethod("isControlledGreenhouse", Level.class, BlockPos.class);
+            method.setAccessible(true);
+            isControlledGreenhouseMethod = method;
+            return true;
+        }
+        catch (ReflectiveOperationException | RuntimeException | LinkageError ignored)
+        {
+            return false;
+        }
+    }
+
+    private static void warnGreenhouseQueryFailure(Throwable e)
+    {
+        if (!loggedGreenhouseQueryFailure)
+        {
+            loggedGreenhouseQueryFailure = true;
+            LOGGER.warn("Failed to query Firmalife greenhouse control state; disabling this compatibility hook", e);
+        }
+    }
+
+    private static void warnTemperatureQueryFailure(Throwable e)
+    {
+        if (!loggedTemperatureQueryFailure)
+        {
+            loggedTemperatureQueryFailure = true;
+            LOGGER.warn("Failed to query Firmalife greenhouse controlled temperature; falling back to TFC temperature", e);
+        }
     }
 }

@@ -14,10 +14,7 @@ import net.dries007.tfc.common.blockentities.BerryBushBlockEntity;
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeLeavesBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.Lifecycle;
 import net.dries007.tfc.common.blocks.plant.fruit.SeasonalPlantBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
-import net.dries007.tfc.util.climate.Climate;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = FruitTreeLeavesBlock.class, remap = false)
@@ -45,7 +42,7 @@ public abstract class FruitTreeLeavesBlockMixin
                 final BlockPos stemPos = NTESeasonalHelpers.getFruitTreeStemPos(level, pos);
                 final int hydration = NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, stemPos.below());
 
-                if (range.checkBoth(hydration, Climate.getAverageTemperature(level, stemPos), false))
+                if (range.checkBoth(hydration, NTESeasonalHelpers.getPlantTemperature(level, stemPos), false))
                 {
                     currentLifecycle = currentLifecycle.advanceTowards(expectedLifecycle);
                 }
@@ -72,8 +69,7 @@ public abstract class FruitTreeLeavesBlockMixin
     {
         final var range = ((SeasonalPlantBlockAccessor) this).tfe$getClimateRange().get();
         final BlockPos stemPos = NTESeasonalHelpers.getFruitTreeStemPos(level, pos);
-        text.add(FarmlandBlock.getHydrationTooltip(level, stemPos, range, false, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, stemPos.below())));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, stemPos.below(), range, false, NTECommonConfig.useCurrentRainfallForFruit());
-        text.add(FarmlandBlock.getAverageTemperatureTooltip(level, stemPos, range, false));
+        final BlockPos rootPos = stemPos.below();
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, stemPos, rootPos, range, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, rootPos));
     }
 }

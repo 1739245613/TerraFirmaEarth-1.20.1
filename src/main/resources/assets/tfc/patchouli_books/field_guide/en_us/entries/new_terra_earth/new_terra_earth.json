@@ -5,7 +5,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "This addon backports parts of local $(thing)1.21 TerraFirmaCraft$() worldgen, climate semantics, shorelines, ocean depth, and crop behavior to $(thing)1.20.1$().$(br2)This entry only documents content that is actually wired into the current project, so you can quickly judge local climate, crop suitability, and what terrain families may appear nearby."
+      "text": "This addon backports parts of local $(thing)1.21 TerraFirmaCraft$() worldgen, climate semantics, shorelines, ocean depth, and plant growth parameters to $(thing)1.20.1$().$(br2)This entry only documents content that is actually wired into the current project, so you can quickly judge local climate, crop suitability, and what terrain families may appear nearby."
     },
     {
       "type": "patchouli:text",
@@ -35,7 +35,7 @@
       "type": "patchouli:text",
       "anchor": "crops",
       "title": "Crop Rules",
-      "text": "Crop behavior in this addon follows $(thing)1.21 TFC$(). Crops still fall into $(thing)cereals$(), $(thing)legumes$(), $(thing)vegetables$(), $(thing)cover crops$(), and $(thing)miscellaneous crops$(). Temperature and $(l:mechanics/hydration)hydration$() ranges determine whether a region can support them reliably.$(br2)The addon crops have detailed pages in $(l:new_terra_earth/ported_crops)Ported Crops$(). The following pages summarize the 1.21 temperature and hydration ranges for common crops."
+      "text": "Crops in this addon still use the main $(thing)1.20 TFC$() farming mechanics. The temperature and $(l:mechanics/hydration)hydration$() values listed here are the current growth parameters used by this pack, for choosing crops by region.$(br2)The addon crops have detailed pages in $(l:new_terra_earth/ported_crops)Ported Crops$(). The full farming guide still lives in $(l:mechanics/crops)Crops$()."
     },
     {
       "type": "patchouli:text",

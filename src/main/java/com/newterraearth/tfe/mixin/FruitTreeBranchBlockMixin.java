@@ -15,10 +15,8 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeBranchBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeSaplingBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.util.climate.ClimateRange;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = FruitTreeBranchBlock.class, remap = false)
@@ -37,10 +35,9 @@ public abstract class FruitTreeBranchBlockMixin
     {
         final ClimateRange range = climateRange.get();
         final BlockPos stemPos = NTESeasonalHelpers.getFruitTreeStemPos(level, pos);
+        final BlockPos rootPos = stemPos.below();
 
-        text.add(FarmlandBlock.getHydrationTooltip(level, stemPos, range, false, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, stemPos.below())));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, stemPos.below(), range, false, NTECommonConfig.useCurrentRainfallForFruit());
-        text.add(FarmlandBlock.getAverageTemperatureTooltip(level, stemPos, range, false));
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, stemPos, rootPos, range, NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, rootPos));
         if (FruitTreeSaplingBlock.maySplice(level, pos.above(), level.getBlockState(pos.above())))
         {
             text.add(Component.translatable("tfc.tooltip.fruit_tree.sapling_splice"));

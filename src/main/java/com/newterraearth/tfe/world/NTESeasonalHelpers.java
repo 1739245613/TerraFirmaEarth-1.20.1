@@ -3,6 +3,7 @@ package com.newterraearth.tfe.world;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Locale;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -184,6 +185,43 @@ public final class NTESeasonalHelpers
         return getInstantHydrationFromRainHydration(level, pos, getInstantRainHydration(rainfall));
     }
 
+    public static float getPlantTemperature(Level level, BlockPos pos)
+    {
+        final ICalendar calendar = Calendars.get(level);
+        return getPlantTemperature(level, pos, calendar.getCalendarTicks(), calendar.getCalendarDaysInMonth());
+    }
+
+    public static float getPlantTemperature(Level level, BlockPos pos, long calendarTicks, int daysInMonth)
+    {
+        final float temperature = Climate.getTemperature(level, pos, calendarTicks, daysInMonth);
+        return NTEFirmalifeGreenhouseCompat.getControlledTemperature(level, pos, temperature);
+    }
+
+    public static Component getPlantTemperatureTooltip(Level level, BlockPos pos, ClimateRange validRange, boolean allowWiggle)
+    {
+        return FarmlandBlock.getTemperatureTooltip(level, pos, validRange, getPlantTemperature(level, pos), allowWiggle, "tfc.tooltip.farmland.temperature");
+    }
+
+    public static Component getAveragePlantTemperatureTooltip(Level level, BlockPos pos)
+    {
+        return Component.translatable("tfe.tooltip.climate_average_temperature", String.format(Locale.ROOT, "%.1f", Climate.getAverageTemperature(level, pos)));
+    }
+
+    public static void addPlantClimateTooltips(List<Component> text, Level level, BlockPos temperaturePos, BlockPos hydrationPos, ClimateRange validRange, int hydration)
+    {
+        final boolean hideAverages = isInControlledGreenhouse(level, temperaturePos) || isInControlledGreenhouse(level, hydrationPos);
+        text.add(getPlantTemperatureTooltip(level, temperaturePos, validRange, false));
+        if (!hideAverages)
+        {
+            text.add(getAveragePlantTemperatureTooltip(level, temperaturePos));
+        }
+        text.add(FarmlandBlock.getHydrationTooltip(level, hydrationPos, validRange, false, hydration));
+        if (!hideAverages)
+        {
+            text.add(getAverageHydrationTooltip(level, hydrationPos));
+        }
+    }
+
     public static void addAverageHydrationTooltipIfNeeded(List<Component> text, LevelAccessor level, BlockPos pos, ClimateRange validRange, boolean allowWiggle, boolean showAverage)
     {
         if (showAverage && !useAverageHydrationInControlledGreenhouse(level, pos))
@@ -320,6 +358,11 @@ public final class NTESeasonalHelpers
     }
 
     public static boolean useAverageHydrationInControlledGreenhouse(LevelAccessor level, BlockPos pos)
+    {
+        return isInControlledGreenhouse(level, pos);
+    }
+
+    public static boolean isInControlledGreenhouse(LevelAccessor level, BlockPos pos)
     {
         return level instanceof Level world && (
             NTEFirmalifeGreenhouseCompat.isControlledGreenhouse(world, pos)

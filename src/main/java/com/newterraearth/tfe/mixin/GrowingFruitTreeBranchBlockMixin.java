@@ -8,7 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
 import net.dries007.tfc.common.blocks.plant.fruit.GrowingFruitTreeBranchBlock;
-import net.dries007.tfc.util.climate.Climate;
 
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
@@ -41,6 +40,6 @@ public abstract class GrowingFruitTreeBranchBlockMixin
     )
     private float tfe$useStemTemperatureForClimateCheck(Level level, BlockPos pos)
     {
-        return Climate.getAverageTemperature(level, NTESeasonalHelpers.getFruitTreeStemPos(level, pos));
+        return NTESeasonalHelpers.getPlantTemperature(level, NTESeasonalHelpers.getFruitTreeStemPos(level, pos));
     }
 }

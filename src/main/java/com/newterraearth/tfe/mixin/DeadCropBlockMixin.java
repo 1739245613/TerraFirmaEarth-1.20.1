@@ -14,10 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import net.dries007.tfc.common.blocks.crop.DeadCropBlock;
-import net.dries007.tfc.common.blocks.soil.FarmlandBlock;
 import net.dries007.tfc.util.climate.ClimateRange;
 
-import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
 
 @Mixin(value = DeadCropBlock.class, remap = false)
@@ -27,16 +25,14 @@ public abstract class DeadCropBlockMixin
 
     /**
      * @author Codex
-     * @reason Dead crop overlays should match the configured rainfall hydration mode.
+     * @reason Dead crop overlays should match the configured rainfall hydration mode and TFE current temperature.
      */
     @Overwrite(remap = false)
     public void addHoeOverlayInfo(Level level, BlockPos pos, BlockState state, List<Component> text, boolean isDebug)
     {
         final ClimateRange range = climateRange.get();
         final BlockPos sourcePos = pos.below();
-        text.add(FarmlandBlock.getHydrationTooltip(level, sourcePos, range, false, NTESeasonalHelpers.getConfiguredCropHydration(level, sourcePos)));
-        NTESeasonalHelpers.addAverageHydrationTooltipIfNeeded(text, level, sourcePos, range, false, NTECommonConfig.useCurrentRainfallForCrops());
-        text.add(FarmlandBlock.getTemperatureTooltip(level, pos, range, false));
+        NTESeasonalHelpers.addPlantClimateTooltips(text, level, pos, sourcePos, range, NTESeasonalHelpers.getConfiguredCropHydration(level, sourcePos));
         if (state.getValue(DeadCropBlock.MATURE))
         {
             text.add(Component.translatable("tfc.tooltip.farmland.mature"));
