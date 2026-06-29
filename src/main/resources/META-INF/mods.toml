@@ -29,12 +29,16 @@ TerraFirmaEarth / 群峦地球
 - 高低版本兼容层：让高版本的生物、气候、植物等数据在 1.20 端正常工作，兼容了1.20提前注册的物品。
 - AFC 兼容：兼容林海传说
 - 地图mod 兼容。
-- FirmalifeEnhanced 温室地窖重置兼容(0.1.3以上版本)：在受控温室范围内，作物、果树、浆果灌木等会按年均温度和湿度判定，不受外部天气影响。
+- FirmalifeEnhanced 温室地窖重置兼容,温室范围内，作物、果树、浆果灌木等会按年均温度和湿度判定，不受外部天气影响。
+- TFCModernLife群峦现代化生活兼容：温室范围是以当前温度为基准进行控温。且建议使用此模组作为本模组温室、地窖和电力厨房相关拓展，勿重复启用.
 - 数据包接入说明：随附github上的《数据包兼容写法教程》，方便个人使用者或经授权整合包作者添加生物刷新、追加 fauna、协调 AFC 兼容。
 
 1.1.2 更新概括
 - 修复沿海沙滩等地形生成异常。
 - 优化木薯营养值。
+- 灌木和果树的生长条件对齐 1.21，并额外将温度需求改为当前温度。
+- 气候不适宜不再导致灌木和果树树苗死亡，而是停止生长。
+- TFCModernLife群峦现代化生活兼容：温室范围是以当前温度为基准进行控温。且建议使用此模组作为本模组温室、地窖和电力厨房相关拓展，勿重复启用.
 
 1.1.1 更新概括
 - 修复香蕉树自然生成时底部可能插进土里的问题。
@@ -91,11 +95,15 @@ Extras
 - AFC compatibility: works with Another Forest Compat (林海传说).
 - Map mod compatibility (e.g. JourneyMap colour support for ported terrain).
 - FirmalifeEnhanced greenhouse / cellar reset compatibility (requires FirmalifeEnhanced 0.1.3 or later): inside a controlled greenhouse, crops, fruit trees and berry bushes use annual-average temperature and hydration and ignore outside weather.
+- TFCModernLife (群峦现代化生活) compatibility: greenhouse control is based on current temperature. It is recommended as the greenhouse, cellar and electric kitchen expansion for this mod; do not enable duplicate greenhouse expansions at the same time.
 - Datapack integration: a separate "Datapack Compatibility Guide" is provided on GitHub for personal users or authorized modpack authors who want to add fauna spawning, extend fauna entries, or coordinate AFC compatibility.
 
 1.1.2 Update Summary
 - Fixed terrain generation issues around coastal beaches and related shore terrain.
 - Improved cassava nutrition values.
+- Aligned berry bush and fruit tree growth conditions with TFC 1.21, and changed their temperature checks to use current temperature.
+- Unsuitable climate no longer kills berry bushes or fruit tree saplings; affected plants now stop growing instead.
+- TFCModernLife (群峦现代化生活) compatibility: greenhouse control is based on current temperature. It is recommended as the greenhouse, cellar and electric kitchen expansion for this mod; do not enable duplicate greenhouse expansions at the same time.
 
 1.1.1 Update Summary
 - Fixed naturally generated banana plants sometimes sinking into terrain.
