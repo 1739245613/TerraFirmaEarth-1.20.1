@@ -136,7 +136,7 @@ public final class NTECommonConfig
             .comment("普通点源从平台边缘衰减到 0 的距离，单位为方块。默认 590 加上 10 格平台半径，约等于从中心到外缘 600 格。")
             .defineInRange("source_falloff_distance", 590, 1, 2048);
         TERRAIN_UPLIFT_SMALL_PLATFORM_RADIUS = builder
-            .comment("普通山地和线状火山抬高源中心平缓平台半径，单位为方块。盾火山仍使用自己的动态平台大小。")
+            .comment("普通山地抬高源中心平缓平台半径，单位为方块。巨型火山仍使用自己的动态平台大小。")
             .defineInRange("small_platform_radius", 10, 0, 256);
         builder.pop();
 

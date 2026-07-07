@@ -580,7 +580,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 fixedShoreWeight += tfe$shoreBlendWeights[type.ordinal()];
             }
         }
-        return tfe$smoothStep(Mth.clampedMap(fixedShoreWeight, 0.20d, 0.55d, 0d, 1d));
+        return tfe$smoothStep(Mth.clampedMap(fixedShoreWeight, 0.06d, 0.35d, 0d, 1d));
     }
 
     @Unique
@@ -799,7 +799,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     private void tfe$traceFinal(Object2DoubleMap<BiomeExtension> biomeWeights, double baseHeight, double shoreAdjustedHeight, double centeredFeatureHeight, double terrainUpliftBaseHeight, double terrainUplift, double initialCaveWeight, double caveTransitionTerrainUplift, @Nullable RiverInfo info, double finalHeight)
     {
         System.out.printf(
-            "[TFE][RuntimeTrace][terrain_cut][final] x=%d z=%d base=%.3f shore=%.3f centered=%.3f upliftBase=%.3f uplift=%.3f caveInitial=%.3f caveTransitionUplift=%.3f final=%.3f river=%s exactWeights=%s biomeWeights=%s noRiverBiome=%s%n",
+            "[TFE][RuntimeTrace][terrain_cut][final] x=%d z=%d base=%.3f shore=%.3f centered=%.3f upliftBase=%.3f uplift=%.3f caveInitial=%.3f caveTransitionUplift=%.3f final=%.3f river=%s exactWeights=%s biomeWeights=%s noRiverBiome=%s upliftSources=%s%n",
             blockX,
             blockZ,
             baseHeight,
@@ -813,8 +813,19 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             tfe$formatRiverInfo(info),
             tfe$formatExactRiverWeights(),
             tfe$formatBiomeWeights(biomeWeights),
-            tfe$biomeName(biomeSource.getBiomeExtensionNoRiver(net.minecraft.core.QuartPos.fromBlock(blockX), net.minecraft.core.QuartPos.fromBlock(blockZ)))
+            tfe$biomeName(biomeSource.getBiomeExtensionNoRiver(net.minecraft.core.QuartPos.fromBlock(blockX), net.minecraft.core.QuartPos.fromBlock(blockZ))),
+            tfe$formatTerrainUpliftSources()
         );
+    }
+
+    @Unique
+    private String tfe$formatTerrainUpliftSources()
+    {
+        if (tfe$terrainUpliftSampler == null)
+        {
+            return "none";
+        }
+        return tfe$terrainUpliftSampler.debugDescribeContributors(blockX, blockZ);
     }
 
     @Unique

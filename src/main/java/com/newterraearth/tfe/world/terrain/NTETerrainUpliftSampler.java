@@ -1,7 +1,10 @@
 package com.newterraearth.tfe.world.terrain;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.minecraft.core.QuartPos;
@@ -19,9 +22,9 @@ import com.newterraearth.tfe.world.region.NTERegionNoise;
 /**
  * Regional relief field for the main terrain subset.
  *
- * Mountain-like biome clusters act as wide uplift sources. Columns blend the
- * nearby contributions with a soft-max style average so adjacent sources do
- * not form hard Voronoi-style seams.
+ * Mountain-like biome clusters and region-scale hotspot volcanoes act as wide
+ * uplift sources. Columns blend the nearby contributions with a soft-max style
+ * average so adjacent sources do not form hard Voronoi-style seams.
  */
 public final class NTETerrainUpliftSampler
 {
@@ -32,16 +35,13 @@ public final class NTETerrainUpliftSampler
     private static final int SOURCE_CANDIDATE_STEP = SOURCE_GRID_SIZE / SOURCE_CANDIDATE_GRID_SIZE;
     private static final int MAX_SOURCES_PER_CELL = 5;
     private static final int DEFAULT_SMALL_PLATFORM_RADIUS = 10;
-    private static final int LINE_VOLCANO_LENGTH = 900;
-    private static final int LINE_VOLCANO_HALF_LENGTH = LINE_VOLCANO_LENGTH / 2;
-    private static final int LINE_VOLCANO_DIRECTION_SAMPLE_STEP = 64;
     private static final int SHIELD_VOLCANO_PLATFORM_SAMPLE_STEP = 32;
     private static final int MAX_SHIELD_VOLCANO_PLATFORM_RADIUS = 544;
     private static final double[][] RADIAL_DIRECTIONS = buildRadialDirections(32);
     private static final double OCEAN_EXTENSION_BLOCKS_PER_HEIGHT = 4d;
     private static final int OCEAN_EXTENSION_SAMPLE_STEP = 4;
     private static final int COASTAL_RELIEF_BLEND_DISTANCE = 96;
-    private static final double COASTAL_RELIEF_MIN_FACTOR = 0.18d;
+    private static final double COASTAL_RELIEF_MIN_FACTOR = 0d;
 
     private final long seed;
     private final BiomeSourceExtension biomeSource;
@@ -67,7 +67,7 @@ public final class NTETerrainUpliftSampler
         this.sourceHeight = NTECommonConfig.getTerrainUpliftSourceHeight();
         this.sourceFalloffDistance = NTECommonConfig.getTerrainUpliftSourceFalloffDistance();
         this.smallPlatformRadius = NTECommonConfig.getTerrainUpliftSmallPlatformRadius();
-        final int sourceSearchRadius = sourceFalloffDistance + Math.max(MAX_SHIELD_VOLCANO_PLATFORM_RADIUS, smallPlatformRadius + LINE_VOLCANO_HALF_LENGTH);
+        final int sourceSearchRadius = sourceFalloffDistance + Math.max(MAX_SHIELD_VOLCANO_PLATFORM_RADIUS, smallPlatformRadius);
         this.sourceRadiusCells = Math.max(1, (sourceSearchRadius + SOURCE_GRID_SIZE - 1) / SOURCE_GRID_SIZE);
     }
 
@@ -114,6 +114,68 @@ public final class NTETerrainUpliftSampler
             return 0d;
         }
         return Mth.lerp(0.55d, weightedUplift / weightSum, strongestUplift);
+    }
+
+    public String debugDescribeContributors(int blockX, int blockZ)
+    {
+        if (!enabled || sourceHeight <= 0d)
+        {
+            return "disabled";
+        }
+
+        final int centerCellX = Math.floorDiv(blockX, SOURCE_GRID_SIZE);
+        final int centerCellZ = Math.floorDiv(blockZ, SOURCE_GRID_SIZE);
+        final List<DebugContribution> contributions = new ArrayList<>();
+
+        for (int cellX = centerCellX - sourceRadiusCells; cellX <= centerCellX + sourceRadiusCells; cellX++)
+        {
+            for (int cellZ = centerCellZ - sourceRadiusCells; cellZ <= centerCellZ + sourceRadiusCells; cellZ++)
+            {
+                final SourceSet sourceSet = sourceAt(cellX, cellZ);
+                if (!sourceSet.active())
+                {
+                    continue;
+                }
+
+                for (Source source : sourceSet.sources())
+                {
+                    final double contribution = sourceContribution(source, blockX, blockZ);
+                    if (contribution <= 0d)
+                    {
+                        continue;
+                    }
+                    contributions.add(new DebugContribution(source, sourceDistance(source, blockX, blockZ), contribution));
+                }
+            }
+        }
+
+        if (contributions.isEmpty())
+        {
+            return "none";
+        }
+
+        contributions.sort(Comparator.comparingDouble(DebugContribution::contribution).reversed());
+        final StringBuilder builder = new StringBuilder();
+        final int limit = Math.min(4, contributions.size());
+        for (int i = 0; i < limit; i++)
+        {
+            if (i > 0)
+            {
+                builder.append(';');
+            }
+            final DebugContribution debug = contributions.get(i);
+            final Source source = debug.source();
+            builder.append(source.profile())
+                .append("@")
+                .append(source.x())
+                .append(',')
+                .append(source.z())
+                .append(" dist=")
+                .append(String.format("%.1f", debug.distance()))
+                .append(" contrib=")
+                .append(String.format("%.3f", debug.contribution()));
+        }
+        return builder.toString();
     }
 
     public double sampleWithOceanExtension(int blockX, int blockZ, double rawUplift)
@@ -254,19 +316,14 @@ public final class NTETerrainUpliftSampler
     {
         if (profile == null)
         {
-            return new Source(blockX, blockZ, smallPlatformRadius, SourceShape.POINT, 1d, 0d, 0.86d);
-        }
-        if (profile.shape() == SourceShape.LINE)
-        {
-            final double[] direction = estimateLineVolcanoDirection(blockX, blockZ);
-            return new Source(blockX, blockZ, smallPlatformRadius, SourceShape.LINE, direction[0], direction[1], profile.edgeFactor());
+            return new Source(blockX, blockZ, smallPlatformRadius, SourceProfile.NORMAL, 0.86d);
         }
         if (profile == SourceProfile.NORMAL)
         {
-            return new Source(blockX, blockZ, smallPlatformRadius, SourceShape.POINT, 1d, 0d, profile.edgeFactor());
+            return new Source(blockX, blockZ, smallPlatformRadius, profile, profile.edgeFactor());
         }
         final int platformRadius = profile.dynamicPlatform() ? estimateShieldVolcanoPlatformRadius(profile, blockX, blockZ) : profile.platformRadius();
-        return new Source(blockX, blockZ, platformRadius, SourceShape.POINT, 1d, 0d, profile.edgeFactor());
+        return new Source(blockX, blockZ, platformRadius, profile, profile.edgeFactor());
     }
 
     private double sourceContribution(Source source, int blockX, int blockZ)
@@ -294,17 +351,7 @@ public final class NTETerrainUpliftSampler
     {
         final double dx = blockX - source.x();
         final double dz = blockZ - source.z();
-        if (source.shape() != SourceShape.LINE)
-        {
-            return Math.sqrt(dx * dx + dz * dz);
-        }
-
-        final double along = Mth.clamp(dx * source.directionX() + dz * source.directionZ(), -LINE_VOLCANO_HALF_LENGTH, LINE_VOLCANO_HALF_LENGTH);
-        final double closestX = source.directionX() * along;
-        final double closestZ = source.directionZ() * along;
-        final double sideX = dx - closestX;
-        final double sideZ = dz - closestZ;
-        return Math.sqrt(sideX * sideX + sideZ * sideZ);
+        return Math.sqrt(dx * dx + dz * dz);
     }
 
     private double shieldVolcanoSourceScore(SourceProfile profile, int blockX, int blockZ)
@@ -366,38 +413,6 @@ public final class NTETerrainUpliftSampler
         return maxDistance;
     }
 
-    private double[] estimateLineVolcanoDirection(int blockX, int blockZ)
-    {
-        double bestScore = Double.NEGATIVE_INFINITY;
-        double[] bestDirection = RADIAL_DIRECTIONS[0];
-        for (int i = 0; i < RADIAL_DIRECTIONS.length / 2; i++)
-        {
-            final double[] direction = RADIAL_DIRECTIONS[i];
-            final double score = sampleLineVolcanoRun(blockX, blockZ, direction[0], direction[1]) + sampleLineVolcanoRun(blockX, blockZ, -direction[0], -direction[1]);
-            if (score > bestScore)
-            {
-                bestScore = score;
-                bestDirection = direction;
-            }
-        }
-        return bestDirection;
-    }
-
-    private double sampleLineVolcanoRun(int blockX, int blockZ, double directionX, double directionZ)
-    {
-        double score = 0d;
-        for (int distance = LINE_VOLCANO_DIRECTION_SAMPLE_STEP; distance <= LINE_VOLCANO_HALF_LENGTH; distance += LINE_VOLCANO_DIRECTION_SAMPLE_STEP)
-        {
-            final int x = blockX + Mth.floor(directionX * distance);
-            final int z = blockZ + Mth.floor(directionZ * distance);
-            if (sourceProfile(sampleBiome(x, z)) == SourceProfile.LINE_VOLCANO)
-            {
-                score += LINE_VOLCANO_DIRECTION_SAMPLE_STEP;
-            }
-        }
-        return score;
-    }
-
     private Noise2D shieldVolcanoSourceNoise(SourceProfile profile)
     {
         return switch (profile)
@@ -406,7 +421,7 @@ public final class NTETerrainUpliftSampler
                 case DORMANT_SHIELD_VOLCANO -> dormantShieldVolcanoSourceNoise();
                 case ANCIENT_SHIELD_VOLCANO -> ancientShieldVolcanoSourceNoise();
                 case ICE_SHEET_SHIELD_VOLCANO, GLACIATED_SHIELD_VOLCANO -> shieldVolcanoIntensitySourceNoise();
-                case NORMAL, LINE_VOLCANO -> (x, z) -> Double.NEGATIVE_INFINITY;
+                case NORMAL -> (x, z) -> Double.NEGATIVE_INFINITY;
             };
     }
 
@@ -564,7 +579,7 @@ public final class NTETerrainUpliftSampler
                     "glacially_carved_mountains",
                     "tuyas",
                     "ice_sheet_tuyas" -> SourceProfile.NORMAL;
-                case "volcanic_mountains" -> SourceProfile.LINE_VOLCANO;
+                case "volcanic_mountains" -> SourceProfile.NORMAL;
                 case "active_shield_volcano" -> SourceProfile.ACTIVE_SHIELD_VOLCANO;
                 case "dormant_shield_volcano" -> SourceProfile.DORMANT_SHIELD_VOLCANO;
                 case "ancient_shield_volcano" -> SourceProfile.ANCIENT_SHIELD_VOLCANO;
@@ -626,7 +641,9 @@ public final class NTETerrainUpliftSampler
         return value;
     }
 
-    private record Source(int x, int z, int platformRadius, SourceShape shape, double directionX, double directionZ, double edgeFactor) {}
+    private record Source(int x, int z, int platformRadius, SourceProfile profile, double edgeFactor) {}
+
+    private record DebugContribution(Source source, double distance, double contribution) {}
 
     private record SourceCandidate(double score, int x, int z, SourceProfile profile)
     {
@@ -648,34 +665,25 @@ public final class NTETerrainUpliftSampler
         }
     }
 
-    private enum SourceShape
-    {
-        POINT,
-        LINE
-    }
-
     private enum SourceProfile
     {
-        NORMAL(DEFAULT_SMALL_PLATFORM_RADIUS, DEFAULT_SMALL_PLATFORM_RADIUS, 0d, SourceShape.POINT, 0.82d),
-        LINE_VOLCANO(DEFAULT_SMALL_PLATFORM_RADIUS, DEFAULT_SMALL_PLATFORM_RADIUS, 0d, SourceShape.LINE, 0.78d),
-        ACTIVE_SHIELD_VOLCANO(96, 288, 0.75d, SourceShape.POINT, 0.94d),
-        DORMANT_SHIELD_VOLCANO(192, 544, 0.70d, SourceShape.POINT, 0.90d),
-        ANCIENT_SHIELD_VOLCANO(192, 544, 0.60d, SourceShape.POINT, 0.86d),
-        ICE_SHEET_SHIELD_VOLCANO(192, 544, 0.72d, SourceShape.POINT, 0.91d),
-        GLACIATED_SHIELD_VOLCANO(192, 544, 0.72d, SourceShape.POINT, 0.91d);
+        NORMAL(DEFAULT_SMALL_PLATFORM_RADIUS, DEFAULT_SMALL_PLATFORM_RADIUS, 0d, 0.82d),
+        ACTIVE_SHIELD_VOLCANO(96, 288, 0.75d, 0.94d),
+        DORMANT_SHIELD_VOLCANO(192, 544, 0.70d, 0.90d),
+        ANCIENT_SHIELD_VOLCANO(192, 544, 0.60d, 0.86d),
+        ICE_SHEET_SHIELD_VOLCANO(192, 544, 0.72d, 0.91d),
+        GLACIATED_SHIELD_VOLCANO(192, 544, 0.72d, 0.91d);
 
         private final int minPlatformRadius;
         private final int maxPlatformRadius;
         private final double platformThreshold;
-        private final SourceShape shape;
         private final double edgeFactor;
 
-        SourceProfile(int minPlatformRadius, int maxPlatformRadius, double platformThreshold, SourceShape shape, double edgeFactor)
+        SourceProfile(int minPlatformRadius, int maxPlatformRadius, double platformThreshold, double edgeFactor)
         {
             this.minPlatformRadius = minPlatformRadius;
             this.maxPlatformRadius = maxPlatformRadius;
             this.platformThreshold = platformThreshold;
-            this.shape = shape;
             this.edgeFactor = edgeFactor;
         }
 
@@ -706,12 +714,7 @@ public final class NTETerrainUpliftSampler
 
         boolean shieldVolcano()
         {
-            return this != NORMAL && this != LINE_VOLCANO;
-        }
-
-        SourceShape shape()
-        {
-            return shape;
+            return this != NORMAL;
         }
 
         double edgeFactor()
