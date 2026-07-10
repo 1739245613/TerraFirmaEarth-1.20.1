@@ -35,6 +35,7 @@ TerraFirmaEarth / 群峦地球
 
 1.1.2 更新概括
 - 修复沿海沙滩等地形生成异常。
+- 优化火山的地势选择。
 - 优化木薯营养值。
 - 灌木和果树的生长条件对齐 1.21，并额外将温度需求改为当前温度。
 - 气候不适宜不再导致灌木和果树树苗死亡，而是停止生长。
@@ -100,6 +101,7 @@ Extras
 
 1.1.2 Update Summary
 - Fixed terrain generation issues around coastal beaches and related shore terrain.
+- Optimize the terrain selection for volcanoes
 - Improved cassava nutrition values.
 - Aligned berry bush and fruit tree growth conditions with TFC 1.21, and changed their temperature checks to use current temperature.
 - Unsuitable climate no longer kills berry bushes or fruit tree saplings; affected plants now stop growing instead.
