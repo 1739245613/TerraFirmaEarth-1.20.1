@@ -1,14 +1,19 @@
 package com.newterraearth.tfe.mixin;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
+import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Beardifier;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawJunction;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.dries007.tfc.world.ChunkBaseBlockSource;
 import net.dries007.tfc.world.ChunkNoiseFiller;
@@ -32,6 +37,9 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 @Mixin(value = ChunkNoiseFiller.class, remap = false)
 public abstract class ChunkNoiseFillerMixin
 {
+    @Unique private static final int TFE$BEARD_KERNEL_MIN_OFFSET = -12;
+    @Unique private static final int TFE$BEARD_KERNEL_MAX_OFFSET = 11;
+
     @Shadow private int[] surfaceHeight;
     @Shadow private BiomeExtension[] localBiomes;
     @Shadow private BiomeExtension[] localBiomesNoRivers;
@@ -46,6 +54,90 @@ public abstract class ChunkNoiseFillerMixin
     @Shadow private MutableDensityFunctionContext mutableDensityFunctionContext;
     @Shadow private TFCAquifer aquifer;
     @Shadow private ChunkNoiseSamplingSettings settings;
+
+    /**
+     * TFC normally stops each column one block above its predicted terrain or sea level. That
+     * omits the air above a low slope where vanilla structure terrain adaptation is supposed to
+     * add its beard transition. Keep the normal fast bound when this column is outside every
+     * Beardifier kernel, and otherwise scan through the highest Y that can receive fill from it.
+     * Cutting above that remains covered by the natural terrain bound, so tall BEARD_BOX pieces
+     * do not force every low-side column to scan all the way to their roof.
+     */
+    @Redirect(
+        method = "fillColumn",
+        at = @At(
+            value = "INVOKE",
+            target = "Ljava/lang/Math;max(II)I"
+        )
+    )
+    private int tfe$includeStructureTerrainAdaptationAboveNaturalSurface(int heightNoiseValue, int seaLevel)
+    {
+        return Math.max(Math.max(heightNoiseValue, seaLevel), tfe$getHighestBeardifierY());
+    }
+
+    @Unique
+    private int tfe$getHighestBeardifierY()
+    {
+        int highestY = Integer.MIN_VALUE;
+        final NTEChunkHeightFillerAccess column = (NTEChunkHeightFillerAccess) this;
+        final int blockX = column.tfe$getBlockX();
+        final int blockZ = column.tfe$getBlockZ();
+        final BeardifierAccessor access = (BeardifierAccessor) (Object) beardifier;
+
+        final ObjectListIterator<Beardifier.Rigid> pieces = access.tfe$getPieceIterator();
+        try
+        {
+            while (pieces.hasNext())
+            {
+                final Beardifier.Rigid rigid = pieces.next();
+                final BoundingBox box = rigid.box();
+                if (!tfe$isInsideRigidHorizontalKernel(box, blockX, blockZ))
+                {
+                    continue;
+                }
+
+                final int groundY = box.minY() + rigid.groundLevelDelta();
+                highestY = Math.max(highestY, groundY + TFE$BEARD_KERNEL_MAX_OFFSET);
+            }
+        }
+        finally
+        {
+            pieces.back(Integer.MAX_VALUE);
+        }
+
+        final ObjectListIterator<JigsawJunction> junctions = access.tfe$getJunctionIterator();
+        try
+        {
+            while (junctions.hasNext())
+            {
+                final JigsawJunction junction = junctions.next();
+                if (tfe$isInsideKernel(blockX - junction.getSourceX()) && tfe$isInsideKernel(blockZ - junction.getSourceZ()))
+                {
+                    highestY = Math.max(highestY, junction.getSourceGroundY() + TFE$BEARD_KERNEL_MAX_OFFSET);
+                }
+            }
+        }
+        finally
+        {
+            junctions.back(Integer.MAX_VALUE);
+        }
+
+        return highestY;
+    }
+
+    @Unique
+    private static boolean tfe$isInsideRigidHorizontalKernel(BoundingBox box, int blockX, int blockZ)
+    {
+        final int distanceX = Math.max(0, Math.max(box.minX() - blockX, blockX - box.maxX()));
+        final int distanceZ = Math.max(0, Math.max(box.minZ() - blockZ, blockZ - box.maxZ()));
+        return distanceX <= TFE$BEARD_KERNEL_MAX_OFFSET && distanceZ <= TFE$BEARD_KERNEL_MAX_OFFSET;
+    }
+
+    @Unique
+    private static boolean tfe$isInsideKernel(int offset)
+    {
+        return offset >= TFE$BEARD_KERNEL_MIN_OFFSET && offset <= TFE$BEARD_KERNEL_MAX_OFFSET;
+    }
 
     /**
      * @author Codex

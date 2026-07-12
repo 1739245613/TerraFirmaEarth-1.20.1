@@ -112,23 +112,10 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
             ? startY
             : context.chunk().getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z);
 
-        if (oceanFloorY < tideLevel - 5)
+        final boolean deepWaterGravel = oceanFloorY < tideLevel - 5;
+        if (deepWaterGravel)
         {
-            buildNormalSurface(
-                context,
-                startY,
-                endY,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                NTESurfaceStates.OCEAN_MUD,
-                SEA_LEVEL_Y,
-                -1
-            );
+            buildDeepWaterGravelSurface(context, startY, endY);
         }
         else if (oceanFloorY <= sandHeightAbsolute)
         {
@@ -163,11 +150,35 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
             }
         }
 
-        landBuilder.buildSurface(context, startY, endY);
+        if (!deepWaterGravel)
+        {
+            landBuilder.buildSurface(context, startY, endY);
+        }
 
         if (startY <= seaLevel)
         {
             frozenOceanExtension(context, startY, endY, oceanFloorY, seaLevel);
+        }
+    }
+
+    private static void buildDeepWaterGravelSurface(SurfaceBuilderContext context, int startY, int endY)
+    {
+        int gravelDepth = 1 + (int) (Helpers.hash(98457321L, context.pos()) & 1L);
+        boolean foundOceanFloor = false;
+
+        for (int y = startY; y >= endY && gravelDepth > 0; --y)
+        {
+            final BlockState stateAt = context.getBlockState(y);
+            if (context.isDefaultBlock(stateAt))
+            {
+                foundOceanFloor = true;
+                context.setBlockState(y, NTESurfaceStates.GRAVEL);
+                gravelDepth--;
+            }
+            else if (foundOceanFloor)
+            {
+                break;
+            }
         }
     }
 
