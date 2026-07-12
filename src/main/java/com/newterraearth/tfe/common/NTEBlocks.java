@@ -50,6 +50,8 @@ import com.newterraearth.tfe.common.block.NTEDefaultCropBlock;
 import com.newterraearth.tfe.common.block.NTEDryingBricksBlock;
 import com.newterraearth.tfe.common.block.NTEFarmlandBlock;
 import com.newterraearth.tfe.common.item.FuelBlockItem;
+import com.newterraearth.tfe.common.item.NTEProvidedBlockItem;
+import com.newterraearth.tfe.common.item.NTEProvidedItem;
 import com.newterraearth.tfe.common.blockentities.NTEBlockEntities;
 import com.newterraearth.tfe.common.blockentities.NTECropBlockEntity;
 import com.newterraearth.tfe.world.crop.NTECrop;
@@ -80,8 +82,8 @@ public final class NTEBlocks
     public static final RegistryObject<Item> PEANUT_JAM = ITEMS.register("peanut_jam", () -> new Item(jamFoodProperties()));
     public static final RegistryObject<Item> PEANUT_JAR = ITEMS.register("jar/peanut", () -> new JarItem(new Item.Properties(), new ResourceLocation(NewTerraEarthMod.MOD_ID, "block/jar/peanut"), false));
     public static final RegistryObject<Item> PEANUT_JAR_UNSEALED = ITEMS.register("jar/peanut_unsealed", () -> new JarItem(new Item.Properties(), new ResourceLocation(NewTerraEarthMod.MOD_ID, "block/jar/peanut_unsealed"), true));
-    public static final RegistryObject<Item> CACTUS_WOOD = TFC_ITEMS.register("cactus_wood", () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> DRIED_CACTUS_WOOD = TFC_ITEMS.register("dried_cactus_wood", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> CACTUS_WOOD = TFC_ITEMS.register("cactus_wood", () -> new NTEProvidedItem(new Item.Properties()));
+    public static final RegistryObject<Item> DRIED_CACTUS_WOOD = TFC_ITEMS.register("dried_cactus_wood", () -> new NTEProvidedItem(new Item.Properties()));
 
     public static final RegistryObject<Block> HARDENED_CLAY = register(
         TFC_BLOCKS,
@@ -93,7 +95,7 @@ public final class NTEBlocks
             .sound(SoundType.PACKED_MUD)
             .instrument(NoteBlockInstrument.BASEDRUM)
             .requiresCorrectToolForDrops()),
-        block -> new BlockItem(block, new Item.Properties())
+        block -> new NTEProvidedBlockItem(block, new Item.Properties())
     );
     public static final RegistryObject<Block> HALITE = register(
         TFC_BLOCKS,
@@ -104,7 +106,7 @@ public final class NTEBlocks
             .strength(6.0F)
             .sound(SoundType.STONE)
             .requiresCorrectToolForDrops()),
-        block -> new BlockItem(block, new Item.Properties())
+        block -> new NTEProvidedBlockItem(block, new Item.Properties())
     );
     public static final RegistryObject<Block> GOLDEN_BAMBOO_BLOCK = register(
         TFC_BLOCKS,
@@ -149,9 +151,13 @@ public final class NTEBlocks
 
         for (NTEPlant plant : NTEPlant.values())
         {
-            final DeferredRegister<Block> blockRegister = TFC_NAMESPACE_PLANTS.contains(plant) ? TFC_BLOCKS : BLOCKS;
-            final DeferredRegister<Item> itemRegister = TFC_NAMESPACE_PLANTS.contains(plant) ? TFC_ITEMS : ITEMS;
-            PLANTS.put(plant, register(blockRegister, itemRegister, plant.id(), plant::create, plant.createBlockItem(new Item.Properties())));
+            final boolean usesTFCNamespace = TFC_NAMESPACE_PLANTS.contains(plant);
+            final DeferredRegister<Block> blockRegister = usesTFCNamespace ? TFC_BLOCKS : BLOCKS;
+            final DeferredRegister<Item> itemRegister = usesTFCNamespace ? TFC_ITEMS : ITEMS;
+            final Function<Block, ? extends BlockItem> blockItemFactory = usesTFCNamespace
+                ? block -> new NTEProvidedBlockItem(block, new Item.Properties())
+                : plant.createBlockItem(new Item.Properties());
+            PLANTS.put(plant, register(blockRegister, itemRegister, plant.id(), plant::create, blockItemFactory));
         }
 
         for (NTECrop crop : NTECrop.values())

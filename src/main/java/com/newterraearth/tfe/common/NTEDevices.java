@@ -1,6 +1,5 @@
 package com.newterraearth.tfe.common;
 
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -15,6 +14,7 @@ import net.dries007.tfc.common.blocks.TFCBlocks;
 
 import com.newterraearth.tfe.common.block.devices.NTEStoveBlock;
 import com.newterraearth.tfe.common.block.devices.NTEStovePotBlock;
+import com.newterraearth.tfe.common.item.NTEProvidedBlockItem;
 
 /**
  * Stove / stove pot devices. We register the blocks under the tfc namespace so existing tfc:stove /
@@ -50,8 +50,8 @@ public final class NTEDevices
             .adjacentPathType(BlockPathTypes.DANGER_FIRE)
             .<AbstractFirepitBlockEntity<?>>ticks(AbstractFirepitBlockEntity::serverTick, AbstractFirepitBlockEntity::clientTick)));
 
-    public static final RegistryObject<Item> STOVE_ITEM = NTEBlocks.TFC_ITEMS.register("stove", () -> new BlockItem(STOVE.get(), new Item.Properties()));
-    public static final RegistryObject<Item> STOVE_POT_ITEM = NTEBlocks.TFC_ITEMS.register("stove_pot", () -> new BlockItem(STOVE_POT.get(), new Item.Properties()));
+    public static final RegistryObject<Item> STOVE_ITEM = NTEBlocks.TFC_ITEMS.register("stove", () -> new NTEProvidedBlockItem(STOVE.get(), new Item.Properties()));
+    public static final RegistryObject<Item> STOVE_POT_ITEM = NTEBlocks.TFC_ITEMS.register("stove_pot", () -> new NTEProvidedBlockItem(STOVE_POT.get(), new Item.Properties()));
 
     private NTEDevices() {}
 

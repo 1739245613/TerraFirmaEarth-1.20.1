@@ -10,6 +10,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.ForgeHooks;
 
+import com.newterraearth.tfe.NewTerraEarthMod;
+
 public class FuelBlockItem extends BlockItem
 {
     private final ItemLike fuelItem;
@@ -24,5 +26,11 @@ public class FuelBlockItem extends BlockItem
     public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType)
     {
         return ForgeHooks.getBurnTime(new ItemStack(fuelItem), recipeType);
+    }
+
+    @Override
+    public String getCreatorModId(ItemStack itemStack)
+    {
+        return NewTerraEarthMod.MOD_ID;
     }
 }
