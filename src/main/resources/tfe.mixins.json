@@ -8,7 +8,6 @@
     "AddContinentsMixin",
     "AnnotateClimateMixin",
     "BananaPlantBlockMixin",
-    "BeardifierAccessor",
     "BiomeExtensionMixin",
     "BlockEntityTypeMixin",
     "BurningLogPileBlockMixin",
