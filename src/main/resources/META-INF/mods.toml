@@ -33,6 +33,10 @@ TerraFirmaEarth / 群峦地球
 - TFCModernLife群峦现代化生活兼容：温室范围是以当前温度为基准进行控温。且建议使用此模组作为本模组温室、地窖和电力厨房相关拓展，勿重复启用.
 - 数据包接入说明：随附github上的《数据包兼容写法教程》，方便个人使用者或经授权整合包作者添加生物刷新、追加 fauna、协调 AFC 兼容。
 
+1.1.3 更新概括
+- 海洋的淤泥海床替换为更浅的砂砾海床。
+- 将注册进tfc的物品带上tfe的标记，jei上搜索@tfe也能显示本mod的全部物品了。
+
 1.1.2 更新概括
 - 修复沿海沙滩等地形生成异常。
 - 优化火山的地势选择。
@@ -98,6 +102,10 @@ Extras
 - FirmalifeEnhanced greenhouse / cellar reset compatibility (requires FirmalifeEnhanced 0.1.3 or later): inside a controlled greenhouse, crops, fruit trees and berry bushes use annual-average temperature and hydration and ignore outside weather.
 - TFCModernLife (群峦现代化生活) compatibility: greenhouse control is based on current temperature. It is recommended as the greenhouse, cellar and electric kitchen expansion for this mod; do not enable duplicate greenhouse expansions at the same time.
 - Datapack integration: a separate "Datapack Compatibility Guide" is provided on GitHub for personal users or authorized modpack authors who want to add fauna spawning, extend fauna entries, or coordinate AFC compatibility.
+
+1.1.3 Update Summary
+- Replaced ocean mud seabeds with a thinner gravel surface layer.
+- Marked this mod's items registered under the tfc namespace as TFE-provided, so searching @tfe in JEI now shows all items from this mod.
 
 1.1.2 Update Summary
 - Fixed terrain generation issues around coastal beaches and related shore terrain.
