@@ -3,12 +3,16 @@ package com.newterraearth.tfe.mixin;
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.levelgen.Beardifier;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.dries007.tfc.world.ChunkBaseBlockSource;
 import net.dries007.tfc.world.ChunkNoiseFiller;
@@ -18,11 +22,13 @@ import net.dries007.tfc.world.biome.BiomeExtension;
 import net.dries007.tfc.world.biome.TFCBiomes;
 import net.dries007.tfc.world.noise.ChunkNoiseSamplingSettings;
 import net.dries007.tfc.world.noise.TrilinearInterpolator;
+import net.dries007.tfc.world.river.Flow;
 import net.dries007.tfc.world.river.RiverInfo;
 
 import com.newterraearth.tfe.world.NTEChunkBaseBlockSourceAccess;
 import com.newterraearth.tfe.world.NTEChunkHeightFillerAccess;
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseSampler;
@@ -47,6 +53,26 @@ public abstract class ChunkNoiseFillerMixin
     @Shadow private TFCAquifer aquifer;
     @Shadow private ChunkNoiseSamplingSettings settings;
 
+    @Shadow
+    private Flow calculateFlowAt(int cellX, int cellZ)
+    {
+        throw new AssertionError();
+    }
+
+    @Redirect(
+        method = "fillColumn",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/dries007/tfc/world/ChunkNoiseFiller;calculateFlowAt(II)Lnet/dries007/tfc/world/river/Flow;"
+        )
+    )
+    private Flow tfe$calculateHydrologyFlow(ChunkNoiseFiller instance, int cellX, int cellZ)
+    {
+        final NTEChunkHeightFillerAccess access = (NTEChunkHeightFillerAccess) this;
+        final NTERiverHydrology.ColumnProfile profile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
+        return profile != null && profile.inWaterCore() ? profile.flow() : calculateFlowAt(cellX, cellZ);
+    }
+
     /**
      * @author Codex
      * @reason Port the 1.21 shore density pass after river carving noise.
@@ -57,6 +83,10 @@ public abstract class ChunkNoiseFillerMixin
         final NTEChunkHeightFillerAccess access = (NTEChunkHeightFillerAccess) this;
         final Object2DoubleMap<net.dries007.tfc.world.BiomeNoiseSampler> columnBiomeNoiseSamplers = access.tfe$getColumnBiomeNoiseSamplers();
         final double[] riverBlendWeights = access.tfe$getExactRiverBlendWeights();
+        final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
+        final double terrainHeightNoiseValue = riverProfile == null
+            ? heightNoiseValue
+            : access.tfe$getRiverTerrainHeight(access.tfe$getLocalX(), access.tfe$getLocalZ());
 
         double noise = 0;
         for (Object2DoubleMap.Entry<net.dries007.tfc.world.BiomeNoiseSampler> entry : columnBiomeNoiseSamplers.object2DoubleEntrySet())
@@ -109,9 +139,9 @@ public abstract class ChunkNoiseFillerMixin
         noise = tfe$protectTerrainUpliftLayerAfterShore(y, noise, access);
 
         noise = net.dries007.tfc.world.BiomeNoiseSampler.AIR_THRESHOLD - noise;
-        if (y > heightNoiseValue)
+        if (y > terrainHeightNoiseValue)
         {
-            noise -= (y - heightNoiseValue) * 0.2f;
+            noise -= (y - terrainHeightNoiseValue) * 0.2f;
         }
 
         return Mth.clamp(noise, -1, 1);
@@ -258,6 +288,45 @@ public abstract class ChunkNoiseFillerMixin
         terrainAndCaveNoise += beardifier.compute(mutableDensityFunctionContext);
 
         final BlockState aquiferState = aquifer.sampleState(blockX, y, blockZ, terrainAndCaveNoise);
+        final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
+        if (riverProfile != null)
+        {
+            if (riverProfile.receiverBlendWeight() > 0d
+                && riverProfile.inChannel()
+                && y > riverProfile.waterBlockY()
+                && aquiferState != null
+                && aquiferState.getFluidState().is(net.minecraft.tags.FluidTags.WATER))
+            {
+                // The receiver-aligned profile owns the descending mouth water
+                // surface as well as its terrain. Do not retain the old TFC
+                // source-water shelf above that planned surface: it would flow
+                // back over the generated dynamic fringe and recreate the
+                // raised four-block column after ordinary fluid ticks.
+                return Blocks.AIR.defaultBlockState();
+            }
+            if (riverProfile.inWaterCore()
+                && y <= riverProfile.waterBlockY()
+                && y > riverProfile.bedBlockY()
+                && (aquiferState == null || aquiferState.getFluidState().isEmpty() || aquiferState.getFluidState().is(net.minecraft.tags.FluidTags.WATER)))
+            {
+                if (riverProfile.inSourceWaterCore())
+                {
+                    return Blocks.WATER.defaultBlockState();
+                }
+                // The mouth fringe is deliberately generated as flowing water
+                // rather than deferred to player-proximity fluid ticks. The
+                // top layer flows forward; lower layers are falling water, and
+                // the carver-tail bake continues the complete fall and landing.
+                return Blocks.WATER.defaultBlockState().setValue(
+                    LiquidBlock.LEVEL,
+                    y == riverProfile.waterBlockY() ? 1 : 8
+                );
+            }
+            if (terrainAndCaveNoise <= 0d && NTERiverHydrology.protectsBedAt(riverProfile, y))
+            {
+                return baseBlockSource.getBaseBlock(blockX, y, blockZ);
+            }
+        }
         if (aquiferState != null)
         {
             return aquiferState;
@@ -277,9 +346,14 @@ public abstract class ChunkNoiseFillerMixin
         final int localZ = access.tfe$getLocalZ();
         final int localIndex = localX + 16 * localZ;
         final boolean couldBeSalty = access.tfe$couldBeSalty();
+        access.tfe$recordRiverHydrologyProfile(localX, localZ);
+        final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(localX, localZ);
 
         localBiomesNoRivers[localIndex] = biomeAt;
-        if (height <= SEA_LEVEL_Y + 1 && info != null && info.normDistSq() < 1.1 && biomeAt.hasRivers())
+        if (biomeAt.hasRivers() && (
+            (height <= SEA_LEVEL_Y + 1 && info != null && info.normDistSq() < 1.1d)
+                || (riverProfile != null && riverProfile.surfaceVisible() && riverProfile.inWaterCore())
+        ))
         {
             biomeAt = TFCBiomes.RIVER;
         }
@@ -287,7 +361,9 @@ public abstract class ChunkNoiseFillerMixin
         localBiomes[localIndex] = biomeAt;
         final double biomeWeightAt = biomeWeights.getOrDefault(biomeAt, 0.5);
         localBiomeWeights[localIndex] = biomeWeightAt;
-        surfaceHeight[localIndex] = (int) height;
+        surfaceHeight[localIndex] = riverProfile != null && riverProfile.inWaterCore()
+            ? Math.max((int) height, riverProfile.waterBlockY())
+            : (int) height;
 
         ((NTEChunkBaseBlockSourceAccess) baseBlockSource).tfe$useAccurateBiome(localX, localZ, biomeAt, biomeWeightAt, couldBeSalty);
     }

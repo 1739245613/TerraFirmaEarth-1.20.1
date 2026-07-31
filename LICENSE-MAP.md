@@ -62,6 +62,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | 本项目地形、气候、季节、海洋、森林、河流、火山、植物、作物、刷怪与世界生成兼容实现；多数为 1.20 侧新增桥接 / 运行时逻辑。 |
 | `src/main/java/com/newterraearth/tfe/mixin/**` | `All Rights Reserved` | 本项目 mixin 注入、访问器、重定向与兼容 glue。注入 TFC 方法本身不等于复制 TFC 表达。 |
 | `src/main/java/com/newterraearth/tfe/NewTerraEarthMod.java` | `All Rights Reserved` | 本项目主类与初始化入口。 |
+| `src/test/java/com/newterraearth/tfe/**` | `All Rights Reserved` | 本项目原创单元测试与世界生成不变量验证。 |
 | `src/main/resources/tfe.mixins.json` | `All Rights Reserved` | 本项目 mixin 配置。 |
 | `src/main/resources/META-INF/mods.toml` | 项目自写描述文本 `All Rights Reserved`；第三方名称与商标归各自权利人 | 本项目元数据与发布说明。 |
 | `src/main/resources/pack.mcmeta` | `All Rights Reserved` | 本项目资源包元数据。 |
@@ -149,6 +150,7 @@ derived from TFC expression, only that portion follows section A.
 | `src/main/java/com/newterraearth/tfe/world/**` | `All Rights Reserved` | Project-owned terrain, climate, season, ocean, forest, river, volcano, plant, crop, spawn, and worldgen compatibility implementation; much of it is new 1.20-side bridge/runtime logic. |
 | `src/main/java/com/newterraearth/tfe/mixin/**` | `All Rights Reserved` | Project-owned mixin injections, accessors, redirects, and compatibility glue. Injecting into TFC methods is not itself copied TFC expression. |
 | `src/main/java/com/newterraearth/tfe/NewTerraEarthMod.java` | `All Rights Reserved` | Project main class and initialization entry point. |
+| `src/test/java/com/newterraearth/tfe/**` | `All Rights Reserved` | Project-owned unit tests and world-generation invariant checks. |
 | `src/main/resources/tfe.mixins.json` | `All Rights Reserved` | Project mixin configuration. |
 | `src/main/resources/META-INF/mods.toml` | Project description text is `All Rights Reserved`; third-party names and marks remain with their owners | Project metadata and release description. |
 | `src/main/resources/pack.mcmeta` | `All Rights Reserved` | Project resource-pack metadata. |

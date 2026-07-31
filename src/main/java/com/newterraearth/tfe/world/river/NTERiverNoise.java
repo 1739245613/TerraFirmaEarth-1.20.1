@@ -29,14 +29,50 @@ public final class NTERiverNoise
         return t * t * t;
     }
 
-    private static double caveMouthHeight(RiverInfo info, double heightIn)
+    private static double caveMouthHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, double heightIn)
     {
-        return Math.min(55 + info.normDistSq() * 1.3 * 16, heightIn);
+        final double baseHeight = bedY(profile, 55d);
+        return Math.min(baseHeight + radialDistanceSq(info, profile) * 1.3d * 16d, heightIn);
     }
 
-    private static double blendTowardCaveMouth(double riverHeight, RiverInfo info, double heightIn, double caveWeight)
+    private static double blendTowardCaveMouth(double riverHeight, RiverInfo info, NTERiverHydrology.ColumnProfile profile, double heightIn, double caveWeight)
     {
-        return Mth.lerp(caveMouthBlend(caveWeight), riverHeight, caveMouthHeight(info, heightIn));
+        return Mth.lerp(caveMouthBlend(caveWeight), riverHeight, caveMouthHeight(info, profile, heightIn));
+    }
+
+    static double radialDistanceSq(RiverInfo info, NTERiverHydrology.ColumnProfile profile)
+    {
+        if (profile == null)
+        {
+            return info.normDistSq();
+        }
+        if (info == null)
+        {
+            return profile.normalizedDistanceSq();
+        }
+        // Cross-section ownership must move with the already blended bed,
+        // water and river-type weights. Keeping the supplemental distance all
+        // the way to receiverBlend=1 leaves a raised creek-shaped shoulder in
+        // the middle of the native U-cut, then drops it on the next column.
+        return Mth.lerp(
+            profile.receiverBlendWeight(),
+            profile.normalizedDistanceSq(),
+            info.normDistSq()
+        );
+    }
+
+    private static double bedY(NTERiverHydrology.ColumnProfile profile, double fallback)
+    {
+        return profile == null
+            ? fallback
+            : Mth.lerp(profile.receiverBlendWeight(), profile.centerBedY(), fallback);
+    }
+
+    private static double waterY(NTERiverHydrology.ColumnProfile profile, double fallback)
+    {
+        return profile == null
+            ? fallback
+            : Mth.lerp(profile.receiverBlendWeight(), profile.waterSurfaceY(), fallback);
     }
 
     public static NTERiverNoiseSampler banked(NTESeed seed)
@@ -44,20 +80,25 @@ public final class NTERiverNoise
         return new NTERiverNoiseSampler()
         {
             final Noise2D distNoise = new OpenSimplex2D(seed.next()).octaves(3).spread(0.05f).scaled(-0.2f, 0.2f);
-            final Noise2D bankCutNoise = new OpenSimplex2D(seed.next()).octaves(3).abs().spread(0.025).scaled(0, 1, SEA_LEVEL_Y - 4, SEA_LEVEL_Y + 30);
+            final Noise2D bankCutNoise = new OpenSimplex2D(seed.next()).octaves(3).abs().spread(0.025).scaled(0, 1);
 
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
-                final double riverHeight = 57 + (distFac < 1.0 ? distFac * 6 : 6);
+                final double distFac = radialDistanceSq(info, profile) * 0.8f + distNoise.noise(x, z);
+                final double channelRise = waterY(profile, 58d) - bedY(profile, 57d) + 1.4d;
+                final double riverHeight = bedY(profile, 57d) + (distFac < 1.0 ? distFac * channelRise : channelRise);
 
                 final double heightInWeight = Mth.clamp(distFac - 1, 0, 2);
                 final double riverWeight = 2 - heightInWeight;
 
-                return height = Math.min((heightIn * heightInWeight + riverHeight * riverWeight) / 2, bankCutNoise.noise(x, z));
+                height = Math.min(
+                    (heightIn * heightInWeight + riverHeight * riverWeight) / 2,
+                    profile == null ? Mth.clampedMap(bankCutNoise.noise(x, z), 0d, 1d, SEA_LEVEL_Y - 4d, SEA_LEVEL_Y + 30d) : profile.waterSurfaceY() + 4d + bankCutNoise.noise(x, z) * 26d
+                );
+                return height;
             }
 
             @Override
@@ -78,15 +119,17 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
-                final double riverHeight = 57 + (distFac < 1.0 ? distFac * 9 : 9) + surfaceNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 0.8f + distNoise.noise(x, z);
+                final double channelRise = waterY(profile, 58d) - bedY(profile, 57d) + 4d;
+                final double riverHeight = bedY(profile, 57d) + (distFac < 1.0 ? distFac * channelRise : channelRise) + surfaceNoise.noise(x, z);
 
                 final double heightInWeight = Mth.clamp(distFac - 1, 0, 2);
                 final double riverWeight = 2 - heightInWeight;
 
-                return height = (heightIn * heightInWeight + riverHeight * riverWeight) / 2;
+                height = (heightIn * heightInWeight + riverHeight * riverWeight) / 2;
+                return height;
             }
 
             @Override
@@ -106,26 +149,27 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 0.8f + distNoise.noise(x, z);
                 final double riverHeight;
                 if (distFac < 1.0)
                 {
-                    riverHeight = 58.5 + distFac * 3;
+                    riverHeight = bedY(profile, 58.5d) + distFac * (waterY(profile, 60d) - bedY(profile, 58.5d) + 1.5d);
                 }
                 else if (distFac < 2.0)
                 {
-                    riverHeight = 61.5;
+                    riverHeight = waterY(profile, 60d) + 1.5d;
                 }
                 else
                 {
                     final double heightInWeight = Mth.clamp(2 * distFac - 4, 0, 1);
                     final double riverWeight = 1 - heightInWeight;
-                    riverHeight = 61.5 * riverWeight + heightIn * heightInWeight;
+                    riverHeight = (waterY(profile, 60d) + 1.5d) * riverWeight + heightIn * heightInWeight;
                 }
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -146,12 +190,13 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
-                final double riverHeight = 58 + distFac * 7 + baseNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 0.8f + distNoise.noise(x, z);
+                final double riverHeight = bedY(profile, 58d) + distFac * 7d + baseNoise.noise(x, z);
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -172,12 +217,13 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 0.8f + distNoise.noise(x, z);
-                final double riverHeight = 55 + distFac * 7 + baseNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 0.8f + distNoise.noise(x, z);
+                final double riverHeight = bedY(profile, 55d) + distFac * 7d + baseNoise.noise(x, z);
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -199,13 +245,14 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 1.3 + distNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 1.3 + distNoise.noise(x, z);
                 final double adjDistFac = distFac > 0.6 ? distFac * 0.4 + 0.8 : distFac;
-                final double riverHeight = 55 + Mth.lerp(lowFreqCliffNoise.noise(x, z), distFac, adjDistFac) * 16 + baseNoise.noise(x, z);
+                final double riverHeight = bedY(profile, 55d) + Mth.lerp(lowFreqCliffNoise.noise(x, z), distFac, adjDistFac) * 16 + baseNoise.noise(x, z);
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -225,22 +272,25 @@ public final class NTERiverNoise
             final Noise3D cliffNoise = new OpenSimplex3D(seed.next()).octaves(2).spread(0.1f).scaled(0, 3);
 
             private double distFac;
+            private double waterSurface;
             private int x;
             private int z;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = info.normDistSq() * 1.3 + distNoise.noise(x, z);
+                final double distFac = radialDistanceSq(info, profile) * 1.3 + distNoise.noise(x, z);
                 final double adjDistFac = distFac > 0.32 ? distFac * 0.2 + 1.6 : distFac;
-                final double riverHeight = 55 + adjDistFac * 16 + baseNoise.noise(x, z);
-                final double widthFactor = Mth.clampedMap(info.widthSq(), 144, 324, 0.7, 1.1);
+                final double riverHeight = bedY(profile, 55d) + adjDistFac * 16 + baseNoise.noise(x, z);
+                final double widthSq = profile == null ? info.widthSq() : Mth.square(profile.channelRadius());
+                final double widthFactor = Mth.clampedMap(widthSq, 144, 324, 0.7, 1.1);
 
                 this.distFac = Math.max(0, distFac * widthFactor);
+                this.waterSurface = waterY(profile, SEA_LEVEL_Y);
                 this.x = x;
                 this.z = z;
 
-                return Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                return Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
             }
 
             @Override
@@ -251,22 +301,22 @@ public final class NTERiverNoise
 
             private double rawNoise(int y)
             {
-                if (y > SEA_LEVEL_Y + 35)
+                if (y > waterSurface + 35)
                 {
                     return 0;
                 }
-                else if (y > SEA_LEVEL_Y + 20)
+                else if (y > waterSurface + 20)
                 {
-                    final double easing = 1 - (y - SEA_LEVEL_Y - 20) / 15f;
+                    final double easing = 1 - (y - waterSurface - 20) / 15f;
                     return easing * cliffNoise.noise(x, y, z);
                 }
-                else if (y > SEA_LEVEL_Y)
+                else if (y > waterSurface)
                 {
                     return cliffNoise.noise(x, y, z);
                 }
-                else if (y > SEA_LEVEL_Y - 8)
+                else if (y > waterSurface - 8)
                 {
-                    final double easing = (y - SEA_LEVEL_Y + 8) / 8d;
+                    final double easing = (y - waterSurface + 8) / 8d;
                     return easing * cliffNoise.noise(x, y, z);
                 }
                 return 0;
@@ -285,14 +335,15 @@ public final class NTERiverNoise
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = Math.sqrt(info.normDistSq()) + distNoise.noise(x, z);
-                final double talusRiverHeight = 55 + distFac * 12 + baseNoise.noise(x, z) + (distFac > 1.5 ? cliffHeightNoise.noise(x, z) : 0);
-                final double canyonRiverHeight = 55 + info.normDistSq() * 1.3 * 16;
+                final double distFac = Math.sqrt(radialDistanceSq(info, profile)) + distNoise.noise(x, z);
+                final double talusRiverHeight = bedY(profile, 55d) + distFac * 12 + baseNoise.noise(x, z) + (distFac > 1.5 ? cliffHeightNoise.noise(x, z) : 0);
+                final double canyonRiverHeight = bedY(profile, 55d) + radialDistanceSq(info, profile) * 1.3 * 16;
                 final double riverHeight = Mth.clampedMap(thisWeight, 0.9, 1, canyonRiverHeight, talusRiverHeight);
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -309,25 +360,26 @@ public final class NTERiverNoise
         {
             final Noise2D baseNoise = new OpenSimplex2D(seed.next()).octaves(4).spread(0.05f).scaled(-2.5f, 1.5f);
             final Noise2D cliffHeightNoise = new OpenSimplex2D(seed.next()).octaves(2).spread(0.1f).scaled(4f, 8f);
-            final Noise2D cliffBaseNoise = new OpenSimplex2D(seed.next()).octaves(2).spread(0.06f).scaled(SEA_LEVEL_Y - 2, SEA_LEVEL_Y + 4);
+            final Noise2D cliffBaseNoise = new OpenSimplex2D(seed.next()).octaves(2).spread(0.06f).scaled(-2d, 4d);
             final Noise2D distNoise = new OpenSimplex2D(seed.next()).octaves(4).spread(0.05f).scaled(-0.15f, 0.15f);
 
             double height;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                final double distFac = Math.sqrt(info.normDistSq()) * 0.85 + distNoise.noise(x, z);
-                final double slopedRiverHeight = 54 + distFac * 12 + baseNoise.noise(x, z);
-                final double cliffBaseHeight = cliffBaseNoise.noise(x, z);
+                final double distFac = Math.sqrt(radialDistanceSq(info, profile)) * 0.85 + distNoise.noise(x, z);
+                final double slopedRiverHeight = bedY(profile, 54d) + distFac * 12 + baseNoise.noise(x, z);
+                final double cliffBaseHeight = waterY(profile, SEA_LEVEL_Y) + cliffBaseNoise.noise(x, z);
                 final double cliffHeight = cliffHeightNoise.noise(x, z);
                 final double lowerTerrace = slopedRiverHeight > cliffBaseHeight ? Mth.clampedMap(slopedRiverHeight, cliffBaseHeight, cliffBaseHeight + 1.1, 0, cliffHeight) : 0;
                 final double upperTerrace = slopedRiverHeight > cliffBaseHeight + cliffHeight ? Mth.clampedMap(slopedRiverHeight, cliffBaseHeight + cliffHeight, cliffBaseHeight + cliffHeight + 1.4, 0, cliffHeight + 4) : 0;
                 final double terraceRiverHeight = slopedRiverHeight + lowerTerrace + upperTerrace;
-                final double canyonRiverHeight = 55 + info.normDistSq() * 1.3 * 16;
+                final double canyonRiverHeight = bedY(profile, 55d) + radialDistanceSq(info, profile) * 1.3 * 16;
                 final double riverHeight = Mth.clampedMap(thisWeight, 0.9, 1, canyonRiverHeight, terraceRiverHeight);
 
-                return height = Math.min(blendTowardCaveMouth(riverHeight, info, heightIn, caveWeight), heightIn);
+                height = Math.min(blendTowardCaveMouth(riverHeight, info, profile, heightIn, caveWeight), heightIn);
+                return height;
             }
 
             @Override
@@ -342,19 +394,21 @@ public final class NTERiverNoise
     {
         return new NTERiverNoiseSampler()
         {
-            final Noise2D carvingCenterNoise = new OpenSimplex2D(seed.next()).octaves(2).spread(0.02f).scaled(SEA_LEVEL_Y - 3, SEA_LEVEL_Y + 3);
+            final Noise2D carvingCenterNoise = new OpenSimplex2D(seed.next()).octaves(2).spread(0.02f).scaled(-3, 3);
             final Noise2D carvingHeightNoise = new OpenSimplex2D(seed.next()).octaves(4).spread(0.15f).scaled(8, 14);
 
             double distSquared, weight, height, carvingHeight, carvingCenter;
 
             @Override
-            public double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+            public double setColumnAndSampleHeight(RiverInfo info, NTERiverHydrology.ColumnProfile profile, int x, int z, double heightIn, double caveWeight, double thisWeight)
             {
-                distSquared = Mth.clamp(info.normDistSq() * 1.3 - 0.1, 0d, 1d);
+                distSquared = Mth.clamp(radialDistanceSq(info, profile) * 1.3 - 0.1, 0d, 1d);
                 weight = caveWeight;
                 height = heightIn;
                 carvingHeight = carvingHeightNoise.noise(x, z);
-                carvingCenter = carvingCenterNoise.noise(x, z);
+                carvingCenter = profile == null
+                    ? SEA_LEVEL_Y + carvingCenterNoise.noise(x, z)
+                    : profile.waterSurfaceY() + carvingCenterNoise.noise(x, z);
 
                 final double maxHeight = carvingCenter + carvingHeight;
 
@@ -363,7 +417,7 @@ public final class NTERiverNoise
                     return heightIn;
                 }
 
-                final double canyonMaxHeight = caveMouthHeight(info, heightIn);
+                final double canyonMaxHeight = caveMouthHeight(info, profile, heightIn);
                 if (caveWeight > 0.5)
                 {
                     final double interiorHeight = Mth.map(caveWeight, 0.5d, 0.75d, Math.min(maxHeight, heightIn), heightIn);

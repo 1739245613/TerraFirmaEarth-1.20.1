@@ -10,6 +10,8 @@ import net.dries007.tfc.world.biome.BiomeExtension;
 import net.dries007.tfc.world.chunkdata.ChunkData;
 import net.dries007.tfc.world.chunkdata.LerpFloatLayer;
 
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
+
 import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 
 public final class NTESurfaceContext
@@ -25,8 +27,9 @@ public final class NTESurfaceContext
         private final Long2FloatOpenHashMap baseGroundwaterCache;
         private final Long2FloatOpenHashMap averageGroundwaterCache;
         private final Long2FloatOpenHashMap rainVarianceCache;
+        private final NTERiverHydrology.ColumnProfile[] riverProfiles;
 
-        private Context(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome)
+        private Context(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, NTERiverHydrology.ColumnProfile[] riverProfiles)
         {
             this.generator = generator;
             this.chunkData = chunkData;
@@ -37,6 +40,7 @@ public final class NTESurfaceContext
             this.baseGroundwaterCache = new Long2FloatOpenHashMap();
             this.averageGroundwaterCache = new Long2FloatOpenHashMap();
             this.rainVarianceCache = new Long2FloatOpenHashMap();
+            this.riverProfiles = riverProfiles;
             this.baseGroundwaterCache.defaultReturnValue(Float.NaN);
             this.averageGroundwaterCache.defaultReturnValue(Float.NaN);
             this.rainVarianceCache.defaultReturnValue(Float.NaN);
@@ -60,6 +64,11 @@ public final class NTESurfaceContext
         public BiomeExtension tuyaBiome()
         {
             return tuyaBiome;
+        }
+
+        public NTERiverHydrology.ColumnProfile riverProfile(BlockPos pos)
+        {
+            return riverProfiles[(pos.getX() & 15) + 16 * (pos.getZ() & 15)];
         }
 
         public float baseGroundwater(BlockPos pos)
@@ -119,9 +128,9 @@ public final class NTESurfaceContext
     {
     }
 
-    public static Scope open(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome)
+    public static Scope open(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, NTERiverHydrology.ColumnProfile[] riverProfiles)
     {
-        CURRENT.set(new Context(generator, chunkData, surfaceHeight, chunkPos, cinderConeBiome, tuffRingBiome, tuyaBiome));
+        CURRENT.set(new Context(generator, chunkData, surfaceHeight, chunkPos, cinderConeBiome, tuffRingBiome, tuyaBiome, riverProfiles));
         return CURRENT::remove;
     }
 

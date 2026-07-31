@@ -10,6 +10,7 @@ import net.dries007.tfc.world.river.RiverBlendType;
 import net.dries007.tfc.world.river.RiverNoiseSampler;
 
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseSampler;
@@ -55,4 +56,10 @@ public interface NTEChunkHeightFillerAccess
     int tfe$getLocalX();
 
     int tfe$getLocalZ();
+
+    NTERiverHydrology.ColumnProfile tfe$getRiverHydrologyProfile(int localX, int localZ);
+
+    double tfe$getRiverTerrainHeight(int localX, int localZ);
+
+    void tfe$recordRiverHydrologyProfile(int localX, int localZ);
 }

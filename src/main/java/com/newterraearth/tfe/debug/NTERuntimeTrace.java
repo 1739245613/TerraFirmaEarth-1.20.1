@@ -104,6 +104,10 @@ public final class NTERuntimeTrace
         }
         traceLevel = level;
         requested = true;
+        if (blockProbeEnabled())
+        {
+            printBlockProbeSnapshot(level, "pre_tick");
+        }
     }
 
     private static void printHeightmap(ServerLevel level)
@@ -125,6 +129,12 @@ public final class NTERuntimeTrace
             final int oceanFloor = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, TARGET_Z);
             System.out.printf("[TFE][RuntimeTrace][terrain_cut][heightmap] x=%d z=%d worldSurfaceWG=%d oceanFloorWG=%d%n", x, TARGET_Z, worldSurface, oceanFloor);
         }
+    }
+
+    private static void printBlockProbeSnapshot(ServerLevel level, String phase)
+    {
+        System.out.printf("[TFE][RuntimeTrace][block_probe][snapshot] phase=%s%n", phase);
+        printBlockProbe(level);
     }
 
     private static void printBlockProbe(ServerLevel level)
@@ -278,7 +288,7 @@ public final class NTERuntimeTrace
             }
             else if (blockProbeEnabled() && traceLevel != null)
             {
-                printBlockProbe(traceLevel);
+                printBlockProbeSnapshot(traceLevel, "post_tick_20");
             }
             printed = true;
         }

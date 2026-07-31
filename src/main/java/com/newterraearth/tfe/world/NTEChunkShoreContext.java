@@ -5,6 +5,7 @@ import java.util.Map;
 import net.dries007.tfc.world.noise.Noise2D;
 
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseSampler;
@@ -19,7 +20,9 @@ public final class NTEChunkShoreContext
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
         Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
-        NTETerrainUpliftSampler terrainUpliftSampler
+        NTETerrainUpliftSampler terrainUpliftSampler,
+        NTERiverHydrology riverHydrology,
+        boolean suppressRiver
     ) {}
 
     public interface Scope extends AutoCloseable
@@ -39,11 +42,23 @@ public final class NTEChunkShoreContext
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
         Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
-        NTETerrainUpliftSampler terrainUpliftSampler
+        NTETerrainUpliftSampler terrainUpliftSampler,
+        NTERiverHydrology riverHydrology,
+        boolean suppressRiver
     )
     {
-        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, centeredFeatureNoiseSamplers, terrainUpliftSampler));
-        return CURRENT::remove;
+        final Context previous = CURRENT.get();
+        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, centeredFeatureNoiseSamplers, terrainUpliftSampler, riverHydrology, suppressRiver));
+        return () -> {
+            if (previous == null)
+            {
+                CURRENT.remove();
+            }
+            else
+            {
+                CURRENT.set(previous);
+            }
+        };
     }
 
     public static Context current()

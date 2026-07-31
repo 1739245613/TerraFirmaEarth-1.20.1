@@ -68,6 +68,26 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.1.3'
     implementation fg.deobf('curse.maven:terrafirmacraft-302973:7730077')
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    testImplementation platform('org.junit:junit-bom:5.10.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+tasks.named('test').configure {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.output + sourceSets.main.output + configurations.testRuntimeClasspath
+    doFirst {
+        // Gradle 8's Windows test worker cannot load classes directly from this project's non-ASCII path.
+        // Pack only compiled classes into an ASCII-path temporary jar for the worker classpath.
+        // Intentionally machine-local: this project is built on the maintainer's fixed Windows workstation.
+        def classpathJar = file('C:/Users/g1739/.codex-cache/tfe-test-classpath.jar')
+        classpathJar.parentFile.mkdirs()
+        ant.jar(destfile: classpathJar) {
+            fileset(dir: sourceSets.test.output.classesDirs.singleFile)
+            fileset(dir: sourceSets.main.output.classesDirs.singleFile)
+        }
+        classpath = files(classpathJar, sourceSets.main.output.resourcesDir, configurations.testRuntimeClasspath)
+    }
 }
 
 mixin {

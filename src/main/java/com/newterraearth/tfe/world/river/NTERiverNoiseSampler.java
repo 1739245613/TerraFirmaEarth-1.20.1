@@ -9,7 +9,15 @@ public interface NTERiverNoiseSampler
 {
     NTERiverNoiseSampler NONE = new NTERiverNoiseSampler() {};
 
-    default double setColumnAndSampleHeight(RiverInfo info, int x, int z, double heightIn, double caveWeight, double thisWeight)
+    default double setColumnAndSampleHeight(
+        @org.jetbrains.annotations.Nullable RiverInfo info,
+        @org.jetbrains.annotations.Nullable NTERiverHydrology.ColumnProfile profile,
+        int x,
+        int z,
+        double heightIn,
+        double caveWeight,
+        double thisWeight
+    )
     {
         return heightIn;
     }

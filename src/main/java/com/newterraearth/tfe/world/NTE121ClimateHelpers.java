@@ -15,6 +15,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 
 import net.dries007.tfc.world.ChunkGeneratorExtension;
+import net.dries007.tfc.world.biome.BiomeSourceExtension;
 import net.dries007.tfc.world.chunkdata.ChunkDataGenerator;
 import net.dries007.tfc.world.chunkdata.ChunkDataProvider;
 import net.dries007.tfc.world.chunkdata.LerpFloatLayer;
@@ -27,11 +28,15 @@ import net.dries007.tfc.world.region.RiverEdge;
 import net.dries007.tfc.world.region.Units;
 import net.dries007.tfc.world.river.MidpointFractal;
 
+import com.newterraearth.tfe.world.biome.NTERiverBiomeResolver;
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
+
 public final class NTE121ClimateHelpers
 {
     private static final int MIN_RIVER_WIDTH = 12;
     private static final float RIVER_INFLUENCE = (float) Units.blockToGridExact(40);
     private static final float RIVER_INFLUENCE_SQ = RIVER_INFLUENCE * RIVER_INFLUENCE;
+    private static final float RIVER_INFLUENCE_BLOCKS_SQ = 40f * 40f;
     private static final Map<Long, Noise2D> RAINFALL_VARIANCE_NOISE = new ConcurrentHashMap<>();
     private static final Map<Region, WestCoastCache> WEST_COAST_CACHE = Collections.synchronizedMap(new WeakHashMap<>());
 
@@ -122,11 +127,16 @@ public final class NTE121ClimateHelpers
         float groundwater01 = 0f;
         float groundwater10 = 0f;
         float groundwater11 = 0f;
+        final NTERiverHydrology hydrology = generator.getBiomeSource() instanceof BiomeSourceExtension biomeSource
+            ? NTERiverBiomeResolver.hydrology(biomeSource)
+            : null;
 
         for (RiverEdge edge : region.getOrCreatePartitionPoint(gridX, gridZ).rivers())
         {
             final MidpointFractal fractal = edge.fractal();
-            if (edge.width >= MIN_RIVER_WIDTH && fractal.maybeIntersect(exactGridX, exactGridZ, RIVER_INFLUENCE))
+            if (edge.width >= MIN_RIVER_WIDTH
+                && fractal.maybeIntersect(exactGridX, exactGridZ, RIVER_INFLUENCE)
+                && (hydrology == null || hydrology.retainsTfcEdge(edge)))
             {
                 final float widthInfluence = Mth.map(edge.width, MIN_RIVER_WIDTH, RiverEdge.MAX_WIDTH, 0f, 1f);
                 groundwater00 = adjustGroundwaterNearRiver(groundwater00, widthInfluence, fractal, exactGridX, exactGridZ);
@@ -135,6 +145,11 @@ public final class NTE121ClimateHelpers
                 groundwater11 = adjustGroundwaterNearRiver(groundwater11, widthInfluence, fractal, exactGridX + dG, exactGridZ + dG);
             }
         }
+
+        groundwater00 = Math.max(groundwater00, sampleRiverGroundwater(hydrology, blockX, blockZ));
+        groundwater01 = Math.max(groundwater01, sampleRiverGroundwater(hydrology, blockX, blockZ + 16));
+        groundwater10 = Math.max(groundwater10, sampleRiverGroundwater(hydrology, blockX + 16, blockZ));
+        groundwater11 = Math.max(groundwater11, sampleRiverGroundwater(hydrology, blockX + 16, blockZ + 16));
 
         final LerpFloatLayer baseGroundwaterLayer = new LerpFloatLayer(groundwater00, groundwater01, groundwater10, groundwater11)
             .apply(value -> Mth.clamp(value, 0f, 500f));
@@ -219,6 +234,23 @@ public final class NTE121ClimateHelpers
         final float distance = (float) fractal.intersectDistance(gridX, gridZ);
         final float distanceInfluence = Mth.clampedMap(distance, 0f, RIVER_INFLUENCE_SQ, 1f, 0f);
         return Math.max(currentValue, distanceInfluence * widthInfluence * 300f);
+    }
+
+    private static float sampleRiverGroundwater(@Nullable NTERiverHydrology hydrology, int blockX, int blockZ)
+    {
+        if (hydrology == null)
+        {
+            return 0f;
+        }
+        final NTERiverHydrology.ColumnProfile profile = hydrology.findGraphProfile(blockX, blockZ);
+        if (profile == null)
+        {
+            return 0f;
+        }
+        final float distanceSq = (float) (profile.normalizedDistanceSq() * profile.channelRadius() * profile.channelRadius());
+        final float distanceInfluence = Mth.clampedMap(distanceSq, 0f, RIVER_INFLUENCE_BLOCKS_SQ, 1f, 0f);
+        final float widthInfluence = Mth.clampedMap((float) profile.channelRadius(), 1.35f, 18f, 0.15f, 1f);
+        return distanceInfluence * widthInfluence * 300f;
     }
 
     private static float getPointRainVariance(long levelSeed, RegionGenerator generator, int temperatureScale, int gridX, int gridZ)

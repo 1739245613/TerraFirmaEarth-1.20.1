@@ -47,6 +47,7 @@ __pycache__/
 # 仅本地：辅助工具 / 缓存 / 开发脚本
 # ============================================================
 .codex-cache/
+/local-reference/
 claude-memory
 scripts/
 一键打包.bat
