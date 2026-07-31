@@ -11,6 +11,8 @@
     "BiomeSourceExtensionMixin",
     "BiomeExtensionMixin",
     "BouldersFeatureMixin",
+    "BoatDimensionsMixin",
+    "BoatMixin",
     "BlockEntityTypeMixin",
     "BurningLogPileBlockMixin",
     "ClimatePlacementMixin",
