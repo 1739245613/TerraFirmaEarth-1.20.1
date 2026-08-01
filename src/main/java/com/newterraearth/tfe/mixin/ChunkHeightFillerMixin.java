@@ -390,6 +390,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;
+        final RiverInfo retainedReceiverInfo = info;
+        final double retainedReceiverHeight = tfe$sampleRetainedReceiverHeight(
+            preSupplementalRiverHeight,
+            retainedReceiverInfo,
+            tfe$currentRiverHydrologyProfile,
+            terrainUplift
+        );
         if (tfe$currentRiverHydrologyProfile != null)
         {
             // A retained TFC edge may overlap the last few columns of a replacement
@@ -417,6 +424,12 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 tfe$currentRiverHydrologyProfile.terrainCutCeiling(preSupplementalRiverHeight)
             );
         }
+        height = NTERiverHydrology.clampToRetainedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            retainedReceiverInfo,
+            height,
+            retainedReceiverHeight
+        );
         tfe$currentRiverTerrainHeight = height;
         if (trace)
         {
@@ -559,6 +572,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;
+        final RiverInfo retainedReceiverInfo = info;
+        final double retainedReceiverHeight = tfe$sampleRetainedReceiverHeight(
+            preSupplementalRiverHeight,
+            retainedReceiverInfo,
+            tfe$currentRiverHydrologyProfile,
+            terrainUplift
+        );
         if (tfe$currentRiverHydrologyProfile != null)
         {
             if (tfe$currentRiverHydrologyProfile.inChannel()
@@ -583,6 +603,12 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 tfe$currentRiverHydrologyProfile.terrainCutCeiling(preSupplementalRiverHeight)
             );
         }
+        height = NTERiverHydrology.clampToRetainedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            retainedReceiverInfo,
+            height,
+            retainedReceiverHeight
+        );
         tfe$currentRiverTerrainHeight = height;
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
 
@@ -914,6 +940,52 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 tfe$nativeRiverBlendWeights[index]
             );
         }
+    }
+
+    @Unique
+    private double tfe$sampleRetainedReceiverHeight(
+        double terrainHeight,
+        @Nullable RiverInfo retainedReceiverInfo,
+        @Nullable NTERiverHydrology.ColumnProfile supplementalProfile,
+        double terrainUplift
+    )
+    {
+        if (!NTERiverHydrology.usesRetainedReceiverBed(supplementalProfile, retainedReceiverInfo))
+        {
+            return Double.POSITIVE_INFINITY;
+        }
+
+        final NTERiverHydrology.ColumnProfile previousProfile = tfe$currentRiverHydrologyProfile;
+        final boolean previousForceCaveRiver = tfe$forceSubterraneanCaveRiver;
+        tfe$currentRiverHydrologyProfile = null;
+        System.arraycopy(
+            tfe$nativeRiverBlendWeights,
+            0,
+            tfe$exactRiverBlendWeights,
+            0,
+            tfe$exactRiverBlendWeights.length
+        );
+        final double nativeCaveWeight = tfe$adjustExactRiverWeightsForCaves();
+        final double caveTransitionTerrainUplift = terrainUplift
+            * tfe$caveTransitionTerrainUpliftProtection(nativeCaveWeight);
+        tfe$forceSubterraneanCaveRiver = false;
+        final double retainedReceiverHeight = tfe$adjustHeightForExactRiverContributions(
+            terrainHeight,
+            retainedReceiverInfo,
+            nativeCaveWeight,
+            caveTransitionTerrainUplift
+        );
+
+        tfe$currentRiverHydrologyProfile = previousProfile;
+        tfe$forceSubterraneanCaveRiver = previousForceCaveRiver;
+        System.arraycopy(
+            tfe$nativeRiverBlendWeights,
+            0,
+            tfe$exactRiverBlendWeights,
+            0,
+            tfe$exactRiverBlendWeights.length
+        );
+        return retainedReceiverHeight;
     }
 
     @Unique

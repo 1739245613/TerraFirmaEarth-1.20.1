@@ -21,6 +21,18 @@ public class NTERiverSurfaceBuilder implements SurfaceBuilder
 {
     public static final SurfaceBuilderFactory INSTANCE = NTERiverSurfaceBuilder::new;
 
+    private static final NTESoilBlockType[] UNSTABLE_MOUTH_SOILS = {
+        NTESoilBlockType.DIRT,
+        NTESoilBlockType.GRASS,
+        NTESoilBlockType.DUFF,
+        NTESoilBlockType.CLAY,
+        NTESoilBlockType.CLAY_GRASS,
+        NTESoilBlockType.CLAY_DUFF,
+        NTESoilBlockType.ROOTED_DIRT,
+        NTESoilBlockType.COARSE_DIRT,
+        NTESoilBlockType.MUD
+    };
+
     private final long seed;
 
     protected NTERiverSurfaceBuilder(long seed)
@@ -41,7 +53,14 @@ public class NTERiverSurfaceBuilder implements SurfaceBuilder
             && riverProfile.bedBlockY() < riverProfile.waterBlockY())
         {
             context.originalBiome().createSurfaceBuilder(seed).buildSurface(context, startY, endY);
-            demoteSubmergedOrganicSurface(context, riverProfile, startY, endY);
+            if (riverProfile.descendingReceiverMouth())
+            {
+                stabilizeDescendingMouthSurface(context, riverProfile, startY, endY);
+            }
+            else
+            {
+                demoteSubmergedOrganicSurface(context, riverProfile, startY, endY);
+            }
             return;
         }
 
@@ -112,5 +131,47 @@ public class NTERiverSurfaceBuilder implements SurfaceBuilder
             }
         }
         return null;
+    }
+
+    /**
+     * A descending receiver mouth exposes the creek lip beside generated
+     * falling water. TFC soil is a landslide ingredient, so leaving a dirt or
+     * clay skin here makes the bank collapse after the first block update.
+     * Stabilize only the already submerged cut-only lip with the local raw
+     * rock; ordinary creek beds and flat confluences retain their biome soil.
+     */
+    private static void stabilizeDescendingMouthSurface(
+        SurfaceBuilderContext context,
+        NTERiverHydrology.ColumnProfile profile,
+        int startY,
+        int endY
+    )
+    {
+        final int topY = Math.min(startY, profile.waterBlockY() - 1);
+        final int bottomY = Math.max(endY, profile.bedBlockY() - 3);
+        final BlockState stableRock = context.getRock().raw().defaultBlockState();
+        for (int y = topY; y >= bottomY; y--)
+        {
+            if (isUnstableMouthSoil(context.getBlockState(y)))
+            {
+                context.setBlockState(y, stableRock);
+            }
+        }
+    }
+
+    private static boolean isUnstableMouthSoil(BlockState state)
+    {
+        final Block block = state.getBlock();
+        for (NTESoil soil : NTESoil.values())
+        {
+            for (NTESoilBlockType type : UNSTABLE_MOUTH_SOILS)
+            {
+                if (block == NTEBlocks.getBlock(soil, type).get())
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -291,6 +291,16 @@ public abstract class ChunkNoiseFillerMixin
         final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
         if (riverProfile != null)
         {
+            final double riverTerrainHeight = access.tfe$getRiverTerrainHeight(access.tfe$getLocalX(), access.tfe$getLocalZ());
+            final int effectiveBedY = NTERiverHydrology.effectiveBedBlockY(riverProfile, riverTerrainHeight);
+            if (NTERiverHydrology.clearsWetMouthHeadroom(riverProfile, y))
+            {
+                // Cave-river noise may otherwise leave a suspended shelf
+                // through the descending connector. Clear the complete
+                // planned vertical descent, but only in the wet core; natural
+                // cave walls outside the flowing corridor remain untouched.
+                return Blocks.AIR.defaultBlockState();
+            }
             if (riverProfile.receiverBlendWeight() > 0d
                 && riverProfile.inChannel()
                 && y > riverProfile.waterBlockY()
@@ -306,10 +316,15 @@ public abstract class ChunkNoiseFillerMixin
             }
             if (riverProfile.inWaterCore()
                 && y <= riverProfile.waterBlockY()
-                && y > riverProfile.bedBlockY()
+                && y > effectiveBedY
                 && (aquiferState == null || aquiferState.getFluidState().isEmpty() || aquiferState.getFluidState().is(net.minecraft.tags.FluidTags.WATER)))
             {
-                if (riverProfile.inSourceWaterCore())
+                if (riverProfile.inSourceWaterCore()
+                    || NTERiverHydrology.usesDirectionalReceiverSurfaceWater(
+                        riverProfile,
+                        y,
+                        SEA_LEVEL_Y - 1
+                    ))
                 {
                     return Blocks.WATER.defaultBlockState();
                 }
@@ -322,7 +337,7 @@ public abstract class ChunkNoiseFillerMixin
                     y == riverProfile.waterBlockY() ? 1 : 8
                 );
             }
-            if (terrainAndCaveNoise <= 0d && NTERiverHydrology.protectsBedAt(riverProfile, y))
+            if (terrainAndCaveNoise <= 0d && NTERiverHydrology.protectsBedAt(riverProfile, y, riverTerrainHeight))
             {
                 return baseBlockSource.getBaseBlock(blockX, y, blockZ);
             }

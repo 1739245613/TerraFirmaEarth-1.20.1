@@ -5,19 +5,53 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.dries007.tfc.common.blocks.TFCBlocks;
 import net.dries007.tfc.common.blocks.rock.RockSpikeBlock;
 import net.dries007.tfc.common.fluids.TFCFluids;
 import net.dries007.tfc.world.feature.cave.CaveSpikesFeature;
+import com.newterraearth.tfe.world.river.NTERiverHydrology;
+import net.dries007.tfc.world.TFCChunkGenerator;
 
 @Mixin(CaveSpikesFeature.class)
 public abstract class CaveSpikesFeatureMixin
 {
+    @Inject(method = "place", at = @At("HEAD"), cancellable = true)
+    private void tfe$protectSupplementalRiverCorridor(
+        FeaturePlaceContext<NoneFeatureConfiguration> context,
+        CallbackInfoReturnable<Boolean> cir
+    )
+    {
+        if (!(context.chunkGenerator() instanceof TFCChunkGenerator))
+        {
+            return;
+        }
+
+        final BlockPos origin = context.origin();
+        for (int offsetZ = -1; offsetZ <= 1; offsetZ++)
+        {
+            for (int offsetX = -1; offsetX <= 1; offsetX++)
+            {
+                final NTERiverHydrology.ColumnProfile profile = NTERiverHydrology.activeGenerationProfile(
+                    origin.getX() + offsetX,
+                    origin.getZ() + offsetZ
+                );
+                if (profile != null && NTERiverHydrology.blocksCaveDecoration(profile, origin.getY()))
+                {
+                    cir.setReturnValue(false);
+                    return;
+                }
+            }
+        }
+    }
+
     @Inject(method = "replaceBlock", at = @At("HEAD"), cancellable = true, remap = false)
     private void tfe$replaceSaltWaterSpike(WorldGenLevel level, BlockPos pos, BlockState state, CallbackInfo ci)
     {

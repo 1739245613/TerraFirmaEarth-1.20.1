@@ -23,6 +23,7 @@ import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Blocks;
@@ -55,6 +56,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.dries007.tfc.mixin.accessor.ChunkAccessAccessor;
+import net.dries007.tfc.common.fluids.RiverWaterFluid;
+import net.dries007.tfc.common.fluids.TFCFluids;
 import net.dries007.tfc.world.BiomeNoiseSampler;
 import net.dries007.tfc.world.ChunkBaseBlockSource;
 import net.dries007.tfc.world.ChunkBiomeSampler;
@@ -98,6 +101,8 @@ import com.newterraearth.tfe.world.terrain.NTETerrainUpliftSampler;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureBlendType;
 import com.newterraearth.tfe.world.volcano.NTECenteredFeatureNoiseSampler;
 
+import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
+
 @Mixin(TFCChunkGenerator.class)
 public abstract class TFCChunkGeneratorMixin
 {
@@ -114,8 +119,36 @@ public abstract class TFCChunkGeneratorMixin
     @Unique private volatile NTERiverHydrology tfe$riverHydrology;
     @Unique private volatile NTETerrainUpliftSampler tfe$ambientTerrainUpliftSampler;
     @Unique private final ConcurrentHashMap<Long, CompletableFuture<ChunkHeightFiller>> tfe$ambientHeightFillers = new ConcurrentHashMap<>();
-    @Unique private final Map<Long, NTERiverHydrology.ColumnProfile[]> tfe$riverProfilesForCarvers = new ConcurrentHashMap<>();
+    @Unique private final Map<Long, NTERiverHydrology.ColumnProfile[]> tfe$riverProfilesByChunk = new ConcurrentHashMap<>();
     @Unique private final ThreadLocal<NTERiverCarverProtection.Scope> tfe$riverCarverProtection = new ThreadLocal<>();
+
+    @Inject(method = "applyBiomeDecoration", at = @At("HEAD"))
+    private void tfe$activateHydrologyForLateDecoration(
+        WorldGenLevel level,
+        ChunkAccess chunk,
+        StructureManager structureManager,
+        CallbackInfo ci
+    )
+    {
+        NTERiverHydrology.activateGeneration(
+            tfe$getOrCreateRiverHydrology(),
+            tfe$riverProfilesByChunk.get(chunk.getPos().toLong()),
+            chunk.getPos().getMinBlockX(),
+            chunk.getPos().getMinBlockZ()
+        );
+    }
+
+    @Inject(method = "applyBiomeDecoration", at = @At("TAIL"))
+    private void tfe$releaseHydrologyAfterLateDecoration(
+        WorldGenLevel level,
+        ChunkAccess chunk,
+        StructureManager structureManager,
+        CallbackInfo ci
+    )
+    {
+        tfe$riverProfilesByChunk.remove(chunk.getPos().toLong());
+        NTERiverHydrology.clearActiveGeneration();
+    }
 
     @Redirect(
         method = "applyBiomeDecoration",
@@ -165,6 +198,12 @@ public abstract class TFCChunkGeneratorMixin
         CallbackInfo ci
     )
     {
+        NTERiverHydrology.activateGeneration(
+            tfe$getOrCreateRiverHydrology(),
+            tfe$riverProfilesByChunk.get(chunk.getPos().toLong()),
+            chunk.getPos().getMinBlockX(),
+            chunk.getPos().getMinBlockZ()
+        );
         if (step == GenerationStep.Carving.AIR)
         {
             final NTERiverCarverProtection.Scope previous = tfe$riverCarverProtection.get();
@@ -175,7 +214,7 @@ public abstract class TFCChunkGeneratorMixin
             tfe$riverCarverProtection.set(NTERiverCarverProtection.open(
                 tfe$getOrCreateRiverHydrology(),
                 chunk,
-                tfe$riverProfilesForCarvers.get(chunk.getPos().toLong())
+                tfe$riverProfilesByChunk.get(chunk.getPos().toLong())
             ));
         }
     }
@@ -203,7 +242,7 @@ public abstract class TFCChunkGeneratorMixin
         }
 
         final ChunkPos chunkPos = chunk.getPos();
-        final NTERiverHydrology.ColumnProfile[] noiseProfiles = tfe$riverProfilesForCarvers.get(chunkPos.toLong());
+        final NTERiverHydrology.ColumnProfile[] noiseProfiles = tfe$riverProfilesByChunk.get(chunkPos.toLong());
         final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         try
         {
@@ -241,16 +280,13 @@ public abstract class TFCChunkGeneratorMixin
         }
         finally
         {
-            if (noiseProfiles != null)
-            {
-                tfe$riverProfilesForCarvers.remove(chunkPos.toLong(), noiseProfiles);
-            }
             final NTERiverCarverProtection.Scope scope = tfe$riverCarverProtection.get();
             if (scope != null)
             {
                 scope.close();
                 tfe$riverCarverProtection.remove();
             }
+            NTERiverHydrology.clearActiveGeneration();
         }
     }
 
@@ -279,10 +315,14 @@ public abstract class TFCChunkGeneratorMixin
                 final int blockZ = chunkPos.getBlockZ(localZ);
                 final int plannedWaterY = profile.waterBlockY();
                 // Surface generation can reintroduce the retained TFC source
-                // shelf after the density pass. Remove only water above the
-                // receiver-aligned planned surface; the following waterfall
-                // bake immediately restores every required dynamic fall.
-                final int clearFromY = profile.waterfallLanding() ? plannedWaterY : plannedWaterY + 1;
+                // shelf after the density pass. A raised waterfall landing
+                // may hand its top layer to the following dynamic fall bake,
+                // but y=62 is the receiver's fixed minimum water layer and
+                // must never be included in this cleanup.
+                final int clearFromY = NTERiverHydrology.retainedMouthWaterClearFromY(
+                    profile,
+                    SEA_LEVEL_Y - 1
+                );
                 for (int y = clearFromY; y <= plannedWaterY + 8; y++)
                 {
                     cursor.set(blockX, y, blockZ);
@@ -425,6 +465,7 @@ public abstract class TFCChunkGeneratorMixin
                 front.getY(),
                 Math.max(chunk.getMinBuildHeight(), front.getY() - 64),
                 flowLevel,
+                flow,
                 cursor
             );
             if (landingY == Integer.MIN_VALUE || flowLevel >= TFE_WATER_HORIZONTAL_RANGE)
@@ -508,6 +549,7 @@ public abstract class TFCChunkGeneratorMixin
         int startY,
         int minimumY,
         int flowLevel,
+        Flow flow,
         BlockPos.MutableBlockPos cursor
     )
     {
@@ -533,14 +575,23 @@ public abstract class TFCChunkGeneratorMixin
             final BlockState below = chunk.getBlockState(cursor);
             final boolean landsHere = !below.isAir() && below.getFluidState().isEmpty();
             cursor.set(blockX, y, blockZ);
-            final BlockState water = landsHere ? spreadingWater : fallingWater;
+            final boolean joinsDirectionalReceiver = y <= SEA_LEVEL_Y - 1
+                || below.getFluidState().getType() == TFCFluids.RIVER_WATER.get();
+            final BlockState water = joinsDirectionalReceiver
+                ? TFCFluids.RIVER_WATER.get().defaultFluidState()
+                    .setValue(RiverWaterFluid.FLOW, flow)
+                    .createLegacyBlock()
+                : landsHere ? spreadingWater : fallingWater;
             chunk.setBlockState(cursor, water, false);
-            level.scheduleTick(cursor.immutable(), water.getFluidState().getType(), 1);
+            if (!joinsDirectionalReceiver)
+            {
+                level.scheduleTick(cursor.immutable(), water.getFluidState().getType(), 1);
+            }
             if (landsHere)
             {
                 return y;
             }
-            if (below.getFluidState().is(FluidTags.WATER))
+            if (joinsDirectionalReceiver || below.getFluidState().is(FluidTags.WATER))
             {
                 return Integer.MIN_VALUE;
             }
@@ -683,11 +734,11 @@ public abstract class TFCChunkGeneratorMixin
             chunkData.getRockData().useCache(chunkPos);
             filler.fillFromNoise();
 
-            if (tfe$riverProfilesForCarvers.size() >= 1024)
+            if (tfe$riverProfilesByChunk.size() >= 1024)
             {
-                tfe$riverProfilesForCarvers.clear();
+                tfe$riverProfilesByChunk.clear();
             }
-            tfe$riverProfilesForCarvers.put(chunkPos.toLong(), tfe$copyRiverProfiles(filler));
+            tfe$riverProfilesByChunk.put(chunkPos.toLong(), tfe$copyRiverProfiles(filler));
 
             aquiferCache.set(chunkPos.x, chunkPos.z, filler.aquifer());
             return chunk;

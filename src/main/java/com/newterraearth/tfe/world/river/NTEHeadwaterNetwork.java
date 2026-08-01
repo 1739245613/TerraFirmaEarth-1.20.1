@@ -35,36 +35,77 @@ final class NTEHeadwaterNetwork
     private static final int SOURCE_EXTENSION_MIN = 48;
     private static final int SOURCE_EXTENSION_MAX = 120;
     private static final int SOURCE_EXTENSION_LATERAL = 80;
+    private static final int MAX_DRAINAGE_SOURCE_CANDIDATES = 12;
+    private static final double DRAINAGE_SOURCE_SEPARATION = 24d;
+    private static final double DRAINAGE_SPILL_EPSILON = 1.0e-6d;
+    private static final double FAILED_ROUTE_OVERLAP_PENALTY = 6d;
+    private static final double FAILED_ROUTE_LOCAL_PENALTY = 160d;
+    private static final int FAILED_ROUTE_LOCAL_RADIUS = 3;
+    private static final double PLANNED_INCISION_EXCESS_COST = 24d;
+    private static final double JUNCTION_DETECTION_RADIUS = 4d;
+    private static final double JUNCTION_MAX_WET_CONTACT_RADIUS = 10d;
+    private static final double JUNCTION_BLOCK_CONTACT_MARGIN = 2d;
+    private static final double JUNCTION_MIN_BRANCH_LENGTH = 32d;
+    private static final double SHARED_CORRIDOR_DETECTION_RADIUS = 1.5d;
+    private static final double SHARED_CORRIDOR_MIN_LENGTH = 12d;
+    private static final double SHARED_CORRIDOR_TRANSITION_LENGTH = 16d;
+    private static final double JUNCTION_TANGENT_REWRITE_LENGTH = 16d;
+    private static final double JUNCTION_PROFILE_TRANSITION_LENGTH = 18d;
+    private static final double VALLEY_SNAP_RADIUS = 8d;
+    private static final double VALLEY_SNAP_STEP = 2d;
+    private static final double TFC_RIVER_ROUTE_CLEARANCE = 6d;
+    private static final double TFC_RIVER_GRID_CLEARANCE = TFC_RIVER_ROUTE_CLEARANCE
+        + SAMPLE_STEP * Math.sqrt(2d) * 0.5d;
     private static final double SOURCE_CHANNEL_RADIUS = 0.65d;
     private static final double CENTER_SURFACE_INSET = 1.25d;
     private static final double BANK_FREEBOARD = 0.10d;
     private static final double MAX_CASCADE_SLOPE = 1.0d;
     private static final double MAX_NORMAL_INCISION = 5.0d;
-    private static final double MAX_FEEDER_INCISION = 5.5d;
     private static final double FEEDER_RECEIVER_WIDTH_SCALE = 0.36d;
     private static final double TFC_LEAF_TAPER_LENGTH = 64d;
     private static final double SOURCE_ALIGNMENT_LENGTH = 48d;
     private static final double SOURCE_ALIGNMENT_REWRITE_LENGTH = 32d;
     private static final double SOURCE_ALIGNMENT_SAMPLE_SPACING = 1.5d;
+    private static final double SOURCE_ALIGNMENT_FLOW_LOOKBACK = 24d;
+    private static final double SOURCE_ALIGNMENT_MAX_EXTENSION = 96d;
+    private static final double SOURCE_ALIGNMENT_RETRY_EXTENSION = 24d;
+    private static final int SOURCE_ALIGNMENT_MAX_ATTEMPTS = 4;
+    private static final double SOURCE_ALIGNMENT_TARGET_CONTACT_DOT = 0.90d;
     private static final double SOURCE_ALIGNMENT_SUPPRESSION_WIDTH_SCALE = 1.35d;
     private static final double MOUTH_BANK_TRANSITION_LENGTH = 24d;
     private static final double MOUTH_FAN_LENGTH = 8d;
-    private static final double MOUTH_FAN_MAX_INCISION = 2d;
-    private static final double MOUTH_WATER_TAPER_LENGTH = 3d;
-    private static final double MOUTH_CONNECTOR_WATER_CORE_RADIUS_SQ = 0.12d;
     private static final double OUTLET_ADAPTER_LENGTH = SOURCE_ALIGNMENT_LENGTH + 40d;
     private static final double MAX_OUTLET_ADAPTER_INCISION = 8d;
     private static final int MAX_HEADWATER_CACHE_SIZE = 512;
     private static final double MAX_INFLUENCE_SQ = 2.25d;
     private static final double SPATIAL_INDEX_MARGIN = 12d;
+    private static final int[] DRAINAGE_DIRECTIONS = {
+        -1, -1, 0, -1, 1, -1,
+        -1, 0,          1, 0,
+        -1, 1,  0, 1,  1, 1
+    };
     private static final boolean TRACE = Boolean.getBoolean("tfe.debug.runtimeTrace");
     private static final Logger LOGGER = LogUtils.getLogger();
+    private static final Comparator<Headwater> HEADWATER_ORDER = Comparator
+        .comparingDouble((Headwater value) -> value.sourceX)
+        .thenComparingDouble(value -> value.sourceZ)
+        .thenComparingDouble(value -> value.drainX)
+        .thenComparingDouble(value -> value.drainZ)
+        .thenComparingLong(value -> value.seed);
 
     @FunctionalInterface
     interface HeightSampler
     {
         double sample(int blockX, int blockZ);
     }
+
+    @FunctionalInterface
+    interface RouteObstacleSampler
+    {
+        boolean blocks(@Nullable RiverEdge owner, double blockX, double blockZ, double clearance);
+    }
+
+    private static final RouteObstacleSampler NO_ROUTE_OBSTACLES = (owner, x, z, clearance) -> false;
 
     record Sample(
         double waterSurfaceY,
@@ -83,11 +124,88 @@ final class NTEHeadwaterNetwork
         Flow flow
     ) {}
 
+    static boolean samplePreferred(@Nullable Sample candidate, @Nullable Sample current)
+    {
+        if (candidate == null)
+        {
+            return false;
+        }
+        if (current == null)
+        {
+            return true;
+        }
+        final double distanceDelta = candidate.normalizedDistanceSq() - current.normalizedDistanceSq();
+        if (Math.abs(distanceDelta) > 1.0e-9d)
+        {
+            return distanceDelta < 0d;
+        }
+        final double waterDelta = candidate.waterSurfaceY() - current.waterSurfaceY();
+        return waterDelta < -1.0e-9d
+            || Math.abs(waterDelta) <= 1.0e-9d && candidate.flow().ordinal() < current.flow().ordinal();
+    }
+
     record DiagnosticPoint(double x, double z, double terrainY, double waterY, double radius) {}
 
     record Vec(double x, double z) {}
 
     private record SearchNode(int index, double score) {}
+
+    private record DrainageNode(int index, double spill, double travel) {}
+
+    private record DrainageField(
+        int[] downstream,
+        double[] spill,
+        double[] accumulation
+    ) {}
+
+    private record SourceCandidate(int index, double score) {}
+
+    private record SegmentApproach(
+        double leftDelta,
+        double rightDelta,
+        double distanceSq,
+        Vec leftPoint,
+        Vec rightPoint
+    ) {}
+
+    private record RouteIntersection(
+        int leftSegment,
+        double leftDelta,
+        double leftAlong,
+        int rightSegment,
+        double rightDelta,
+        double rightAlong,
+        Vec point
+    ) {}
+
+    private record RouteProjection(int segment, double delta, double along, double distanceSq) {}
+
+    private record RouteOverlap(
+        double leftStartAlong,
+        double leftEndAlong,
+        double rightStartAlong,
+        double rightEndAlong,
+        double length
+    ) {}
+
+    private record CorridorPoint(Vec point, double waterY, double radius) {}
+
+    private record IncisionRisk(double score, int maximumExcess, int exceedingPoints, @Nullable Vec worstPoint)
+    {
+        private boolean preferredTo(@Nullable IncisionRisk other)
+        {
+            return other == null
+                || score < other.score - 1.0e-9d
+                || Math.abs(score - other.score) <= 1.0e-9d && maximumExcess < other.maximumExcess
+                || Math.abs(score - other.score) <= 1.0e-9d && maximumExcess == other.maximumExcess
+                    && exceedingPoints < other.exceedingPoints;
+        }
+
+        private boolean withinPreferredRange()
+        {
+            return maximumExcess == 0;
+        }
+    }
 
     private record Projection(double distanceSq, double delta) {}
 
@@ -100,19 +218,36 @@ final class NTEHeadwaterNetwork
 
     private record ReceiverPath(List<Vec> points, double width) {}
 
+    private record AlignmentCandidate(
+        List<Vec> points,
+        double contactDot
+    ) {}
+
     private record GridCell(int x, int z) {}
 
     private final long seed;
     private final int seaLevel;
     private final HeightSampler heights;
+    private final RouteObstacleSampler routeObstacles;
     private final Map<RiverEdge, Headwater> headwaters = new IdentityHashMap<>();
     private final Map<Long, List<Headwater>> plannedByChunk = new HashMap<>();
 
     NTEHeadwaterNetwork(long seed, int seaLevel, HeightSampler heights)
     {
+        this(seed, seaLevel, heights, NO_ROUTE_OBSTACLES);
+    }
+
+    NTEHeadwaterNetwork(
+        long seed,
+        int seaLevel,
+        HeightSampler heights,
+        RouteObstacleSampler routeObstacles
+    )
+    {
         this.seed = seed;
         this.seaLevel = seaLevel;
         this.heights = heights;
+        this.routeObstacles = routeObstacles;
     }
 
     boolean replaces(RiverEdge edge)
@@ -123,6 +258,7 @@ final class NTEHeadwaterNetwork
         }
         final Headwater headwater = headwater(edge);
         final boolean replacement = headwater.replacesTfc();
+        coordinatePlannedIntersections(headwater);
         indexPlanned(headwater);
         return replacement;
     }
@@ -135,6 +271,7 @@ final class NTEHeadwaterNetwork
         }
         final Headwater headwater = headwater(edge);
         final boolean feeder = headwater.hasFeeder();
+        coordinatePlannedIntersections(headwater);
         indexPlanned(headwater);
         return feeder;
     }
@@ -160,8 +297,11 @@ final class NTEHeadwaterNetwork
         final Headwater headwater = headwater(edge);
         if (headwater.replacesTfc())
         {
+            coordinatePlannedIntersections(headwater);
+            indexPlanned(headwater);
             return 1d;
         }
+        coordinatePlannedIntersections(headwater);
         indexPlanned(headwater);
         return retainedLeafWidthScaleForFeeder(edge, blockX, blockZ);
     }
@@ -231,25 +371,14 @@ final class NTEHeadwaterNetwork
         ));
     }
 
-    static double mouthWaterDrop(double distanceToOutlet)
-    {
-        if (distanceToOutlet >= MOUTH_FAN_LENGTH)
-        {
-            return 0d;
-        }
-        return MOUTH_FAN_MAX_INCISION * smootherStep(Mth.clamp(
-            (MOUTH_FAN_LENGTH - distanceToOutlet) / MOUTH_FAN_LENGTH,
-            0d,
-            1d
-        ));
-    }
-
     static double mouthWaterDrop(double distanceToOutlet, double localWaterY, double receiverWaterY)
     {
-        return Math.min(
-            mouthWaterDrop(distanceToOutlet),
-            Math.max(0d, localWaterY - receiverWaterY)
-        );
+        // Water ownership starts transferring with the dry banks and is
+        // complete before the final cut-only fan. Capping this at the fan's
+        // two-block erosion allowance left a higher replacement-water shelf
+        // after the bed had already yielded to a lower retained receiver.
+        return Math.max(0d, localWaterY - receiverWaterY)
+            * (1d - mouthBankFillWeight(distanceToOutlet));
     }
 
     private static double mouthFanLateralWeight(double normalizedDistanceSq)
@@ -261,20 +390,6 @@ final class NTEHeadwaterNetwork
         ));
     }
 
-    static double mouthFanIncision(double distanceToOutlet, double normalizedDistanceSq)
-    {
-        if (distanceToOutlet >= MOUTH_FAN_LENGTH || normalizedDistanceSq >= 1d)
-        {
-            return 0d;
-        }
-        // Keep the erosion cut at full strength across the ordinary channel
-        // core, then feather it through the outer bank. The old radial
-        // smootherstep attenuated the incision almost to zero by radialSq
-        // ~= 0.78; the profile cross-section attenuated it a second time and
-        // left an uncut shoulder around an otherwise open mouth.
-        return mouthWaterDrop(distanceToOutlet) * mouthFanLateralWeight(normalizedDistanceSq);
-    }
-
     static double mouthGeometryNormalizedDistanceSq(
         double streamNormalizedDistanceSq,
         double receiverNormalizedDistanceSq,
@@ -282,7 +397,7 @@ final class NTEHeadwaterNetwork
     )
     {
         return Mth.lerp(
-            mouthReceiverBlendWeight(distanceToOutlet),
+            mouthReceiverBlendWeight(streamNormalizedDistanceSq, distanceToOutlet),
             streamNormalizedDistanceSq,
             receiverNormalizedDistanceSq
         );
@@ -295,6 +410,36 @@ final class NTEHeadwaterNetwork
             0d,
             1d
         ));
+    }
+
+    static double mouthOuterBankReceiverBlendWeight(double distanceToOutlet)
+    {
+        return 1d - mouthBankFillWeight(distanceToOutlet);
+    }
+
+    static double mouthReceiverBlendWeight(
+        double streamNormalizedDistanceSq,
+        double distanceToOutlet
+    )
+    {
+        // Bank ownership and wet-corridor ownership cannot use one scalar.
+        // The creek core must keep its own distance field until the final fan
+        // actually reaches the receiver, otherwise a center column can be
+        // reclassified outside both channels and the replacement stream has
+        // no retained TFC leaf to fall back to. Only the dry outer cross-
+        // section transfers early; the transition is smooth between the
+        // flowing-water edge and the physical bank edge.
+        final double outerBankWeight = smootherStep(Mth.clamp(
+            (streamNormalizedDistanceSq - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+                / (1d - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
+            0d,
+            1d
+        ));
+        return Mth.lerp(
+            outerBankWeight,
+            mouthReceiverBlendWeight(distanceToOutlet),
+            mouthOuterBankReceiverBlendWeight(distanceToOutlet)
+        );
     }
 
     /**
@@ -354,17 +499,11 @@ final class NTEHeadwaterNetwork
         return Math.max(1.25d, Math.min(3d, localRadius * 0.6d));
     }
 
-    static double mouthWaterCoreRadiusSq(double distanceToOutlet)
+    static int visibleIncisionDepth(double terrainY, double waterY)
     {
-        final double progress = smootherStep(Mth.clamp(
-            (MOUTH_FAN_LENGTH - distanceToOutlet) / MOUTH_WATER_TAPER_LENGTH,
-            0d,
-            1d
-        ));
-        return Mth.lerp(
-            progress,
-            NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ,
-            MOUTH_CONNECTOR_WATER_CORE_RADIUS_SQ
+        return Math.max(
+            0,
+            Mth.floor(terrainY - CENTER_SURFACE_INSET) - Mth.floor(waterY)
         );
     }
 
@@ -380,6 +519,7 @@ final class NTEHeadwaterNetwork
         {
             final Headwater headwater = headwater(edge);
             headwater.route();
+            coordinatePlannedIntersections(headwater);
             indexPlanned(headwater);
         }
     }
@@ -391,7 +531,7 @@ final class NTEHeadwaterNetwork
         synchronized (headwaters)
         {
             final List<Headwater> indexed = plannedByChunk.get(targetChunkKey);
-            candidates = indexed == null ? List.of() : List.copyOf(indexed);
+            candidates = indexed == null ? new ArrayList<>() : new ArrayList<>(indexed);
         }
         for (Headwater headwater : candidates)
         {
@@ -412,6 +552,8 @@ final class NTEHeadwaterNetwork
             return null;
         }
         final Headwater headwater = headwater(edge);
+        headwater.route();
+        coordinatePlannedIntersections(headwater);
         final Sample sample = headwater.sample(blockX, blockZ, ambientHeight);
         indexPlanned(headwater);
         return sample;
@@ -420,12 +562,18 @@ final class NTEHeadwaterNetwork
     @Nullable
     Sample sampleIfPlanned(RiverEdge edge, int blockX, int blockZ)
     {
+        return sampleIfPlanned(edge, blockX, blockZ, Double.POSITIVE_INFINITY);
+    }
+
+    @Nullable
+    Sample sampleIfPlanned(RiverEdge edge, int blockX, int blockZ, double ambientHeight)
+    {
         if (edge.sourceEdge())
         {
             return null;
         }
         final Headwater headwater = existingHeadwater(edge);
-        return headwater == null ? null : headwater.sampleIfPlanned(blockX, blockZ);
+        return headwater == null ? null : headwater.sampleIfPlanned(blockX, blockZ, ambientHeight);
     }
 
     @Nullable
@@ -436,14 +584,15 @@ final class NTEHeadwaterNetwork
         synchronized (headwaters)
         {
             final List<Headwater> indexed = plannedByChunk.get(targetChunkKey);
-            candidates = indexed == null ? List.of() : List.copyOf(indexed);
+            candidates = indexed == null ? new ArrayList<>() : new ArrayList<>(indexed);
         }
 
         Sample nearest = null;
+        candidates.sort(HEADWATER_ORDER);
         for (Headwater headwater : candidates)
         {
             final Sample sample = headwater.sampleIfPlanned(blockX, blockZ, ambientHeight);
-            if (sample != null && (nearest == null || sample.normalizedDistanceSq() < nearest.normalizedDistanceSq()))
+            if (samplePreferred(sample, nearest))
             {
                 nearest = sample;
             }
@@ -474,7 +623,14 @@ final class NTEHeadwaterNetwork
                     plannedByChunk.clear();
                 }
                 final int downstreamWidth = edge.drainEdge() == null ? edge.width : edge.drainEdge().width;
-                headwater = new Headwater(seedFor(edge), seaLevel, downstreamWidth, heights, edge);
+                headwater = new Headwater(
+                    seedFor(edge),
+                    seaLevel,
+                    downstreamWidth,
+                    heights,
+                    routeObstacles,
+                    edge
+                );
                 headwaters.put(edge, headwater);
             }
             return headwater;
@@ -530,6 +686,31 @@ final class NTEHeadwaterNetwork
         }
     }
 
+    private void coordinatePlannedIntersections(Headwater headwater)
+    {
+        if (headwater.intersectionsCoordinated || !headwater.replacement || headwater.plannedRoute() == null)
+        {
+            return;
+        }
+        synchronized (headwaters)
+        {
+            if (headwater.intersectionsCoordinated)
+            {
+                return;
+            }
+            final List<Headwater> planned = new ArrayList<>();
+            for (Headwater peer : headwaters.values())
+            {
+                if (peer.attempted && peer.replacement && peer.plannedRoute() != null)
+                {
+                    planned.add(peer);
+                }
+            }
+            planned.sort(HEADWATER_ORDER);
+            coordinateNetwork(planned, heights);
+        }
+    }
+
     private static long chunkKey(int chunkX, int chunkZ)
     {
         return (chunkX & 0xffffffffL) | ((chunkZ & 0xffffffffL) << 32);
@@ -568,6 +749,32 @@ final class NTEHeadwaterNetwork
         ));
     }
 
+    static TestStream planTestStream(
+        long seed,
+        int seaLevel,
+        double sourceX,
+        double sourceZ,
+        double drainX,
+        double drainZ,
+        int downstreamWidth,
+        HeightSampler heights,
+        RouteObstacleSampler routeObstacles
+    )
+    {
+        return new TestStream(new Headwater(
+            seed,
+            seaLevel,
+            downstreamWidth,
+            heights,
+            routeObstacles,
+            null,
+            sourceX,
+            sourceZ,
+            drainX,
+            drainZ
+        ));
+    }
+
     static TestStream planTestSourceExtension(
         long seed,
         int seaLevel,
@@ -594,10 +801,156 @@ final class NTEHeadwaterNetwork
         return new TestStream(headwater);
     }
 
+    static TestStream planTestSourceExtension(
+        long seed,
+        int seaLevel,
+        double sourceX,
+        double sourceZ,
+        double drainX,
+        double drainZ,
+        int downstreamWidth,
+        HeightSampler heights,
+        RouteObstacleSampler routeObstacles
+    )
+    {
+        final Headwater headwater = new Headwater(
+            seed,
+            seaLevel,
+            downstreamWidth,
+            heights,
+            routeObstacles,
+            null,
+            sourceX,
+            sourceZ,
+            drainX,
+            drainZ
+        );
+        headwater.route = headwater.planSourceExtension();
+        headwater.attempted = true;
+        return new TestStream(headwater);
+    }
+
     static List<Vec> alignTestRoute(List<Vec> route, List<Vec> receiver, double receiverWidth)
     {
         final ReceiverPath receiverPath = new ReceiverPath(List.copyOf(receiver), receiverWidth);
         return Headwater.alignRoute(route, receiverPath).points();
+    }
+
+    static double firstVisibleContactFlowDot(
+        List<Vec> route,
+        List<Vec> receiver,
+        double receiverWidth
+    )
+    {
+        final ReceiverPath receiverPath = new ReceiverPath(List.copyOf(receiver), receiverWidth);
+        final double streamRadius = Mth.clamp(receiverWidth * 0.45d, 3.2d, 5.5d);
+        final double contactRadius = receiverWidth * Math.sqrt(NTERiverHydrology.TFC_WATER_CORE_RADIUS_SQ)
+            + streamRadius * Math.sqrt(NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ);
+        return Headwater.firstContactFlowDot(route, 0, receiverPath, contactRadius);
+    }
+
+    static boolean coordinateTestStreams(TestStream left, TestStream right)
+    {
+        left.headwater.route();
+        right.headwater.route();
+        return coordinatePair(left.headwater, right.headwater, left.headwater.heights);
+    }
+
+    @Nullable
+    static double[] overlapTestStreams(TestStream left, TestStream right)
+    {
+        left.headwater.route();
+        right.headwater.route();
+        final Route leftRoute = left.headwater.plannedRoute();
+        final Route rightRoute = right.headwater.plannedRoute();
+        if (leftRoute == null || rightRoute == null)
+        {
+            return null;
+        }
+        final RouteOverlap overlap = findRouteOverlap(leftRoute, rightRoute, SHARED_CORRIDOR_MIN_LENGTH);
+        return overlap == null ? null : new double[] {
+            overlap.leftStartAlong(),
+            overlap.leftEndAlong(),
+            overlap.rightStartAlong(),
+            overlap.rightEndAlong()
+        };
+    }
+
+    @Nullable
+    static Sample sampleTestStream(TestStream stream, int blockX, int blockZ)
+    {
+        final Route route = stream.headwater.route();
+        return route == null ? null : route.sample(blockX, blockZ, Double.POSITIVE_INFINITY);
+    }
+
+    static TestStream testStreamFromRoute(List<Vec> points, double startWaterY, double endWaterY, HeightSampler heights)
+    {
+        final Headwater headwater = new Headwater(
+            1L,
+            (int) Math.floor(endWaterY + 1d),
+            16,
+            heights,
+            points.get(0).x(),
+            points.get(0).z(),
+            points.get(points.size() - 1).x(),
+            points.get(points.size() - 1).z()
+        );
+        final int size = points.size();
+        final double[] x = new double[size];
+        final double[] z = new double[size];
+        final double[] terrain = new double[size];
+        final double[] water = new double[size];
+        final double[] radius = new double[size];
+        final double[] distance = new double[size];
+        for (int i = 0; i < size; i++)
+        {
+            final Vec point = points.get(i);
+            x[i] = point.x();
+            z[i] = point.z();
+            terrain[i] = heights.sample(Mth.floor(x[i]), Mth.floor(z[i]));
+            if (i > 0)
+            {
+                distance[i] = distance[i - 1] + Math.hypot(x[i] - x[i - 1], z[i] - z[i - 1]);
+            }
+        }
+        for (int i = 0; i < size; i++)
+        {
+            water[i] = Mth.lerp(distance[i] / distance[size - 1], startWaterY, endWaterY);
+            radius[i] = 2.5d;
+        }
+        headwater.route = new Route(
+            x, z, terrain, water, radius, distance, distance[size - 1], false, null, endWaterY
+        );
+        headwater.attempted = true;
+        headwater.replacement = true;
+        return new TestStream(headwater);
+    }
+
+    static boolean rejectsPastOutlet(List<Vec> points, int blockX, int blockZ)
+    {
+        double bestDistanceSq = Double.POSITIVE_INFINITY;
+        int bestIndex = -1;
+        double bestDelta = 0d;
+        for (int i = 0; i < points.size() - 1; i++)
+        {
+            final Vec from = points.get(i);
+            final Vec to = points.get(i + 1);
+            final Projection projection = project(from.x(), from.z(), to.x(), to.z(), blockX, blockZ);
+            if (projection.distanceSq() < bestDistanceSq)
+            {
+                bestDistanceSq = projection.distanceSq();
+                bestIndex = i;
+                bestDelta = projection.delta();
+            }
+        }
+        final int last = points.size() - 1;
+        if (bestIndex != last - 1 || bestDelta < 1d - 1.0e-9d)
+        {
+            return false;
+        }
+        final Vec previous = points.get(last - 1);
+        final Vec outlet = points.get(last);
+        return extendsPastOutlet(previous.x(), previous.z(), outlet.x(), outlet.z(), blockX, blockZ);
     }
 
     static final class TestStream
@@ -614,6 +967,18 @@ final class NTEHeadwaterNetwork
             return headwater.route() != null;
         }
 
+        int attemptedDrainageCandidates()
+        {
+            headwater.route();
+            return headwater.attemptedDrainageCandidates;
+        }
+
+        int availableDrainageCandidates()
+        {
+            headwater.route();
+            return headwater.availableDrainageCandidates;
+        }
+
         @Nullable
         Sample sample(int blockX, int blockZ, double ambientHeight)
         {
@@ -628,12 +993,318 @@ final class NTEHeadwaterNetwork
 
     }
 
+    private static boolean coordinatePair(Headwater left, Headwater right, HeightSampler heights)
+    {
+        final Route leftRoute = left.plannedRoute();
+        final Route rightRoute = right.plannedRoute();
+        if (leftRoute == null || rightRoute == null || left.junctionPeers.contains(right))
+        {
+            return false;
+        }
+        final Vec leftOutlet = new Vec(
+            leftRoute.x[leftRoute.x.length - 1],
+            leftRoute.z[leftRoute.z.length - 1]
+        );
+        final Vec rightOutlet = new Vec(
+            rightRoute.x[rightRoute.x.length - 1],
+            rightRoute.z[rightRoute.z.length - 1]
+        );
+        final boolean sharedOutlet = distance(leftOutlet, rightOutlet) <= JUNCTION_DETECTION_RADIUS;
+        final RouteOverlap overlap = findRouteOverlap(
+            leftRoute,
+            rightRoute,
+            sharedOutlet ? 4d : SHARED_CORRIDOR_MIN_LENGTH
+        );
+        if (overlap != null)
+        {
+            left.route = leftRoute.withSharedProfile(
+                overlap.leftStartAlong(),
+                overlap.leftEndAlong(),
+                rightRoute,
+                overlap.rightStartAlong(),
+                overlap.rightEndAlong(),
+                heights
+            );
+            right.route = rightRoute.withSharedProfile(
+                overlap.rightStartAlong(),
+                overlap.rightEndAlong(),
+                leftRoute,
+                overlap.leftStartAlong(),
+                overlap.leftEndAlong(),
+                heights
+            );
+            left.junctionPeers.add(right);
+            right.junctionPeers.add(left);
+            return true;
+        }
+        if (sharedOutlet)
+        {
+            return false;
+        }
+
+        final RouteIntersection intersection = findRouteIntersection(leftRoute, rightRoute);
+        if (intersection == null)
+        {
+            return false;
+        }
+        final double junctionWater = Math.min(
+            leftRoute.sampleWaterYAtAlong(intersection.leftAlong()),
+            rightRoute.sampleWaterYAtAlong(intersection.rightAlong())
+        );
+        final double leftRadius = leftRoute.sampleRadiusAtAlong(intersection.leftAlong());
+        final double rightRadius = rightRoute.sampleRadiusAtAlong(intersection.rightAlong());
+        final double junctionRadius = Math.min(
+            Math.max(leftRadius, rightRadius),
+            Math.min(leftRadius, rightRadius) + 0.5d
+        );
+        final Vec junctionDirection = leftRoute.sampleWaterYAtAlong(intersection.leftAlong())
+            <= rightRoute.sampleWaterYAtAlong(intersection.rightAlong())
+                ? leftRoute.directionAtAlong(intersection.leftAlong() + 2d)
+                : rightRoute.directionAtAlong(intersection.rightAlong() + 2d);
+        left.route = leftRoute.withJunction(
+            intersection.leftSegment(),
+            intersection.leftDelta(),
+            intersection.point(),
+            junctionWater,
+            junctionRadius,
+            junctionDirection,
+            heights
+        );
+        right.route = rightRoute.withJunction(
+            intersection.rightSegment(),
+            intersection.rightDelta(),
+            intersection.point(),
+            junctionWater,
+            junctionRadius,
+            junctionDirection,
+            heights
+        );
+        left.junctionPeers.add(right);
+        right.junctionPeers.add(left);
+        return true;
+    }
+
+    /**
+     * Detect a sustained, co-directed overlap rather than treating it as many
+     * unrelated point intersections. The shared interval is allowed to begin
+     * at a source: a spring entering an established creek should become a
+     * tributary there instead of laying a second water surface over the trunk.
+     */
+    @Nullable
+    private static RouteOverlap findRouteOverlap(Route left, Route right, double minimumLength)
+    {
+        if (!left.boundsOverlap(right, SHARED_CORRIDOR_DETECTION_RADIUS))
+        {
+            return null;
+        }
+        final double spacing = 2d;
+        double runLeftStart = Double.NaN;
+        double runRightStart = Double.NaN;
+        double previousRightAlong = Double.NaN;
+        RouteOverlap best = null;
+        for (double leftAlong = 0d; leftAlong <= left.totalLength + 1.0e-6d; leftAlong += spacing)
+        {
+            final Vec point = left.pointAtAlong(leftAlong);
+            final RouteProjection projection = right.nearestProjection(point);
+            final boolean close = projection.distanceSq()
+                <= SHARED_CORRIDOR_DETECTION_RADIUS * SHARED_CORRIDOR_DETECTION_RADIUS;
+            final boolean coDirected = close && directionDot(
+                left.directionAtAlong(leftAlong),
+                right.directionAtAlong(projection.along())
+            ) >= 0.72d;
+            final boolean progressesTogether = Double.isNaN(previousRightAlong)
+                || projection.along() + spacing * 0.5d >= previousRightAlong;
+            if (coDirected && progressesTogether)
+            {
+                if (Double.isNaN(runLeftStart))
+                {
+                    runLeftStart = leftAlong;
+                    runRightStart = projection.along();
+                }
+                previousRightAlong = projection.along();
+                final double runLength = leftAlong - runLeftStart;
+                if (runLength >= minimumLength
+                    && (best == null || runLength > best.length()))
+                {
+                    best = new RouteOverlap(
+                        runLeftStart,
+                        leftAlong,
+                        runRightStart,
+                        projection.along(),
+                        runLength
+                    );
+                }
+            }
+            else
+            {
+                runLeftStart = Double.NaN;
+                runRightStart = Double.NaN;
+                previousRightAlong = Double.NaN;
+            }
+        }
+        return best;
+    }
+
+    /**
+     * Revisit every uncoordinated pair until inserting junction nodes no
+     * longer exposes another route intersection. This is deliberately a
+     * network operation rather than a one-off two-stream special case: a
+     * later third or fourth route may join an already coordinated trunk
+     * without deleting any existing source or outlet branch.
+     */
+    private static boolean coordinateNetwork(List<Headwater> headwaters, HeightSampler heights)
+    {
+        headwaters.sort(HEADWATER_ORDER);
+        boolean coordinatedAny = false;
+        boolean changed;
+        do
+        {
+            changed = false;
+            for (int left = 0; left < headwaters.size(); left++)
+            {
+                for (int right = left + 1; right < headwaters.size(); right++)
+                {
+                    if (coordinatePair(headwaters.get(left), headwaters.get(right), heights))
+                    {
+                        coordinatedAny = true;
+                        changed = true;
+                    }
+                }
+            }
+        }
+        while (changed);
+        for (Headwater headwater : headwaters)
+        {
+            headwater.intersectionsCoordinated = true;
+        }
+        return coordinatedAny;
+    }
+
+    @Nullable
+    private static RouteIntersection findRouteIntersection(Route left, Route right)
+    {
+        if (!left.boundsOverlap(right, JUNCTION_MAX_WET_CONTACT_RADIUS))
+        {
+            return null;
+        }
+        RouteIntersection best = null;
+        double bestProgress = Double.POSITIVE_INFINITY;
+        double bestDistanceSq = Double.POSITIVE_INFINITY;
+        for (int leftSegment = 0; leftSegment < left.x.length - 1; leftSegment++)
+        {
+            final Vec leftStart = new Vec(left.x[leftSegment], left.z[leftSegment]);
+            final Vec leftEnd = new Vec(left.x[leftSegment + 1], left.z[leftSegment + 1]);
+            for (int rightSegment = 0; rightSegment < right.x.length - 1; rightSegment++)
+            {
+                final Vec rightStart = new Vec(right.x[rightSegment], right.z[rightSegment]);
+                final Vec rightEnd = new Vec(right.x[rightSegment + 1], right.z[rightSegment + 1]);
+                final SegmentApproach approach = segmentApproach(leftStart, leftEnd, rightStart, rightEnd);
+                final double leftAlong = Mth.lerp(
+                    approach.leftDelta(),
+                    left.distance[leftSegment],
+                    left.distance[leftSegment + 1]
+                );
+                final double rightAlong = Mth.lerp(
+                    approach.rightDelta(),
+                    right.distance[rightSegment],
+                    right.distance[rightSegment + 1]
+                );
+                if (leftAlong < JUNCTION_MIN_BRANCH_LENGTH
+                    || left.totalLength - leftAlong < JUNCTION_MIN_BRANCH_LENGTH
+                    || rightAlong < JUNCTION_MIN_BRANCH_LENGTH
+                    || right.totalLength - rightAlong < JUNCTION_MIN_BRANCH_LENGTH)
+                {
+                    continue;
+                }
+
+                // Topology must merge when the physical wet cores touch, not
+                // only when their mathematical centerlines enter a fixed
+                // four-block radius. Otherwise a high and a low stream can
+                // occupy the same visible water cells without sharing a node.
+                final double wetContactRadius = Math.min(
+                    JUNCTION_MAX_WET_CONTACT_RADIUS,
+                    Math.max(
+                        JUNCTION_DETECTION_RADIUS,
+                        left.sampleRadiusAtAlong(leftAlong) * Math.sqrt(NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+                            + right.sampleRadiusAtAlong(rightAlong) * Math.sqrt(NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+                            + JUNCTION_BLOCK_CONTACT_MARGIN
+                    )
+                );
+                if (approach.distanceSq() > wetContactRadius * wetContactRadius + 1.0e-9d)
+                {
+                    continue;
+                }
+
+                // A pair can touch once, diverge, and cross again. The old
+                // minimum-distance rule always chose the later exact crossing
+                // and left the earlier visible high/low contact uncoordinated.
+                // Choose the first contact reached by both downstream paths;
+                // distance only breaks ties at the same network progress.
+                final double progress = Math.max(
+                    leftAlong / left.totalLength,
+                    rightAlong / right.totalLength
+                );
+                if (progress > bestProgress + 1.0e-9d
+                    || Math.abs(progress - bestProgress) <= 1.0e-9d
+                        && approach.distanceSq() > bestDistanceSq + 1.0e-9d)
+                {
+                    continue;
+                }
+
+                bestProgress = progress;
+                bestDistanceSq = approach.distanceSq();
+                best = new RouteIntersection(
+                    leftSegment,
+                    approach.leftDelta(),
+                    leftAlong,
+                    rightSegment,
+                    approach.rightDelta(),
+                    rightAlong,
+                    lerp(approach.leftPoint(), approach.rightPoint(), 0.5d)
+                );
+            }
+        }
+        return best;
+    }
+
+    private static SegmentApproach segmentApproach(Vec leftStart, Vec leftEnd, Vec rightStart, Vec rightEnd)
+    {
+        final double ux = leftEnd.x() - leftStart.x();
+        final double uz = leftEnd.z() - leftStart.z();
+        final double vx = rightEnd.x() - rightStart.x();
+        final double vz = rightEnd.z() - rightStart.z();
+        final double wx = leftStart.x() - rightStart.x();
+        final double wz = leftStart.z() - rightStart.z();
+        final double a = ux * ux + uz * uz;
+        final double b = ux * vx + uz * vz;
+        final double c = vx * vx + vz * vz;
+        final double d = ux * wx + uz * wz;
+        final double e = vx * wx + vz * wz;
+        final double denominator = a * c - b * b;
+
+        double leftDelta = denominator <= 1.0e-9d ? 0d : Mth.clamp((b * e - c * d) / denominator, 0d, 1d);
+        double rightDelta = c <= 1.0e-9d ? 0d : Mth.clamp((b * leftDelta + e) / c, 0d, 1d);
+        leftDelta = a <= 1.0e-9d ? 0d : Mth.clamp((b * rightDelta - d) / a, 0d, 1d);
+        rightDelta = c <= 1.0e-9d ? 0d : Mth.clamp((b * leftDelta + e) / c, 0d, 1d);
+
+        final Vec leftPoint = lerp(leftStart, leftEnd, leftDelta);
+        final Vec rightPoint = lerp(rightStart, rightEnd, rightDelta);
+        return new SegmentApproach(
+            leftDelta,
+            rightDelta,
+            distanceSq(leftPoint, rightPoint),
+            leftPoint,
+            rightPoint
+        );
+    }
+
     private static final class Headwater
     {
         private final long seed;
         private final int seaLevel;
         private final int downstreamWidth;
         private final HeightSampler heights;
+        private final RouteObstacleSampler routeObstacles;
         @Nullable private final RiverEdge edge;
         private final double sourceX;
         private final double sourceZ;
@@ -648,15 +1319,28 @@ final class NTEHeadwaterNetwork
         @Nullable private volatile Route route;
         private volatile boolean replacement;
         private volatile boolean indexed;
+        private volatile boolean intersectionsCoordinated;
         @Nullable private String failureReason;
+        @Nullable private Vec failurePoint;
+        private int attemptedDrainageCandidates;
+        private int availableDrainageCandidates;
+        private final Set<Headwater> junctionPeers = Collections.newSetFromMap(new IdentityHashMap<>());
 
-        private Headwater(long seed, int seaLevel, int downstreamWidth, HeightSampler heights, RiverEdge edge)
+        private Headwater(
+            long seed,
+            int seaLevel,
+            int downstreamWidth,
+            HeightSampler heights,
+            RouteObstacleSampler routeObstacles,
+            RiverEdge edge
+        )
         {
             this(
                 seed,
                 seaLevel,
                 downstreamWidth,
                 heights,
+                routeObstacles,
                 edge,
                 edge.source().x() * Units.GRID_WIDTH_IN_BLOCK,
                 edge.source().y() * Units.GRID_WIDTH_IN_BLOCK,
@@ -676,7 +1360,18 @@ final class NTEHeadwaterNetwork
             double drainZ
         )
         {
-            this(seed, seaLevel, downstreamWidth, heights, null, sourceX, sourceZ, drainX, drainZ);
+            this(
+                seed,
+                seaLevel,
+                downstreamWidth,
+                heights,
+                NO_ROUTE_OBSTACLES,
+                null,
+                sourceX,
+                sourceZ,
+                drainX,
+                drainZ
+            );
         }
 
         private Headwater(
@@ -684,6 +1379,7 @@ final class NTEHeadwaterNetwork
             int seaLevel,
             int downstreamWidth,
             HeightSampler heights,
+            RouteObstacleSampler routeObstacles,
             @Nullable RiverEdge edge,
             double sourceX,
             double sourceZ,
@@ -695,6 +1391,7 @@ final class NTEHeadwaterNetwork
             this.seaLevel = seaLevel;
             this.downstreamWidth = downstreamWidth;
             this.heights = heights;
+            this.routeObstacles = routeObstacles;
             this.edge = edge;
             this.sourceX = sourceX;
             this.sourceZ = sourceZ;
@@ -758,11 +1455,6 @@ final class NTEHeadwaterNetwork
             return attempted ? replacement : null;
         }
 
-        private boolean hasFeederIfPlanned()
-        {
-            return attempted && route != null && !replacement;
-        }
-
         private boolean retainsTfcIfPlanned()
         {
             return attempted && !replacement;
@@ -787,7 +1479,7 @@ final class NTEHeadwaterNetwork
                         if (TRACE)
                         {
                             LOGGER.info(
-                                "[TFE][HeadwaterTrace] source=({}, {}) drain=({}, {}) width={} result={} points={} path={} reason={}",
+                                "[TFE][HeadwaterTrace] source=({}, {}) drain=({}, {}) width={} result={} points={} drainageTried={}/{} path={} reason={}",
                                 sourceX,
                                 sourceZ,
                                 drainX,
@@ -795,6 +1487,8 @@ final class NTEHeadwaterNetwork
                                 downstreamWidth,
                                 route == null ? "TFC_FALLBACK" : replacement ? "STREAM" : "TFC_WITH_FEEDER",
                                 route == null ? 0 : route.x.length,
+                                attemptedDrainageCandidates,
+                                availableDrainageCandidates,
                                 route == null ? "none" : route.summary(),
                                 failureReason == null ? "none" : failureReason
                             );
@@ -845,52 +1539,161 @@ final class NTEHeadwaterNetwork
             }
 
             final double[] terrain = new double[size];
+            final boolean[] blocked = new boolean[size];
             for (int z = 0; z < depth; z++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    terrain[index(x, z, width)] = heights.sample(
-                        (minCellX + x) * SAMPLE_STEP,
-                        (minCellZ + z) * SAMPLE_STEP
-                    );
+                    final int cell = index(x, z, width);
+                    final double blockX = (minCellX + x) * (double) SAMPLE_STEP;
+                    final double blockZ = (minCellZ + z) * (double) SAMPLE_STEP;
+                    terrain[cell] = heights.sample(Mth.floor(blockX), Mth.floor(blockZ));
+                    blocked[cell] = routeObstacles.blocks(edge, blockX, blockZ, TFC_RIVER_GRID_CLEARANCE);
                 }
             }
 
             final int nominalSourceX = Mth.clamp((int) Math.round(sourceX / SAMPLE_STEP) - minCellX, 0, width - 1);
             final int nominalSourceZ = Mth.clamp((int) Math.round(sourceZ / SAMPLE_STEP) - minCellZ, 0, depth - 1);
-            final int start = chooseSource(nominalSourceX, nominalSourceZ, width, depth, terrain);
             final int goalX = Mth.clamp((int) Math.round(drainX / SAMPLE_STEP) - minCellX, 0, width - 1);
             final int goalZ = Mth.clamp((int) Math.round(drainZ / SAMPLE_STEP) - minCellZ, 0, depth - 1);
             final int goal = index(goalX, goalZ, width);
 
-            final int[] parent = search(start, goal, minCellX, minCellZ, width, depth, terrain);
-            if (parent == null || parent[goal] < 0)
+            final DrainageField drainage = buildDrainageField(
+                goal,
+                minCellX,
+                minCellZ,
+                width,
+                depth,
+                terrain,
+                blocked
+            );
+            final List<SourceCandidate> sources = chooseDrainageSources(
+                nominalSourceX,
+                nominalSourceZ,
+                width,
+                depth,
+                terrain,
+                drainage,
+                blocked
+            );
+            if (sources.isEmpty())
             {
-                return fail("no_route");
+                return fail("no_drainage_source");
+            }
+            availableDrainageCandidates = sources.size();
+
+            String lastFailure = "none";
+            int attemptedCandidates = 0;
+            final double[] routePenalty = new double[size];
+            Route bestRoute = null;
+            IncisionRisk bestRisk = null;
+            for (SourceCandidate source : sources)
+            {
+                final List<Vec> drainageRoute = searchDrainageAlternative(
+                    source.index(),
+                    goal,
+                    minCellX,
+                    minCellZ,
+                    width,
+                    depth,
+                    terrain,
+                    drainage,
+                    routePenalty,
+                    blocked
+                );
+                if (drainageRoute == null || drainageRoute.size() < 2)
+                {
+                    lastFailure = "broken_drainage_route";
+                    continue;
+                }
+
+                final List<Vec> raw = snapRouteToValleys(drainageRoute);
+                raw.set(raw.size() - 1, new Vec(drainX, drainZ));
+                final Vec rawObstacle = firstRouteObstacle(raw);
+                if (rawObstacle != null)
+                {
+                    lastFailure = String.format(
+                        "unrelated_tfc_river at=(%.1f,%.1f)",
+                        rawObstacle.x(),
+                        rawObstacle.z()
+                    );
+                    applyFailedRoutePenalty(
+                        drainageRoute,
+                        rawObstacle,
+                        goal,
+                        minCellX,
+                        minCellZ,
+                        width,
+                        depth,
+                        routePenalty
+                    );
+                    continue;
+                }
+                attemptedCandidates++;
+                attemptedDrainageCandidates = attemptedCandidates;
+                failureReason = null;
+                failurePoint = null;
+                final Route candidate = buildFullRoute(raw, smoothingPasses);
+                if (candidate != null)
+                {
+                    final IncisionRisk risk = evaluateIncisionRisk(
+                        candidate,
+                        MAX_NORMAL_INCISION,
+                        MAX_OUTLET_ADAPTER_INCISION
+                    );
+                    if (risk.preferredTo(bestRisk))
+                    {
+                        bestRoute = candidate;
+                        bestRisk = risk;
+                    }
+                    if (risk.withinPreferredRange())
+                    {
+                        return candidate;
+                    }
+                    lastFailure = String.format(
+                        "incision_risk score=%.2f maxExcess=%d points=%d",
+                        risk.score(),
+                        risk.maximumExcess(),
+                        risk.exceedingPoints()
+                    );
+                    applyFailedRoutePenalty(
+                        drainageRoute,
+                        risk.worstPoint(),
+                        goal,
+                        minCellX,
+                        minCellZ,
+                        width,
+                        depth,
+                        routePenalty
+                    );
+                    continue;
+                }
+                lastFailure = failureReason == null ? "unknown" : failureReason;
+                applyFailedRoutePenalty(
+                    drainageRoute,
+                    failurePoint,
+                    goal,
+                    minCellX,
+                    minCellZ,
+                    width,
+                    depth,
+                    routePenalty
+                );
             }
 
-            final List<Vec> raw = new ArrayList<>();
-            int cursor = goal;
-            while (cursor != -1)
+            if (bestRoute != null)
             {
-                final int cellX = cursor % width;
-                final int cellZ = cursor / width;
-                raw.add(new Vec(
-                    (minCellX + cellX) * (double) SAMPLE_STEP,
-                    (minCellZ + cellZ) * (double) SAMPLE_STEP
-                ));
-                if (cursor == start)
-                {
-                    break;
-                }
-                cursor = parent[cursor];
+                failureReason = null;
+                failurePoint = null;
+                return bestRoute;
             }
-            Collections.reverse(raw);
-            if (raw.size() < 2)
-            {
-                return fail("short_raw_route");
-            }
-            raw.set(raw.size() - 1, new Vec(drainX, drainZ));
+
+            return fail("drainage_candidates_exhausted count=" + attemptedCandidates + " last=" + lastFailure);
+        }
+
+        @Nullable
+        private Route buildFullRoute(List<Vec> raw, int smoothingPasses)
+        {
 
             final RiverEdge receiver = edge == null ? null : edge.drainEdge();
             final OutletRoute outlet = alignWithReceiver(
@@ -900,12 +1703,17 @@ final class NTEHeadwaterNetwork
             );
             if (outlet == null)
             {
-                return fail("receiver_alignment");
+                return failAt("receiver_alignment", raw.get(raw.size() - 1));
             }
             final List<Vec> smooth = outlet.points();
             if (smooth.size() < 2)
             {
-                return fail("route_entirely_inside_receiver");
+                return failAt("route_entirely_inside_receiver", raw.get(raw.size() / 2));
+            }
+            final Vec obstacle = firstRouteObstacle(smooth);
+            if (obstacle != null)
+            {
+                return failAt("unrelated_tfc_river", obstacle);
             }
             final int pointCount = smooth.size();
             final double[] x = new double[pointCount];
@@ -926,7 +1734,7 @@ final class NTEHeadwaterNetwork
             final double totalLength = distance[pointCount - 1];
             if (totalLength < 96d)
             {
-                return fail("route_under_96_blocks");
+                return failAt("route_under_96_blocks", smooth.get(smooth.size() / 2));
             }
 
             final double[] radius = new double[pointCount];
@@ -951,12 +1759,12 @@ final class NTEHeadwaterNetwork
                 );
                 if (capacity[i] + 1.0e-6d < outletWater)
                 {
-                    return fail(String.format(
+                    return failAt(String.format(
                         "route_below_outlet_water index=%d capacity=%.2f outletWater=%.2f",
                         i,
                         capacity[i],
                         outletWater
-                    ));
+                    ), smooth.get(i));
                 }
             }
 
@@ -977,26 +1785,6 @@ final class NTEHeadwaterNetwork
                 waterY[i] = Math.min(waterY[i], waterY[i + 1] + segmentLength * MAX_CASCADE_SLOPE);
             }
 
-            for (int i = 0; i < pointCount; i++)
-            {
-                final double incision = terrainY[i] - CENTER_SURFACE_INSET - waterY[i];
-                final double distanceToOutlet = totalLength - distance[i];
-                final double allowedIncision = distanceToOutlet <= OUTLET_ADAPTER_LENGTH
-                    ? MAX_OUTLET_ADAPTER_INCISION
-                    : MAX_NORMAL_INCISION;
-                if (incision > allowedIncision)
-                {
-                    return fail(String.format(
-                        "deep_incision index=%d terrain=%.2f water=%.2f incision=%.2f allowed=%.2f",
-                        i,
-                        terrainY[i],
-                        waterY[i],
-                        incision,
-                        allowedIncision
-                    ));
-                }
-            }
-
             return new Route(
                 x,
                 z,
@@ -1006,8 +1794,58 @@ final class NTEHeadwaterNetwork
                 distance,
                 totalLength,
                 outlet.receiverMouth(),
-                outlet.alignment()
+                outlet.alignment(),
+                outletWater
             );
+        }
+
+        /**
+         * Compare completed candidates by the excavation they would expose.
+         * Exceeding the old preferred range is a planning cost, not a later
+         * veto: isolated one-block excesses are cheap, while deep or sustained
+         * artificial trenches grow quadratically and are avoided whenever a
+         * gentler candidate exists.
+         */
+        private static IncisionRisk evaluateIncisionRisk(
+            Route route,
+            double normalPreferredIncision,
+            double outletPreferredIncision
+        )
+        {
+            double score = 0d;
+            double continuousLength = 0d;
+            int maximumExcess = 0;
+            int exceedingPoints = 0;
+            Vec worstPoint = null;
+            for (int i = 0; i < route.x.length; i++)
+            {
+                final double distanceToOutlet = route.totalLength - route.distance[i];
+                final int preferredVisible = Mth.ceil(distanceToOutlet <= OUTLET_ADAPTER_LENGTH
+                    ? outletPreferredIncision
+                    : normalPreferredIncision);
+                final int excess = Math.max(
+                    0,
+                    visibleIncisionDepth(route.terrainY[i], route.waterY[i]) - preferredVisible
+                );
+                if (excess == 0)
+                {
+                    continuousLength = 0d;
+                    continue;
+                }
+
+                exceedingPoints++;
+                continuousLength += i == 0
+                    ? 1d
+                    : Math.max(1d, route.distance[i] - route.distance[i - 1]);
+                score += excess * excess * PLANNED_INCISION_EXCESS_COST
+                    + excess * continuousLength * 0.35d;
+                if (excess > maximumExcess)
+                {
+                    maximumExcess = excess;
+                    worstPoint = new Vec(route.x[i], route.z[i]);
+                }
+            }
+            return new IncisionRisk(score, maximumExcess, exceedingPoints, worstPoint);
         }
 
         /**
@@ -1032,22 +1870,28 @@ final class NTEHeadwaterNetwork
             }
 
             final double[] terrain = new double[size];
+            final boolean[] blocked = new boolean[size];
             for (int z = 0; z < depth; z++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    terrain[index(x, z, width)] = heights.sample(
-                        (minCellX + x) * SAMPLE_STEP,
-                        (minCellZ + z) * SAMPLE_STEP
-                    );
+                    final int cell = index(x, z, width);
+                    final double blockX = (minCellX + x) * (double) SAMPLE_STEP;
+                    final double blockZ = (minCellZ + z) * (double) SAMPLE_STEP;
+                    terrain[cell] = heights.sample(Mth.floor(blockX), Mth.floor(blockZ));
+                    blocked[cell] = routeObstacles.blocks(edge, blockX, blockZ, TFC_RIVER_GRID_CLEARANCE);
                 }
             }
 
             final int nominalSourceX = Mth.clamp((int) Math.round(sourceX / SAMPLE_STEP) - minCellX, 0, width - 1);
             final int nominalSourceZ = Mth.clamp((int) Math.round(sourceZ / SAMPLE_STEP) - minCellZ, 0, depth - 1);
-            final int start = chooseSource(nominalSourceX, nominalSourceZ, width, depth, terrain);
+            final int start = chooseSource(nominalSourceX, nominalSourceZ, width, depth, terrain, blocked);
             final int goal = index(nominalSourceX, nominalSourceZ, width);
-            final int[] parent = search(start, goal, minCellX, minCellZ, width, depth, terrain);
+            if (start < 0)
+            {
+                return failFeeder("no_unobstructed_source");
+            }
+            final int[] parent = search(start, goal, minCellX, minCellZ, width, depth, terrain, blocked);
             if (parent == null || parent[goal] < 0)
             {
                 return failFeeder("no_route");
@@ -1076,19 +1920,58 @@ final class NTEHeadwaterNetwork
             }
             raw.set(raw.size() - 1, new Vec(sourceX, sourceZ));
 
-            // A feeder is a conservative fallback for a retained TFC leaf. Its
-            // physical channel ends at the first contact with the retained TFC
-            // water core; the remaining graph overlap belongs to TFC itself.
-            final OutletRoute outlet = clipAtReceiver(
-                smoothRoute(raw, 1),
+            // A feeder is a conservative fallback for a retained TFC leaf. If
+            // its terrain-planned approach falls outside the near-parallel
+            // target cone, turn it on the creek side of the shared node before
+            // yielding ownership at the first TFC water-core hit.
+            final List<Vec> rounded = smoothRoute(raw, 1);
+            final double joinRadius = Mth.clamp(downstreamWidth * 0.18d, 1.4d, 2.0d);
+            OutletRoute outlet = clipAtReceiver(
+                rounded,
                 edge,
                 FEEDER_RECEIVER_WIDTH_SCALE,
                 downstreamWidth
             );
+            if (edge != null)
+            {
+                final ReceiverPath retainedPath = receiverPath(edge);
+                if (approachFlowDot(rounded, retainedPath) < SOURCE_ALIGNMENT_TARGET_CONTACT_DOT)
+                {
+                    final OutletRoute aligned = alignRoute(
+                        rounded,
+                        retainedPath,
+                        FEEDER_RECEIVER_WIDTH_SCALE,
+                        joinRadius
+                    );
+                    if (aligned.alignment() != null)
+                    {
+                        final OutletRoute clipped = clipAtReceiver(
+                            aligned.points(),
+                            edge,
+                            FEEDER_RECEIVER_WIDTH_SCALE,
+                            downstreamWidth
+                        );
+                        if (clipped.points().size() >= 2
+                            && polylineLength(clipped.points()) >= SOURCE_EXTENSION_MIN - SAMPLE_STEP)
+                        {
+                            outlet = clipped;
+                        }
+                    }
+                }
+            }
             final List<Vec> smooth = outlet.points();
             if (smooth.size() < 2)
             {
                 return failFeeder("route_entirely_inside_receiver");
+            }
+            final Vec obstacle = firstRouteObstacle(smooth);
+            if (obstacle != null)
+            {
+                return failFeeder(String.format(
+                    "unrelated_tfc_river at=(%.1f,%.1f)",
+                    obstacle.x(),
+                    obstacle.z()
+                ));
             }
             final int pointCount = smooth.size();
             final double[] x = new double[pointCount];
@@ -1113,7 +1996,6 @@ final class NTEHeadwaterNetwork
             }
 
             final double[] radius = new double[pointCount];
-            final double joinRadius = Mth.clamp(downstreamWidth * 0.18d, 1.4d, 2.0d);
             for (int i = 0; i < pointCount; i++)
             {
                 final double progress = distance[i] / totalLength;
@@ -1142,24 +2024,15 @@ final class NTEHeadwaterNetwork
             {
                 waterY[i] = Math.max(minimumWater, Math.min(waterY[i - 1], capacity[i]));
             }
+            // A fallback feeder still has to reach the retained river's real
+            // water layer. Previously its last sample stayed at local terrain
+            // height and the later mouth adapter could lower it by only two
+            // blocks, leaving a dry vertical gap above the native river.
+            waterY[pointCount - 1] = minimumWater;
             for (int i = pointCount - 2; i >= 0; i--)
             {
                 final double segmentLength = Math.max(1.0e-6d, distance[i + 1] - distance[i]);
                 waterY[i] = Math.min(waterY[i], waterY[i + 1] + segmentLength * MAX_CASCADE_SLOPE);
-            }
-            for (int i = 0; i < pointCount; i++)
-            {
-                final double incision = terrainY[i] - CENTER_SURFACE_INSET - waterY[i];
-                if (incision > MAX_FEEDER_INCISION)
-                {
-                    return failFeeder(String.format(
-                        "deep_incision index=%d terrain=%.2f water=%.2f incision=%.2f",
-                        i,
-                        terrainY[i],
-                        waterY[i],
-                        incision
-                    ));
-                }
             }
             return new Route(
                 x,
@@ -1170,7 +2043,8 @@ final class NTEHeadwaterNetwork
                 distance,
                 totalLength,
                 outlet.receiverMouth(),
-                null
+                outlet.alignment(),
+                minimumWater
             );
         }
 
@@ -1179,6 +2053,13 @@ final class NTEHeadwaterNetwork
         {
             failureReason = reason;
             return null;
+        }
+
+        @Nullable
+        private Route failAt(String reason, Vec point)
+        {
+            failurePoint = point;
+            return fail(String.format("%s at=(%.1f,%.1f)", reason, point.x(), point.z()));
         }
 
         @Nullable
@@ -1230,37 +2111,131 @@ final class NTEHeadwaterNetwork
 
         private static OutletRoute alignRoute(List<Vec> route, ReceiverPath receiverPath)
         {
+            final double streamRadius = Mth.clamp(receiverPath.width() * 0.45d, 3.2d, 5.5d);
+            return alignRoute(route, receiverPath, 1d, streamRadius);
+        }
+
+        private static OutletRoute alignRoute(
+            List<Vec> route,
+            ReceiverPath receiverPath,
+            double receiverWidthScale,
+            double supplementalRadius
+        )
+        {
             if (receiverPath.points().size() < 2 || route.size() < 3)
             {
                 return new OutletRoute(route, false, receiverPath.width(), null);
             }
 
-            final int rewriteStart = findRewriteStart(route, SOURCE_ALIGNMENT_REWRITE_LENGTH);
+            // The graph node shared by route.last() and the receiver source is
+            // the authoritative join. Looking up the receiver from the rewrite
+            // start can snap to an unrelated nearby bend and create a false,
+            // visibly reversed confluence.
+            final double connectionAlong = nearestAlong(
+                receiverPath.points(),
+                route.get(route.size() - 1)
+            );
+            final double flowDot = approachFlowDot(route, receiverPath, connectionAlong);
+            final double turnSeverity = Mth.clamp(
+                (SOURCE_ALIGNMENT_TARGET_CONTACT_DOT - flowDot)
+                    / (SOURCE_ALIGNMENT_TARGET_CONTACT_DOT + 1d),
+                0d,
+                1d
+            );
+            final int attempts = turnSeverity > 0d ? SOURCE_ALIGNMENT_MAX_ATTEMPTS : 1;
+            final double contactRadius = receiverPath.width()
+                * receiverWidthScale
+                * Math.sqrt(NTERiverHydrology.TFC_WATER_CORE_RADIUS_SQ)
+                + supplementalRadius * Math.sqrt(NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ);
+
+            AlignmentCandidate best = null;
+            for (int attempt = 0; attempt < attempts; attempt++)
+            {
+                final double retryExtension = attempt * SOURCE_ALIGNMENT_RETRY_EXTENSION;
+                final double rewriteLength = SOURCE_ALIGNMENT_REWRITE_LENGTH
+                    + turnSeverity * SOURCE_ALIGNMENT_MAX_EXTENSION
+                    + retryExtension;
+                final AlignmentCandidate candidate = alignmentCandidate(
+                    route,
+                    receiverPath,
+                    connectionAlong,
+                    rewriteLength,
+                    turnSeverity,
+                    attempt,
+                    contactRadius
+                );
+                if (candidate != null && (best == null || candidate.contactDot() > best.contactDot()))
+                {
+                    best = candidate;
+                }
+                if (candidate != null && candidate.contactDot() >= SOURCE_ALIGNMENT_TARGET_CONTACT_DOT)
+                {
+                    break;
+                }
+            }
+
+            if (best == null)
+            {
+                return new OutletRoute(route, false, receiverPath.width(), null);
+            }
+
+            final ReceiverAlignment alignment = new ReceiverAlignment(
+                null,
+                List.copyOf(receiverPath.points()),
+                connectionAlong,
+                connectionAlong,
+                receiverPath.width()
+            );
+            return new OutletRoute(best.points(), true, receiverPath.width(), alignment);
+        }
+
+        @Nullable
+        private static AlignmentCandidate alignmentCandidate(
+            List<Vec> route,
+            ReceiverPath receiverPath,
+            double connectionAlong,
+            double rewriteLength,
+            double turnSeverity,
+            int attempt,
+            double contactRadius
+        )
+        {
+            final int rewriteStart = findRewriteStart(route, rewriteLength);
             final List<Vec> prefix = new ArrayList<>(route.subList(0, rewriteStart + 1));
-            final Vec start = prefix.get(prefix.size() - 1);
+            final int connectorStart = prefix.size() - 1;
+            final Vec start = prefix.get(connectorStart);
             final Vec incoming = normalizedDirection(route.get(Math.max(0, rewriteStart - 2)), route.get(rewriteStart));
             if (vectorLength(incoming) < 1.0e-6d)
             {
-                return new OutletRoute(route, false, receiverPath.width(), null);
+                return null;
             }
 
-            final double nearestAlong = nearestAlong(receiverPath.points(), start);
-            final double anchorAlong = Mth.clamp(
-                nearestAlong + SOURCE_ALIGNMENT_LENGTH,
-                0d,
-                polylineLength(receiverPath.points())
+            // Keep the graph join as the actual geometric endpoint. Following
+            // the receiver downstream made the replacement creek run beside
+            // the retained river and subjected that artificial tail to terrain
+            // validation, which caused both parallel misses and mass fallback.
+            final Vec anchor = route.get(route.size() - 1);
+            final Vec receiverDirection = directionAlong(
+                receiverPath.points(),
+                Math.min(polylineLength(receiverPath.points()), connectionAlong + 1.0e-3d)
             );
-            final Vec anchor = pointAlong(receiverPath.points(), anchorAlong);
-            final Vec receiverDirection = directionAlong(receiverPath.points(), anchorAlong);
             final double directLength = distance(start, anchor);
             if (directLength < SOURCE_ALIGNMENT_LENGTH * 0.45d || vectorLength(receiverDirection) < 1.0e-6d)
             {
-                return new OutletRoute(route, false, receiverPath.width(), null);
+                return null;
             }
 
-            final double tangentLength = Math.min(SOURCE_ALIGNMENT_LENGTH * 0.72d, directLength * 0.62d);
-            final Vec startControl = add(start, scale(incoming, tangentLength));
-            final Vec endControl = add(anchor, scale(receiverDirection, -tangentLength));
+            // The visible merge should already be nearly parallel to the receiver's flow,
+            // not merely non-obtuse. Scale every approach outside the target
+            // cone and retry with more room; a nearly parallel merge retains
+            // the established compact geometry.
+            final double tangentLimit = SOURCE_ALIGNMENT_LENGTH * 0.72d
+                + turnSeverity * SOURCE_ALIGNMENT_MAX_EXTENSION * 0.75d
+                + attempt * SOURCE_ALIGNMENT_RETRY_EXTENSION * 0.25d;
+            final double startTangentLength = Math.min(tangentLimit, directLength * 0.62d);
+            final double receiverTangentLength = Math.min(tangentLimit * 1.35d, directLength * 0.88d);
+            final Vec startControl = add(start, scale(incoming, startTangentLength));
+            final Vec endControl = add(anchor, scale(receiverDirection, -receiverTangentLength));
             final int steps = Math.max(8, Mth.ceil(directLength / SOURCE_ALIGNMENT_SAMPLE_SPACING));
             for (int step = 1; step <= steps; step++)
             {
@@ -1273,14 +2248,64 @@ final class NTEHeadwaterNetwork
                 ));
             }
 
-            final ReceiverAlignment alignment = new ReceiverAlignment(
-                null,
-                List.copyOf(receiverPath.points()),
-                nearestAlong,
-                anchorAlong,
-                receiverPath.width()
+            return new AlignmentCandidate(
+                List.copyOf(prefix),
+                firstContactFlowDot(prefix, connectorStart, receiverPath, contactRadius)
             );
-            return new OutletRoute(List.copyOf(prefix), true, receiverPath.width(), alignment);
+        }
+
+        private static double approachFlowDot(List<Vec> route, ReceiverPath receiverPath)
+        {
+            final double connectionAlong = nearestAlong(
+                receiverPath.points(),
+                route.get(route.size() - 1)
+            );
+            return approachFlowDot(route, receiverPath, connectionAlong);
+        }
+
+        private static double approachFlowDot(
+            List<Vec> route,
+            ReceiverPath receiverPath,
+            double connectionAlong
+        )
+        {
+            final double routeLength = polylineLength(route);
+            final Vec approachStart = pointAlong(
+                route,
+                Math.max(0d, routeLength - SOURCE_ALIGNMENT_FLOW_LOOKBACK)
+            );
+            final Vec incoming = normalizedDirection(approachStart, route.get(route.size() - 1));
+            final double receiverLength = polylineLength(receiverPath.points());
+            final Vec receiverDirection = directionAlong(
+                receiverPath.points(),
+                Math.min(receiverLength, connectionAlong + 1.0e-3d)
+            );
+            return directionDot(incoming, receiverDirection);
+        }
+
+        private static double firstContactFlowDot(
+            List<Vec> route,
+            int connectorStart,
+            ReceiverPath receiverPath,
+            double contactRadius
+        )
+        {
+            final double contactRadiusSq = contactRadius * contactRadius;
+            for (int i = Math.max(1, connectorStart + 1); i < route.size(); i++)
+            {
+                final Vec current = route.get(i);
+                if (distanceSqToPolyline(receiverPath.points(), current) <= contactRadiusSq)
+                {
+                    final Vec currentDirection = normalizedDirection(route.get(i - 1), current);
+                    final double receiverAlong = nearestAlong(receiverPath.points(), current);
+                    final Vec receiverDirection = directionAlong(
+                        receiverPath.points(),
+                        Math.min(polylineLength(receiverPath.points()), receiverAlong + 1.0e-3d)
+                    );
+                    return directionDot(currentDirection, receiverDirection);
+                }
+            }
+            return -1d;
         }
 
         private static OutletRoute clipAtReceiver(
@@ -1326,11 +2351,22 @@ final class NTEHeadwaterNetwork
                         }
                         clipped.add(lerp(previous, current, inside));
                     }
+                    final List<Vec> clippedRoute = List.copyOf(clipped);
+                    final Vec anchor = clippedRoute.get(clippedRoute.size() - 1);
+                    final double receiverWidth = receiverWidthAt(receiver, anchor);
+                    final ReceiverPath retainedPath = receiverPath(receiver);
+                    final double anchorAlong = nearestAlong(retainedPath.points(), anchor);
                     return new OutletRoute(
-                        List.copyOf(clipped),
+                        clippedRoute,
                         true,
-                        receiverWidthAt(receiver, current),
-                        null
+                        receiverWidth,
+                        new ReceiverAlignment(
+                            null,
+                            retainedPath.points(),
+                            anchorAlong,
+                            anchorAlong,
+                            receiverWidth
+                        )
                     );
                 }
                 clipped.add(current);
@@ -1350,6 +2386,18 @@ final class NTEHeadwaterNetwork
                     segments[i] * Units.GRID_WIDTH_IN_BLOCK,
                     segments[i + 1] * Units.GRID_WIDTH_IN_BLOCK
                 ));
+            }
+            if (points.size() >= 2)
+            {
+                final Vec topologySource = new Vec(
+                    receiver.source().x() * Units.GRID_WIDTH_IN_BLOCK,
+                    receiver.source().y() * Units.GRID_WIDTH_IN_BLOCK
+                );
+                if (distance(points.get(points.size() - 1), topologySource)
+                    < distance(points.get(0), topologySource))
+                {
+                    Collections.reverse(points);
+                }
             }
             final double width = points.isEmpty() ? receiver.width : receiverWidthAt(receiver, points.get(0));
             return new ReceiverPath(List.copyOf(points), width);
@@ -1372,14 +2420,483 @@ final class NTEHeadwaterNetwork
             return distanceSqBlocks / receiver.widthSq(gridX, gridZ);
         }
 
-        private int chooseSource(int nominalX, int nominalZ, int width, int depth, double[] terrain)
+        /**
+         * Build one deterministic, receiver-rooted drainage tree. The spill
+         * elevation is a local priority-flood analogue: every cell is linked
+         * to the neighbour that reaches the retained TFC outlet over the
+         * lowest possible saddle, with travel distance and cell id providing
+         * stable tie-breakers. Unlike the former point-to-point A*, this field
+         * describes all viable upstream approaches before a spring is chosen.
+         */
+        private DrainageField buildDrainageField(
+            int goal,
+            int minCellX,
+            int minCellZ,
+            int width,
+            int depth,
+            double[] terrain,
+            boolean[] blocked
+        )
+        {
+            final int size = width * depth;
+            final int[] downstream = new int[size];
+            final double[] spill = new double[size];
+            final double[] travel = new double[size];
+            Arrays.fill(downstream, -1);
+            Arrays.fill(spill, Double.POSITIVE_INFINITY);
+            Arrays.fill(travel, Double.POSITIVE_INFINITY);
+
+            final PriorityQueue<DrainageNode> open = new PriorityQueue<>(
+                Comparator.comparingDouble(DrainageNode::spill)
+                    .thenComparingDouble(DrainageNode::travel)
+                    .thenComparingInt(DrainageNode::index)
+            );
+            spill[goal] = terrain[goal];
+            travel[goal] = 0d;
+            open.add(new DrainageNode(goal, spill[goal], 0d));
+
+            while (!open.isEmpty())
+            {
+                final DrainageNode node = open.poll();
+                if (node.spill() > spill[node.index()] + DRAINAGE_SPILL_EPSILON
+                    || node.travel() > travel[node.index()] + DRAINAGE_SPILL_EPSILON)
+                {
+                    continue;
+                }
+
+                final int currentX = node.index() % width;
+                final int currentZ = node.index() / width;
+                for (int direction = 0; direction < DRAINAGE_DIRECTIONS.length; direction += 2)
+                {
+                    final int nextX = currentX + DRAINAGE_DIRECTIONS[direction];
+                    final int nextZ = currentZ + DRAINAGE_DIRECTIONS[direction + 1];
+                    if (nextX < 0 || nextZ < 0 || nextX >= width || nextZ >= depth)
+                    {
+                        continue;
+                    }
+
+                    final int next = index(nextX, nextZ, width);
+                    if (blocked[next] && next != goal)
+                    {
+                        continue;
+                    }
+                    if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    {
+                        continue;
+                    }
+                    final double step = DRAINAGE_DIRECTIONS[direction] == 0
+                        || DRAINAGE_DIRECTIONS[direction + 1] == 0 ? 1d : Math.sqrt(2d);
+                    final double nextSpill = Math.max(node.spill(), terrain[next]);
+                    final double nextTravel = node.travel() + step;
+                    final boolean lowerSpill = nextSpill < spill[next] - DRAINAGE_SPILL_EPSILON;
+                    final boolean equalSpill = Math.abs(nextSpill - spill[next]) <= DRAINAGE_SPILL_EPSILON;
+                    final boolean shorter = nextTravel < travel[next] - DRAINAGE_SPILL_EPSILON;
+                    final boolean stableTie = Math.abs(nextTravel - travel[next]) <= DRAINAGE_SPILL_EPSILON
+                        && (downstream[next] < 0 || node.index() < downstream[next]);
+                    if (lowerSpill || equalSpill && (shorter || stableTie))
+                    {
+                        spill[next] = nextSpill;
+                        travel[next] = nextTravel;
+                        downstream[next] = node.index();
+                        open.add(new DrainageNode(next, nextSpill, nextTravel));
+                    }
+                }
+            }
+
+            final double[] accumulation = new double[size];
+            final List<Integer> upstreamFirst = new ArrayList<>(size);
+            for (int cell = 0; cell < size; cell++)
+            {
+                if (cell == goal || downstream[cell] >= 0)
+                {
+                    final int x = cell % width;
+                    final int z = cell / width;
+                    accumulation[cell] = 1d + Math.min(4d, valleyBonus(x, z, width, depth, terrain) * 0.35d);
+                    upstreamFirst.add(cell);
+                }
+            }
+            upstreamFirst.sort((left, right) -> {
+                final int distanceOrder = Double.compare(travel[right], travel[left]);
+                return distanceOrder != 0 ? distanceOrder : Integer.compare(left, right);
+            });
+            for (int cell : upstreamFirst)
+            {
+                final int next = downstream[cell];
+                if (next >= 0)
+                {
+                    accumulation[next] += accumulation[cell];
+                }
+            }
+
+            return new DrainageField(downstream, spill, accumulation);
+        }
+
+        private List<SourceCandidate> chooseDrainageSources(
+            int nominalX,
+            int nominalZ,
+            int width,
+            int depth,
+            double[] terrain,
+            DrainageField drainage,
+            boolean[] blocked
+        )
         {
             final double downstreamX = drainX - sourceX;
             final double downstreamZ = drainZ - sourceZ;
             final double downstreamLength = Math.hypot(downstreamX, downstreamZ);
             if (downstreamLength < 1.0e-6d)
             {
-                return chooseNearbySource(nominalX, nominalZ, width, depth, terrain);
+                final int nearby = chooseNearbySource(nominalX, nominalZ, width, depth, terrain, blocked);
+                return nearby >= 0 && drainage.downstream()[nearby] >= 0
+                    ? List.of(new SourceCandidate(nearby, 0d))
+                    : List.of();
+            }
+
+            final double upstreamX = -downstreamX / downstreamLength;
+            final double upstreamZ = -downstreamZ / downstreamLength;
+            final List<SourceCandidate> ranked = new ArrayList<>();
+            for (int z = 1; z < depth - 1; z++)
+            {
+                for (int x = 1; x < width - 1; x++)
+                {
+                    final int candidate = index(x, z, width);
+                    if (blocked[candidate]
+                        || drainage.downstream()[candidate] < 0
+                        || terrain[candidate] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    {
+                        continue;
+                    }
+
+                    final double deltaX = (x - nominalX) * (double) SAMPLE_STEP;
+                    final double deltaZ = (z - nominalZ) * (double) SAMPLE_STEP;
+                    final double along = deltaX * upstreamX + deltaZ * upstreamZ;
+                    if (along < SOURCE_EXTENSION_MIN || along > SOURCE_EXTENSION_MAX)
+                    {
+                        continue;
+                    }
+                    final double lateral = Math.abs(deltaX * upstreamZ - deltaZ * upstreamX);
+                    if (lateral > SOURCE_EXTENSION_LATERAL)
+                    {
+                        continue;
+                    }
+
+                    final double barrier = Math.max(0d, drainage.spill()[candidate] - terrain[candidate]);
+                    final double valley = valleyBonus(x, z, width, depth, terrain);
+                    final double score = Math.log1p(drainage.accumulation()[candidate]) * 10d
+                        + valley * 3.5d
+                        + Math.max(0d, terrain[candidate] - terrain[index(nominalX, nominalZ, width)]) * 0.12d
+                        + along * 0.012d
+                        - lateral * 0.025d
+                        - barrier * 18d;
+                    ranked.add(new SourceCandidate(candidate, score));
+                }
+            }
+
+            ranked.sort(Comparator.comparingDouble(SourceCandidate::score).reversed()
+                .thenComparingInt(SourceCandidate::index));
+            final List<SourceCandidate> selected = new ArrayList<>(MAX_DRAINAGE_SOURCE_CANDIDATES);
+            for (SourceCandidate candidate : ranked)
+            {
+                final int candidateX = candidate.index() % width;
+                final int candidateZ = candidate.index() / width;
+                boolean separated = true;
+                for (SourceCandidate existing : selected)
+                {
+                    final double dx = (candidateX - existing.index() % width) * (double) SAMPLE_STEP;
+                    final double dz = (candidateZ - existing.index() / width) * (double) SAMPLE_STEP;
+                    if (Math.hypot(dx, dz) < DRAINAGE_SOURCE_SEPARATION)
+                    {
+                        separated = false;
+                        break;
+                    }
+                }
+                if (separated)
+                {
+                    selected.add(candidate);
+                    if (selected.size() >= MAX_DRAINAGE_SOURCE_CANDIDATES)
+                    {
+                        break;
+                    }
+                }
+            }
+            return selected;
+        }
+
+        /**
+         * Search one route through the drainage field. The first pass strongly
+         * prefers the receiver-rooted drainage tree; later passes receive a
+         * penalty field from failed candidates, so a different spring can
+         * approach the same retained outlet through a genuinely different
+         * corridor instead of immediately merging onto the failed trunk.
+         */
+        @Nullable
+        private List<Vec> searchDrainageAlternative(
+            int start,
+            int goal,
+            int minCellX,
+            int minCellZ,
+            int width,
+            int depth,
+            double[] terrain,
+            DrainageField drainage,
+            double[] routePenalty,
+            boolean[] blocked
+        )
+        {
+            final int size = width * depth;
+            final double[] cost = new double[size];
+            final int[] parent = new int[size];
+            final boolean[] closed = new boolean[size];
+            Arrays.fill(cost, Double.POSITIVE_INFINITY);
+            Arrays.fill(parent, -1);
+
+            final int goalX = goal % width;
+            final int goalZ = goal / width;
+            final PriorityQueue<SearchNode> open = new PriorityQueue<>(
+                Comparator.comparingDouble(SearchNode::score).thenComparingInt(SearchNode::index)
+            );
+            cost[start] = 0d;
+            open.add(new SearchNode(start, heuristic(start % width, start / width, goalX, goalZ)));
+            while (!open.isEmpty())
+            {
+                final int current = open.poll().index();
+                if (closed[current])
+                {
+                    continue;
+                }
+                closed[current] = true;
+                if (current == goal)
+                {
+                    break;
+                }
+
+                final int currentX = current % width;
+                final int currentZ = current / width;
+                for (int direction = 0; direction < DRAINAGE_DIRECTIONS.length; direction += 2)
+                {
+                    final int nextX = currentX + DRAINAGE_DIRECTIONS[direction];
+                    final int nextZ = currentZ + DRAINAGE_DIRECTIONS[direction + 1];
+                    if (nextX < 0 || nextZ < 0 || nextX >= width || nextZ >= depth)
+                    {
+                        continue;
+                    }
+                    final int next = index(nextX, nextZ, width);
+                    if (closed[next]
+                        || blocked[next] && next != goal
+                        || drainage.downstream()[next] < 0 && next != goal)
+                    {
+                        continue;
+                    }
+                    if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    {
+                        continue;
+                    }
+
+                    final boolean cardinal = DRAINAGE_DIRECTIONS[direction] == 0
+                        || DRAINAGE_DIRECTIONS[direction + 1] == 0;
+                    final double step = cardinal ? 1d : Math.sqrt(2d);
+                    final double uphill = Math.max(0d, terrain[next] - terrain[current]);
+                    final double roughness = Math.abs(terrain[next] - terrain[current]);
+                    final double saddle = Math.max(0d, drainage.spill()[next] - terrain[next]);
+                    final double treeBias = drainage.downstream()[current] == next ? 0.72d : 1d;
+                    final double nextCost = cost[current] + step * (
+                        treeBias
+                            + uphill * 14d
+                            + roughness * 0.35d
+                            + saddle * 4d
+                            + routePenalty[next]
+                    );
+                    if (nextCost < cost[next])
+                    {
+                        cost[next] = nextCost;
+                        parent[next] = current;
+                        open.add(new SearchNode(next, nextCost + heuristic(nextX, nextZ, goalX, goalZ) * 0.55d));
+                    }
+                }
+            }
+
+            if (start != goal && parent[goal] < 0)
+            {
+                return null;
+            }
+            final List<Vec> route = new ArrayList<>();
+            int cursor = goal;
+            while (cursor >= 0)
+            {
+                route.add(new Vec(
+                    (minCellX + cursor % width) * (double) SAMPLE_STEP,
+                    (minCellZ + cursor / width) * (double) SAMPLE_STEP
+                ));
+                if (cursor == start)
+                {
+                    Collections.reverse(route);
+                    return route;
+                }
+                cursor = parent[cursor];
+            }
+            return null;
+        }
+
+        private static void applyFailedRoutePenalty(
+            List<Vec> route,
+            @Nullable Vec failure,
+            int goal,
+            int minCellX,
+            int minCellZ,
+            int width,
+            int depth,
+            double[] routePenalty
+        )
+        {
+            // Penalize overlap along the complete rejected line, but never
+            // penalize the mandatory shared outlet cell itself.
+            for (int i = 1; i < route.size() - 1; i++)
+            {
+                final Vec point = route.get(i);
+                final int cellX = Mth.clamp((int) Math.round(point.x() / SAMPLE_STEP) - minCellX, 0, width - 1);
+                final int cellZ = Mth.clamp((int) Math.round(point.z() / SAMPLE_STEP) - minCellZ, 0, depth - 1);
+                final int cell = index(cellX, cellZ, width);
+                if (cell != goal)
+                {
+                    routePenalty[cell] += FAILED_ROUTE_OVERLAP_PENALTY;
+                }
+            }
+            if (failure == null)
+            {
+                return;
+            }
+
+            final int failureX = Mth.clamp((int) Math.round(failure.x() / SAMPLE_STEP) - minCellX, 0, width - 1);
+            final int failureZ = Mth.clamp((int) Math.round(failure.z() / SAMPLE_STEP) - minCellZ, 0, depth - 1);
+            for (int dz = -FAILED_ROUTE_LOCAL_RADIUS; dz <= FAILED_ROUTE_LOCAL_RADIUS; dz++)
+            {
+                for (int dx = -FAILED_ROUTE_LOCAL_RADIUS; dx <= FAILED_ROUTE_LOCAL_RADIUS; dx++)
+                {
+                    final int x = failureX + dx;
+                    final int z = failureZ + dz;
+                    if (x < 0 || z < 0 || x >= width || z >= depth)
+                    {
+                        continue;
+                    }
+                    final int cell = index(x, z, width);
+                    if (cell == goal)
+                    {
+                        continue;
+                    }
+                    final double distance = Math.hypot(dx, dz);
+                    if (distance <= FAILED_ROUTE_LOCAL_RADIUS)
+                    {
+                        routePenalty[cell] += FAILED_ROUTE_LOCAL_PENALTY
+                            * (1d - distance / (FAILED_ROUTE_LOCAL_RADIUS + 1d));
+                    }
+                }
+            }
+        }
+
+        private List<Vec> snapRouteToValleys(List<Vec> route)
+        {
+            if (route.size() < 3)
+            {
+                return new ArrayList<>(route);
+            }
+            final List<Vec> snapped = new ArrayList<>(route.size());
+            snapped.add(route.get(0));
+            for (int i = 1; i < route.size() - 1; i++)
+            {
+                final Vec previous = route.get(i - 1);
+                final Vec current = route.get(i);
+                final Vec next = route.get(i + 1);
+                final Vec direction = normalizedDirection(previous, next);
+                if (vectorLength(direction) < 1.0e-6d)
+                {
+                    snapped.add(current);
+                    continue;
+                }
+
+                final Vec perpendicular = new Vec(-direction.z(), direction.x());
+                Vec best = current;
+                double bestHeight = heights.sample(Mth.floor(current.x()), Mth.floor(current.z()));
+                for (double offset = -VALLEY_SNAP_RADIUS; offset <= VALLEY_SNAP_RADIUS + 1.0e-9d; offset += VALLEY_SNAP_STEP)
+                {
+                    final Vec candidate = add(current, scale(perpendicular, offset));
+                    if (routeObstacles.blocks(
+                        edge,
+                        candidate.x(),
+                        candidate.z(),
+                        TFC_RIVER_ROUTE_CLEARANCE
+                    ))
+                    {
+                        continue;
+                    }
+                    final double height = heights.sample(Mth.floor(candidate.x()), Mth.floor(candidate.z()));
+                    if (height < bestHeight - 1.0e-6d
+                        || Math.abs(height - bestHeight) <= 1.0e-6d && Math.abs(offset) < distance(best, current))
+                    {
+                        best = candidate;
+                        bestHeight = height;
+                    }
+                }
+                addIfDifferent(snapped, best);
+            }
+            addIfDifferent(snapped, route.get(route.size() - 1));
+            return snapped;
+        }
+
+        /**
+         * Fine validation after valley snapping and corner smoothing. The
+         * eight-block search mask prevents broad crossings; this segment walk
+         * catches a curve that clips a protected native wet channel between
+         * two grid centers.
+         */
+        @Nullable
+        private Vec firstRouteObstacle(List<Vec> route)
+        {
+            if (route.size() < 2)
+            {
+                return null;
+            }
+            for (int segment = 0; segment < route.size() - 1; segment++)
+            {
+                final Vec from = route.get(segment);
+                final Vec to = route.get(segment + 1);
+                final double length = distance(from, to);
+                final int samples = Math.max(1, Mth.ceil(length / 1.5d));
+                for (int sample = segment == 0 ? 0 : 1; sample <= samples; sample++)
+                {
+                    final double delta = sample / (double) samples;
+                    final Vec point = new Vec(
+                        Mth.lerp(delta, from.x(), to.x()),
+                        Mth.lerp(delta, from.z(), to.z())
+                    );
+                    if (routeObstacles.blocks(
+                        edge,
+                        point.x(),
+                        point.z(),
+                        TFC_RIVER_ROUTE_CLEARANCE
+                    ))
+                    {
+                        return point;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private int chooseSource(
+            int nominalX,
+            int nominalZ,
+            int width,
+            int depth,
+            double[] terrain,
+            boolean[] blocked
+        )
+        {
+            final double downstreamX = drainX - sourceX;
+            final double downstreamZ = drainZ - sourceZ;
+            final double downstreamLength = Math.hypot(downstreamX, downstreamZ);
+            if (downstreamLength < 1.0e-6d)
+            {
+                return chooseNearbySource(nominalX, nominalZ, width, depth, terrain, blocked);
             }
 
             // Extend beyond TFC's nominal leaf source. This turns the old
@@ -1407,11 +2924,12 @@ final class NTEHeadwaterNetwork
                     }
 
                     final int candidate = index(x, z, width);
-                    if (terrain[candidate] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    if (blocked[candidate]
+                        || terrain[candidate] < seaLevel - 1d + CENTER_SURFACE_INSET)
                     {
                         continue;
                     }
-                    final double valleyBonus = valleyBonus(x, z, width, terrain);
+                    final double valleyBonus = valleyBonus(x, z, width, depth, terrain);
                     final double score = terrain[candidate]
                         + valleyBonus * 2.2d
                         + along * 0.012d
@@ -1423,12 +2941,19 @@ final class NTEHeadwaterNetwork
                     }
                 }
             }
-            return best >= 0 ? best : chooseNearbySource(nominalX, nominalZ, width, depth, terrain);
+            return best >= 0 ? best : chooseNearbySource(nominalX, nominalZ, width, depth, terrain, blocked);
         }
 
-        private int chooseNearbySource(int nominalX, int nominalZ, int width, int depth, double[] terrain)
+        private int chooseNearbySource(
+            int nominalX,
+            int nominalZ,
+            int width,
+            int depth,
+            double[] terrain,
+            boolean[] blocked
+        )
         {
-            int best = index(nominalX, nominalZ, width);
+            int best = -1;
             double bestScore = Double.NEGATIVE_INFINITY;
             for (int dz = -4; dz <= 4; dz++)
             {
@@ -1441,8 +2966,12 @@ final class NTEHeadwaterNetwork
                         continue;
                     }
                     final int candidate = index(x, z, width);
+                    if (blocked[candidate])
+                    {
+                        continue;
+                    }
                     final double score = terrain[candidate]
-                        + valleyBonus(x, z, width, terrain) * 2.2d
+                        + valleyBonus(x, z, width, depth, terrain) * 2.2d
                         - Math.hypot(dx, dz) * 0.35d;
                     if (score > bestScore)
                     {
@@ -1454,7 +2983,7 @@ final class NTEHeadwaterNetwork
             return best;
         }
 
-        private static double valleyBonus(int x, int z, int width, double[] terrain)
+        private static double valleyBonus(int x, int z, int width, int depth, double[] terrain)
         {
             double neighborAverage = 0d;
             int count = 0;
@@ -1462,14 +2991,18 @@ final class NTEHeadwaterNetwork
             {
                 for (int nx = -1; nx <= 1; nx++)
                 {
-                    if (nx != 0 || nz != 0)
+                    final int neighborX = x + nx;
+                    final int neighborZ = z + nz;
+                    if ((nx != 0 || nz != 0)
+                        && neighborX >= 0 && neighborZ >= 0
+                        && neighborX < width && neighborZ < depth)
                     {
-                        neighborAverage += terrain[index(x + nx, z + nz, width)];
+                        neighborAverage += terrain[index(neighborX, neighborZ, width)];
                         count++;
                     }
                 }
             }
-            return Math.max(0d, neighborAverage / count - terrain[index(x, z, width)]);
+            return count == 0 ? 0d : Math.max(0d, neighborAverage / count - terrain[index(x, z, width)]);
         }
 
         @Nullable
@@ -1480,7 +3013,8 @@ final class NTEHeadwaterNetwork
             int minCellZ,
             int width,
             int depth,
-            double[] terrain
+            double[] terrain,
+            boolean[] blocked
         )
         {
             final int size = width * depth;
@@ -1527,7 +3061,7 @@ final class NTEHeadwaterNetwork
                         continue;
                     }
                     final int next = index(nextX, nextZ, width);
-                    if (closed[next])
+                    if (closed[next] || blocked[next] && next != goal)
                     {
                         continue;
                     }
@@ -1620,6 +3154,7 @@ final class NTEHeadwaterNetwork
         private final double totalLength;
         private final boolean receiverMouth;
         @Nullable private final ReceiverAlignment receiverAlignment;
+        private final double receiverWaterY;
         private final Set<Long> turnConnectorColumns;
 
         private Route(
@@ -1631,7 +3166,8 @@ final class NTEHeadwaterNetwork
             double[] distance,
             double totalLength,
             boolean receiverMouth,
-            @Nullable ReceiverAlignment receiverAlignment
+            @Nullable ReceiverAlignment receiverAlignment,
+            double receiverWaterY
         )
         {
             this.x = x;
@@ -1643,6 +3179,7 @@ final class NTEHeadwaterNetwork
             this.totalLength = totalLength;
             this.receiverMouth = receiverMouth;
             this.receiverAlignment = receiverAlignment;
+            this.receiverWaterY = receiverWaterY;
             this.turnConnectorColumns = rasterizeTurnConnectors(x, z);
         }
 
@@ -1677,17 +3214,26 @@ final class NTEHeadwaterNetwork
             final double localWaterY = Mth.lerp(bestDelta, waterY[bestIndex], waterY[bestIndex + 1]);
             final double dx = x[bestIndex + 1] - x[bestIndex];
             final double dz = z[bestIndex + 1] - z[bestIndex];
-            final double angle = Mth.atan2(-dz, dx);
             final double along = Mth.lerp(bestDelta, distance[bestIndex], distance[bestIndex + 1]);
             final double downstreamWaterY = sampleWaterYAtAlong(along + 1d);
             final double downstreamWaterDrop = Math.max(0d, localWaterY - downstreamWaterY);
             final double distanceToOutlet = totalLength - along;
-            if (receiverAlignment != null && extendsPastOutlet(blockX, blockZ))
+            final boolean retainedReceiverJoin = receiverAlignment != null
+                && receiverAlignment.retainsNativeReceiver();
+            // The final tangent only describes space beyond the actual route
+            // endpoint. A long meander can put a perfectly valid upstream
+            // segment in that tangent's forward half-plane, so apply the
+            // rejection only when this column's closest projection really is
+            // the clamped end of the final segment.
+            if (receiverAlignment != null
+                && bestIndex == x.length - 2
+                && bestDelta >= 1d - 1.0e-9d
+                && extendsPastOutlet(blockX, blockZ))
             {
                 traceTargetSample(blockX, blockZ, ambientHeight, localWaterY, rawNormalizedDistanceSq, Double.POSITIVE_INFINITY, false, "past_outlet");
                 return null;
             }
-            final double mouthNormalizedDistanceSq = receiverAlignment == null
+            final double mouthNormalizedDistanceSq = receiverAlignment == null || retainedReceiverJoin
                 ? rawNormalizedDistanceSq
                 : receiverAlignment.mouthNormalizedDistanceSq(rawNormalizedDistanceSq, blockX, blockZ, distanceToOutlet);
             // Do not four-connect every diagonal step. Only a short diagonal
@@ -1696,7 +3242,9 @@ final class NTEHeadwaterNetwork
             // turning an entire one-block diagonal creek into a two-block cut.
             // The aligned mouth uses its receiver-aware distance field, so
             // connector cells must not override that shape.
-            final boolean turnConnector = (receiverAlignment == null || distanceToOutlet >= MOUTH_FAN_LENGTH)
+            final boolean turnConnector = (receiverAlignment == null
+                || retainedReceiverJoin
+                || distanceToOutlet >= MOUTH_FAN_LENGTH)
                 && turnConnectorColumns.contains(columnKey(blockX, blockZ));
             final double normalizedDistanceSq = turnConnector
                 ? Math.min(mouthNormalizedDistanceSq, NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ * 0.95d)
@@ -1706,14 +3254,6 @@ final class NTEHeadwaterNetwork
                 traceTargetSample(blockX, blockZ, ambientHeight, Double.NaN, rawNormalizedDistanceSq, normalizedDistanceSq, turnConnector, "outside");
                 return null;
             }
-            if (Double.isFinite(ambientHeight)
-                && normalizedDistanceSq <= 1.2d
-                && ambientHeight < localWaterY + 0.75d)
-            {
-                traceTargetSample(blockX, blockZ, ambientHeight, localWaterY, rawNormalizedDistanceSq, normalizedDistanceSq, turnConnector, "low_ambient");
-                return null;
-            }
-
             final double terrainCutLength = receiverAlignment == null
                 ? alignedMouthWaterCutLength(localRadius)
                 : receiverAlignment.terrainCutLength(localRadius);
@@ -1721,29 +3261,39 @@ final class NTEHeadwaterNetwork
                 ? terrainCutLength
                 : receiverAlignment.waterCutLength(localRadius);
             final boolean fillAllowed = !receiverMouth || distanceToOutlet > terrainCutLength;
-            final boolean waterAllowed = !receiverMouth || distanceToOutlet > waterCutLength;
-            final double waterCoreRadiusSq = receiverAlignment == null
+            // The retained river has no replacement tail which can take over a
+            // fallback feeder's last wet cells. Keep that feeder wet through
+            // the contact point; only complete replacement routes may hand
+            // their water corridor off before the topology endpoint.
+            final boolean waterAllowed = retainedReceiverJoin
+                || !receiverMouth
+                || distanceToOutlet > waterCutLength;
+            final double waterCoreRadiusSq = receiverAlignment == null || retainedReceiverJoin
                 ? NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ
-                : mouthWaterCoreRadiusSq(distanceToOutlet);
-            final double mouthWaterDrop = receiverAlignment == null
+                // Keep the generated flowing-water corridor as wide as the
+                // creek cut. Static source water is retracted independently
+                // by mouthSourceWaterAllowed(); shrinking the dynamic core
+                // would leave a carved but dry annulus at real joins.
+                : NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ;
+            final double mouthWaterDrop = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
-                : mouthWaterDrop(distanceToOutlet, localWaterY, waterY[waterY.length - 1]);
+                : mouthWaterDrop(distanceToOutlet, localWaterY, receiverWaterY);
             final double downstreamDistanceToOutlet = Math.max(0d, totalLength - (along + 1d));
-            final double downstreamMouthWaterDrop = receiverAlignment == null
+            final double downstreamMouthWaterDrop = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthWaterDrop(
                     downstreamDistanceToOutlet,
                     downstreamWaterY,
-                    waterY[waterY.length - 1]
+                    receiverWaterY
                 );
             final double secondDownstreamWaterY = sampleWaterYAtAlong(along + 2d);
             final double secondDownstreamDistanceToOutlet = Math.max(0d, totalLength - (along + 2d));
-            final double secondDownstreamMouthWaterDrop = receiverAlignment == null
+            final double secondDownstreamMouthWaterDrop = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthWaterDrop(
                     secondDownstreamDistanceToOutlet,
                     secondDownstreamWaterY,
-                    waterY[waterY.length - 1]
+                    receiverWaterY
                 );
             final double plannedWaterY = localWaterY - mouthWaterDrop;
             final double downstreamPlannedWaterY = downstreamWaterY - downstreamMouthWaterDrop;
@@ -1760,20 +3310,31 @@ final class NTEHeadwaterNetwork
             // water layer which the profile had deliberately lowered. Real
             // route drops still pre-bake their complete waterfalls.
             final boolean waterfallLanding = naturalWaterfallLanding(upstreamWaterY, localWaterY);
-            final double extraIncision = receiverAlignment == null
+            final double extraIncision = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthWaterDrop * mouthFanLateralWeight(normalizedDistanceSq);
             final double bankFillWeight = receiverAlignment == null
                 ? 1d
                 : mouthBankFillWeight(distanceToOutlet);
-            final double receiverBlendWeight = receiverAlignment == null
+            final double receiverBlendWeight = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
-                : mouthReceiverBlendWeight(distanceToOutlet);
+                : mouthReceiverBlendWeight(rawNormalizedDistanceSq, distanceToOutlet);
+            final Vec streamDirection = normalizedDirection(new Vec(0d, 0d), new Vec(dx, dz));
+            final Vec flowDirection = receiverAlignment == null || retainedReceiverJoin
+                ? streamDirection
+                : receiverAlignment.blendedFlowDirection(
+                    streamDirection,
+                    blockX,
+                    blockZ,
+                    distanceToOutlet
+                );
+            final double angle = Mth.atan2(-flowDirection.z(), flowDirection.x());
             final boolean sourceWaterAllowed = waterAllowed
                 && plannedSourceWaterAllowed(effectiveDownstreamWaterDrop)
                 && plannedSourceWaterAllowed(plannedWaterY, downstreamPlannedWaterY, secondDownstreamPlannedWaterY)
                 && !waterfallLanding
                 && (receiverAlignment == null
+                    || retainedReceiverJoin
                     || mouthSourceWaterAllowed(distanceToOutlet, waterCutLength, mouthWaterDrop));
             traceTargetSample(blockX, blockZ, ambientHeight, localWaterY, rawNormalizedDistanceSq, normalizedDistanceSq, turnConnector, "accepted");
             return new Sample(
@@ -1820,15 +3381,9 @@ final class NTEHeadwaterNetwork
         private boolean extendsPastOutlet(int blockX, int blockZ)
         {
             final int last = x.length - 1;
-            final double dx = x[last] - x[last - 1];
-            final double dz = z[last] - z[last - 1];
-            final double length = Math.hypot(dx, dz);
-            if (length <= 1.0e-9d)
-            {
-                return false;
-            }
-            final double forward = ((blockX - x[last]) * dx + (blockZ - z[last]) * dz) / length;
-            return forward > 0.5d;
+            return NTEHeadwaterNetwork.extendsPastOutlet(
+                x[last - 1], z[last - 1], x[last], z[last], blockX, blockZ
+            );
         }
 
         private static void traceTargetSample(
@@ -1880,6 +3435,352 @@ final class NTEHeadwaterNetwork
                 x[x.length - 1], z[z.length - 1], waterY[waterY.length - 1],
                 turnConnectorColumns.size(),
                 tracedGeometry()
+            );
+        }
+
+        private boolean boundsOverlap(Route other, double margin)
+        {
+            return minimum(x) - margin <= maximum(other.x)
+                && maximum(x) + margin >= minimum(other.x)
+                && minimum(z) - margin <= maximum(other.z)
+                && maximum(z) + margin >= minimum(other.z);
+        }
+
+        private double sampleRadiusAtAlong(double targetAlong)
+        {
+            return sampleAtAlong(radius, targetAlong);
+        }
+
+        private Vec pointAtAlong(double targetAlong)
+        {
+            if (targetAlong <= 0d)
+            {
+                return new Vec(x[0], z[0]);
+            }
+            if (targetAlong >= totalLength)
+            {
+                return new Vec(x[x.length - 1], z[z.length - 1]);
+            }
+            int upper = 1;
+            while (upper < distance.length && distance[upper] < targetAlong)
+            {
+                upper++;
+            }
+            final int lower = upper - 1;
+            final double segmentLength = distance[upper] - distance[lower];
+            final double delta = segmentLength <= 1.0e-9d
+                ? 0d
+                : (targetAlong - distance[lower]) / segmentLength;
+            return new Vec(
+                Mth.lerp(delta, x[lower], x[upper]),
+                Mth.lerp(delta, z[lower], z[upper])
+            );
+        }
+
+        private Vec directionAtAlong(double targetAlong)
+        {
+            final double before = Math.max(0d, targetAlong - 1.5d);
+            final double after = Math.min(totalLength, targetAlong + 1.5d);
+            return normalizedDirection(pointAtAlong(before), pointAtAlong(after));
+        }
+
+        private RouteProjection nearestProjection(Vec point)
+        {
+            double bestDistanceSq = Double.POSITIVE_INFINITY;
+            int bestSegment = 0;
+            double bestDelta = 0d;
+            double bestAlong = 0d;
+            for (int segment = 0; segment < x.length - 1; segment++)
+            {
+                final Projection projection = project(
+                    x[segment], z[segment], x[segment + 1], z[segment + 1], point.x(), point.z()
+                );
+                if (projection.distanceSq() < bestDistanceSq)
+                {
+                    bestDistanceSq = projection.distanceSq();
+                    bestSegment = segment;
+                    bestDelta = projection.delta();
+                    bestAlong = Mth.lerp(projection.delta(), distance[segment], distance[segment + 1]);
+                }
+            }
+            return new RouteProjection(bestSegment, bestDelta, bestAlong, bestDistanceSq);
+        }
+
+        private double sampleAtAlong(double[] values, double targetAlong)
+        {
+            if (targetAlong <= 0d)
+            {
+                return values[0];
+            }
+            if (targetAlong >= totalLength)
+            {
+                return values[values.length - 1];
+            }
+            int upper = 1;
+            while (upper < distance.length && distance[upper] < targetAlong)
+            {
+                upper++;
+            }
+            final int lower = upper - 1;
+            final double segmentLength = distance[upper] - distance[lower];
+            final double delta = segmentLength <= 1.0e-9d
+                ? 0d
+                : (targetAlong - distance[lower]) / segmentLength;
+            return Mth.lerp(delta, values[lower], values[upper]);
+        }
+
+        /**
+         * Collapse a sustained high/low double route into one physical
+         * corridor. Geometry, water and width are blended into the same
+         * shared profile, with short transitions at both ends so neither
+         * branch acquires a one-block shelf or width spike.
+         */
+        private Route withSharedProfile(
+            double startAlong,
+            double endAlong,
+            Route peer,
+            double peerStartAlong,
+            double peerEndAlong,
+            HeightSampler heights
+        )
+        {
+            final List<CorridorPoint> corridor = new ArrayList<>();
+            final double spacing = 1.5d;
+            for (double along = 0d; along < totalLength; along += spacing)
+            {
+                corridor.add(sharedCorridorPoint(
+                    along,
+                    startAlong,
+                    endAlong,
+                    peer,
+                    peerStartAlong,
+                    peerEndAlong
+                ));
+            }
+            corridor.add(sharedCorridorPoint(
+                totalLength,
+                startAlong,
+                endAlong,
+                peer,
+                peerStartAlong,
+                peerEndAlong
+            ));
+            return routeFromCorridor(corridor, heights);
+        }
+
+        private CorridorPoint sharedCorridorPoint(
+            double along,
+            double startAlong,
+            double endAlong,
+            Route peer,
+            double peerStartAlong,
+            double peerEndAlong
+        )
+        {
+            final double beforeWeight = smootherStep(
+                (along - (startAlong - SHARED_CORRIDOR_TRANSITION_LENGTH))
+                    / SHARED_CORRIDOR_TRANSITION_LENGTH
+            );
+            final double afterWeight = 1d - smootherStep(
+                (along - endAlong) / SHARED_CORRIDOR_TRANSITION_LENGTH
+            );
+            final double sharedWeight = Math.min(beforeWeight, afterWeight);
+            if (sharedWeight <= 1.0e-9d)
+            {
+                return new CorridorPoint(
+                    pointAtAlong(along),
+                    sampleWaterYAtAlong(along),
+                    sampleRadiusAtAlong(along)
+                );
+            }
+
+            final double interval = Math.max(1.0e-6d, endAlong - startAlong);
+            final double progress = Mth.clamp((along - startAlong) / interval, 0d, 1d);
+            final double peerAlong = Mth.lerp(progress, peerStartAlong, peerEndAlong);
+            final Vec ownPoint = pointAtAlong(along);
+            final Vec peerPoint = peer.pointAtAlong(peerAlong);
+            final Vec sharedPoint = lerp(ownPoint, peerPoint, 0.5d);
+            final double sharedWater = Math.min(
+                sampleWaterYAtAlong(along),
+                peer.sampleWaterYAtAlong(peerAlong)
+            );
+            // A sustained shared trunk has one physical cross-section, so
+            // both logical owners must use the same larger carrying radius.
+            // The half-block cap belongs only to a one-point confluence.
+            final double sharedRadius = Math.max(
+                sampleRadiusAtAlong(along),
+                peer.sampleRadiusAtAlong(peerAlong)
+            );
+            return new CorridorPoint(
+                lerp(ownPoint, sharedPoint, sharedWeight),
+                Math.min(sampleWaterYAtAlong(along), Mth.lerp(sharedWeight, sampleWaterYAtAlong(along), sharedWater)),
+                Mth.lerp(sharedWeight, sampleRadiusAtAlong(along), sharedRadius)
+            );
+        }
+
+        private Route routeFromCorridor(List<CorridorPoint> corridor, HeightSampler heights)
+        {
+            final int size = corridor.size();
+            final double[] coordinatedX = new double[size];
+            final double[] coordinatedZ = new double[size];
+            final double[] coordinatedTerrain = new double[size];
+            final double[] coordinatedWater = new double[size];
+            final double[] coordinatedRadius = new double[size];
+            final double[] coordinatedDistance = new double[size];
+            for (int i = 0; i < size; i++)
+            {
+                final CorridorPoint point = corridor.get(i);
+                coordinatedX[i] = point.point().x();
+                coordinatedZ[i] = point.point().z();
+                coordinatedTerrain[i] = heights.sample(Mth.floor(coordinatedX[i]), Mth.floor(coordinatedZ[i]));
+                coordinatedWater[i] = point.waterY();
+                coordinatedRadius[i] = point.radius();
+                if (i > 0)
+                {
+                    coordinatedDistance[i] = coordinatedDistance[i - 1]
+                        + Math.hypot(coordinatedX[i] - coordinatedX[i - 1], coordinatedZ[i] - coordinatedZ[i - 1]);
+                    coordinatedWater[i] = Math.min(coordinatedWater[i - 1], coordinatedWater[i]);
+                }
+            }
+            for (int i = size - 2; i >= 0; i--)
+            {
+                final double segmentLength = Math.max(1.0e-6d, coordinatedDistance[i + 1] - coordinatedDistance[i]);
+                coordinatedWater[i] = Math.min(
+                    coordinatedWater[i],
+                    coordinatedWater[i + 1] + segmentLength * MAX_CASCADE_SLOPE
+                );
+            }
+            coordinatedWater[size - 1] = waterY[waterY.length - 1];
+            return new Route(
+                coordinatedX,
+                coordinatedZ,
+                coordinatedTerrain,
+                coordinatedWater,
+                coordinatedRadius,
+                coordinatedDistance,
+                coordinatedDistance[size - 1],
+                receiverMouth,
+                receiverAlignment,
+                receiverWaterY
+            );
+        }
+
+        private Route withJunction(
+            int segment,
+            double delta,
+            Vec junction,
+            double junctionWater,
+            double junctionRadius,
+            Vec junctionDirection,
+            HeightSampler heights
+        )
+        {
+            final double junctionAlong = Mth.lerp(delta, distance[segment], distance[segment + 1]);
+            final double rewriteStartAlong = Math.max(0d, junctionAlong - JUNCTION_TANGENT_REWRITE_LENGTH);
+            final List<Vec> points = new ArrayList<>(x.length + 16);
+            int rewriteStartIndex = 0;
+            while (rewriteStartIndex + 1 < distance.length && distance[rewriteStartIndex + 1] < rewriteStartAlong)
+            {
+                rewriteStartIndex++;
+            }
+            for (int i = 0; i <= rewriteStartIndex; i++)
+            {
+                points.add(new Vec(x[i], z[i]));
+            }
+            final Vec rewriteStart = pointAtAlong(rewriteStartAlong);
+            addIfDifferent(points, rewriteStart);
+            final Vec incoming = directionAtAlong(rewriteStartAlong);
+            final double connectorLength = distance(rewriteStart, junction);
+            if (connectorLength > 1.0e-6d)
+            {
+                final Vec startControl = add(rewriteStart, scale(incoming, connectorLength * 0.38d));
+                final Vec endControl = add(junction, scale(junctionDirection, -connectorLength * 0.38d));
+                final int steps = Math.max(3, Mth.ceil(connectorLength / 1.5d));
+                for (int step = 1; step <= steps; step++)
+                {
+                    addIfDifferent(points, cubicBezier(
+                        rewriteStart,
+                        startControl,
+                        endControl,
+                        junction,
+                        step / (double) steps
+                    ));
+                }
+            }
+            addIfDifferent(points, junction);
+            for (int i = segment + 1; i < x.length; i++)
+            {
+                addIfDifferent(points, new Vec(x[i], z[i]));
+            }
+
+            final int size = points.size();
+            final double[] coordinatedX = new double[size];
+            final double[] coordinatedZ = new double[size];
+            final double[] coordinatedTerrain = new double[size];
+            final double[] coordinatedWater = new double[size];
+            final double[] coordinatedRadius = new double[size];
+            final double[] coordinatedDistance = new double[size];
+            for (int i = 0; i < size; i++)
+            {
+                final Vec point = points.get(i);
+                coordinatedX[i] = point.x();
+                coordinatedZ[i] = point.z();
+                coordinatedTerrain[i] = heights.sample(Mth.floor(point.x()), Mth.floor(point.z()));
+                if (i > 0)
+                {
+                    coordinatedDistance[i] = coordinatedDistance[i - 1]
+                        + Math.hypot(coordinatedX[i] - coordinatedX[i - 1], coordinatedZ[i] - coordinatedZ[i - 1]);
+                }
+                final double originalAlong = nearestProjection(point).along();
+                coordinatedWater[i] = sampleWaterYAtAlong(originalAlong);
+                coordinatedRadius[i] = sampleRadiusAtAlong(originalAlong);
+            }
+
+            int junctionIndex = 0;
+            double junctionDistanceSq = Double.POSITIVE_INFINITY;
+            for (int i = 0; i < size; i++)
+            {
+                final double candidateDistanceSq = distanceSq(points.get(i), junction);
+                if (candidateDistanceSq < junctionDistanceSq)
+                {
+                    junctionDistanceSq = candidateDistanceSq;
+                    junctionIndex = i;
+                }
+            }
+            coordinatedWater[junctionIndex] = Math.min(coordinatedWater[junctionIndex], junctionWater);
+            coordinatedRadius[junctionIndex] = Math.min(
+                Math.max(coordinatedRadius[junctionIndex], junctionRadius),
+                coordinatedRadius[junctionIndex] + 0.5d
+            );
+            for (int i = junctionIndex - 1; i >= 0; i--)
+            {
+                final double segmentLength = Math.max(1.0e-6d, coordinatedDistance[i + 1] - coordinatedDistance[i]);
+                final double distanceToJunction = coordinatedDistance[junctionIndex] - coordinatedDistance[i];
+                final double transition = smootherStep(
+                    1d - distanceToJunction / JUNCTION_PROFILE_TRANSITION_LENGTH
+                );
+                final double target = junctionWater
+                    + distanceToJunction * Math.min(0.35d, MAX_CASCADE_SLOPE);
+                coordinatedWater[i] = Math.min(coordinatedWater[i], Mth.lerp(transition, coordinatedWater[i], target));
+                coordinatedWater[i] = Math.min(coordinatedWater[i], coordinatedWater[i + 1] + segmentLength * MAX_CASCADE_SLOPE);
+            }
+            for (int i = junctionIndex + 1; i < size; i++)
+            {
+                coordinatedWater[i] = Math.min(coordinatedWater[i - 1], coordinatedWater[i]);
+            }
+            coordinatedWater[size - 1] = waterY[waterY.length - 1];
+
+            return new Route(
+                coordinatedX,
+                coordinatedZ,
+                coordinatedTerrain,
+                coordinatedWater,
+                coordinatedRadius,
+                coordinatedDistance,
+                coordinatedDistance[size - 1],
+                receiverMouth,
+                receiverAlignment,
+                receiverWaterY
             );
         }
 
@@ -1969,6 +3870,31 @@ final class NTEHeadwaterNetwork
             );
         }
 
+        private Vec blendedFlowDirection(
+            Vec streamDirection,
+            int blockX,
+            int blockZ,
+            double distanceToOutlet
+        )
+        {
+            final Vec point = new Vec(blockX, blockZ);
+            final double receiverAlong = nearestAlong(receiverPath, point);
+            final Vec receiverDirection = directionAlong(
+                receiverPath,
+                Math.min(polylineLength(receiverPath), receiverAlong + 1.0e-3d)
+            );
+            final double weight = smootherStep(
+                1d - distanceToOutlet / MOUTH_BANK_TRANSITION_LENGTH
+            );
+            final Vec blended = new Vec(
+                Mth.lerp(weight, streamDirection.x(), receiverDirection.x()),
+                Mth.lerp(weight, streamDirection.z(), receiverDirection.z())
+            );
+            return vectorLength(blended) <= 1.0e-6d
+                ? receiverDirection
+                : normalizedDirection(new Vec(0d, 0d), blended);
+        }
+
         private boolean suppresses(RiverEdge edge, int blockX, int blockZ)
         {
             if (receiver == null || edge != receiver)
@@ -1987,6 +3913,11 @@ final class NTEHeadwaterNetwork
                 receiverWidth * SOURCE_ALIGNMENT_SUPPRESSION_WIDTH_SCALE
             );
             return distanceSq <= suppressionRadius * suppressionRadius;
+        }
+
+        private boolean retainsNativeReceiver()
+        {
+            return receiver == null;
         }
     }
 
@@ -2167,9 +4098,45 @@ final class NTEHeadwaterNetwork
         return Math.hypot(vector.x(), vector.z());
     }
 
+    private static double directionDot(Vec left, Vec right)
+    {
+        if (vectorLength(left) < 1.0e-6d || vectorLength(right) < 1.0e-6d)
+        {
+            return -1d;
+        }
+        return Mth.clamp(left.x() * right.x() + left.z() * right.z(), -1d, 1d);
+    }
+
     private static double distance(Vec left, Vec right)
     {
         return Math.hypot(right.x() - left.x(), right.z() - left.z());
+    }
+
+    private static double distanceSq(Vec left, Vec right)
+    {
+        final double dx = right.x() - left.x();
+        final double dz = right.z() - left.z();
+        return dx * dx + dz * dz;
+    }
+
+    private static double minimum(double[] values)
+    {
+        double result = Double.POSITIVE_INFINITY;
+        for (double value : values)
+        {
+            result = Math.min(result, value);
+        }
+        return result;
+    }
+
+    private static double maximum(double[] values)
+    {
+        double result = Double.NEGATIVE_INFINITY;
+        for (double value : values)
+        {
+            result = Math.max(result, value);
+        }
+        return result;
     }
 
     private static double polylineLength(List<Vec> points)
@@ -2340,6 +4307,26 @@ final class NTEHeadwaterNetwork
         final double offsetX = x - nearestX;
         final double offsetZ = z - nearestZ;
         return new Projection(offsetX * offsetX + offsetZ * offsetZ, delta);
+    }
+
+    private static boolean extendsPastOutlet(
+        double previousX,
+        double previousZ,
+        double outletX,
+        double outletZ,
+        int blockX,
+        int blockZ
+    )
+    {
+        final double dx = outletX - previousX;
+        final double dz = outletZ - previousZ;
+        final double length = Math.hypot(dx, dz);
+        if (length <= 1.0e-9d)
+        {
+            return false;
+        }
+        final double forward = ((blockX - outletX) * dx + (blockZ - outletZ) * dz) / length;
+        return forward > 0.5d;
     }
 
     private static long mix64(long value)

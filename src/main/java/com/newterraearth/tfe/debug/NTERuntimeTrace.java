@@ -17,7 +17,7 @@ public final class NTERuntimeTrace
     private static final String MODE_TERRAIN_CUT = "terrain_cut";
     private static final String MODE_BLOCK_PROBE = "block_probe";
     private static final boolean ENABLED = Boolean.getBoolean("tfe.debug.runtimeTrace");
-    private static final String MODE = System.getProperty("tfe.debug.traceMode", MODE_TERRAIN_CUT);
+    private static final String MODE = System.getProperty("tfe.debug.traceMode", MODE_TERRAIN_CUT).trim();
     private static final long EXPECTED_SEED = Long.getLong("tfe.debug.traceSeed", Long.MIN_VALUE);
     private static final int TARGET_X = Integer.getInteger("tfe.debug.traceX", 2695);
     private static final int TARGET_Y = Integer.getInteger("tfe.debug.traceY", 64);

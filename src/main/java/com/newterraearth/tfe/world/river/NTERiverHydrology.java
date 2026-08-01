@@ -23,6 +23,7 @@ public final class NTERiverHydrology
     static final double TFC_WATER_CORE_RADIUS_SQ = 0.28d;
     static final double SUPPLEMENTAL_WATER_CORE_RADIUS_SQ = 0.72d;
     private static final int MAX_HEIGHT_CACHE_SIZE = 131072;
+    private static final ThreadLocal<GenerationContext> ACTIVE_GENERATION = new ThreadLocal<>();
 
     @FunctionalInterface
     public interface TerrainHeightSampler
@@ -58,6 +59,7 @@ public final class NTERiverHydrology
         double channelRadius,
         double bankRaise,
         double terrainIncision,
+        double mouthWaterDrop,
         double bankFillWeight,
         double waterCoreRadiusSq,
         boolean fillAllowed,
@@ -89,6 +91,17 @@ public final class NTERiverHydrology
         public boolean surfaceVisible()
         {
             return true;
+        }
+
+        public boolean descendingReceiverMouth()
+        {
+            return !fillAllowed && receiverBlendWeight > 0d && terrainIncision > 0d;
+        }
+
+        /** A cut-only fallback feeder which must remain wet until native water contact. */
+        public boolean retainedFeederMouth()
+        {
+            return inChannel() && !fillAllowed && waterAllowed && receiverBlendWeight <= 0d;
         }
 
         public boolean subterranean()
@@ -165,14 +178,180 @@ public final class NTERiverHydrology
         {
             return true;
         }
+        if (profile.retainedFeederMouth())
+        {
+            return true;
+        }
         return profile.fillAllowed() && retainedTfcRiver.normDistSq() > TFC_WATER_CORE_RADIUS_SQ;
     }
 
-    /** Initial terrain fill needs a stable three-block creek bed before carvers run. */
+    /**
+     * A receiver-aligned supplemental cross-section may rotate and fade into a
+     * retained TFC river, but it may never leave a shallower bed on top of that
+     * river's already excavated column.
+     */
+    public static boolean usesRetainedReceiverBed(
+        @Nullable ColumnProfile profile,
+        @Nullable RiverInfo retainedTfcRiver
+    )
+    {
+        return profile != null
+            && retainedTfcRiver != null
+            && profile.inChannel()
+            && profile.receiverBlendWeight() > 0d;
+    }
+
+    public static double clampToRetainedReceiverBed(
+        @Nullable ColumnProfile profile,
+        @Nullable RiverInfo retainedTfcRiver,
+        double supplementalHeight,
+        double retainedReceiverHeight
+    )
+    {
+        return usesRetainedReceiverBed(profile, retainedTfcRiver)
+            ? Math.min(supplementalHeight, retainedReceiverHeight)
+            : supplementalHeight;
+    }
+
+    /** The density-stage bed follows any lower receiver-bed ceiling. */
+    public static int effectiveBedBlockY(ColumnProfile profile, double terrainHeight)
+    {
+        return Math.min(profile.bedBlockY(), Mth.floor(terrainHeight));
+    }
+
+    /**
+     * A waterfall landing above the native river may remove its old raised
+     * source shelf, but the fixed minimum river layer itself must survive.
+     */
+    public static int retainedMouthWaterClearFromY(
+        ColumnProfile profile,
+        int minimumRiverWaterY
+    )
+    {
+        final int plannedWaterY = profile.waterBlockY();
+        return profile.waterfallLanding() && plannedWaterY > minimumRiverWaterY
+            ? plannedWaterY
+            : plannedWaterY + 1;
+    }
+
+    /** Clear the planned vertical descent above a wet connector, including cave rivers. */
+    public static boolean clearsWetMouthHeadroom(ColumnProfile profile, int y)
+    {
+        final int clearanceCeilingY = Mth.ceil(
+            profile.waterSurfaceY() + profile.mouthWaterDrop()
+        );
+        return profile.descendingReceiverMouth()
+            && profile.inWaterCore()
+            && y > profile.waterBlockY()
+            && y <= clearanceCeilingY;
+    }
+
+    /**
+     * Initial terrain fill needs a stable five-block shallow roof before
+     * carvers run. Three blocks still left density-noise caves visibly open
+     * directly beneath narrow upland streams, producing a thin floating slab.
+     */
     public static boolean protectsBedAt(ColumnProfile profile, int y)
     {
-        return profile.inWaterCore() && y <= profile.bedBlockY() && y >= profile.bedBlockY() - 2;
+        return protectsBedAt(profile, y, profile.bedY());
     }
+
+    public static boolean protectsBedAt(ColumnProfile profile, int y, double terrainHeight)
+    {
+        final int bedY = effectiveBedBlockY(profile, terrainHeight);
+        return profile.inWaterCore() && y <= bedY && y >= bedY - 4;
+    }
+
+    /**
+     * The fixed river layer is source-like TFC river water. A descending
+     * connector may use vanilla flowing water above it, but its contact layer
+     * must rejoin the receiver's directional-water semantics.
+     */
+    public static boolean usesDirectionalReceiverSurfaceWater(
+        ColumnProfile profile,
+        int y,
+        int minimumRiverWaterY
+    )
+    {
+        return profile.inWaterCore()
+            && y == profile.waterBlockY()
+            && y <= minimumRiverWaterY;
+    }
+
+    /** Protect the realized wet corridor from late cave-spike decoration. */
+    public static boolean blocksCaveDecoration(ColumnProfile profile, int featureY)
+    {
+        final int clearanceCeilingY = Mth.ceil(
+            profile.waterSurfaceY() + profile.mouthWaterDrop()
+        );
+        return profile.inWaterCore()
+            && featureY >= profile.bedBlockY() - 4
+            && featureY <= clearanceCeilingY + 3;
+    }
+
+    /** A cave column grows upward from its origin until it reaches the roof. */
+    public static boolean blocksCaveColumn(ColumnProfile profile, int featureY)
+    {
+        final int clearanceCeilingY = Mth.ceil(
+            profile.waterSurfaceY() + profile.mouthWaterDrop()
+        );
+        return profile.inWaterCore() && featureY <= clearanceCeilingY + 1;
+    }
+
+    /**
+     * Erosion's late stability repair may not bridge the planned wet cavity
+     * with hardened support stone after the density pass has opened it.
+     */
+    public static boolean blocksErosionSupport(ColumnProfile profile, int y)
+    {
+        final int clearanceCeilingY = Mth.ceil(
+            profile.waterSurfaceY() + profile.mouthWaterDrop()
+        );
+        return profile.inWaterCore()
+            && y > profile.bedBlockY()
+            && y <= clearanceCeilingY + 1;
+    }
+
+    public static void activateGeneration(
+        NTERiverHydrology hydrology,
+        @Nullable ColumnProfile[] localProfiles,
+        int chunkMinX,
+        int chunkMinZ
+    )
+    {
+        ACTIVE_GENERATION.set(new GenerationContext(hydrology, localProfiles, chunkMinX, chunkMinZ));
+    }
+
+    public static void clearActiveGeneration()
+    {
+        ACTIVE_GENERATION.remove();
+    }
+
+    @Nullable
+    public static ColumnProfile activeGenerationProfile(int blockX, int blockZ)
+    {
+        final GenerationContext context = ACTIVE_GENERATION.get();
+        if (context == null)
+        {
+            return null;
+        }
+        if (context.localProfiles() != null
+            && blockX >= context.chunkMinX() && blockX < context.chunkMinX() + 16
+            && blockZ >= context.chunkMinZ() && blockZ < context.chunkMinZ() + 16)
+        {
+            return context.localProfiles()[
+                blockX - context.chunkMinX() + 16 * (blockZ - context.chunkMinZ())
+            ];
+        }
+        return context.hydrology().findGraphProfileIfPlanned(blockX, blockZ);
+    }
+
+    private record GenerationContext(
+        NTERiverHydrology hydrology,
+        @Nullable ColumnProfile[] localProfiles,
+        int chunkMinX,
+        int chunkMinZ
+    ) {}
 
     /** One non-branching cardinal step that rasterizes the supplied flow direction. */
     public static CardinalStep cardinalFlowStep(Flow flow, int horizontalStep)
@@ -215,7 +394,50 @@ public final class NTERiverHydrology
     {
         this.terrainHeightSampler = terrainHeightSampler;
         this.partitionLookup = partitionLookup;
-        this.headwaters = new NTEHeadwaterNetwork(seed, seaLevel, this::sampleTerrainHeight);
+        this.headwaters = new NTEHeadwaterNetwork(
+            seed,
+            seaLevel,
+            this::sampleTerrainHeight,
+            this::blocksUnrelatedRetainedRiver
+        );
+    }
+
+    /**
+     * Planning-only mask for native downstream river edges. TFC marks an edge
+     * as sourceEdge once another edge feeds it, so these are the main-stem
+     * corridors that this addon always retains. The leaf being replaced and
+     * its designated receiver remain legal; every other retained wet core is
+     * a structural obstacle, not a low terrain valley for a new creek to use.
+     * This query intentionally never asks headwaters for replacement state.
+     */
+    private boolean blocksUnrelatedRetainedRiver(
+        @Nullable RiverEdge owner,
+        double blockX,
+        double blockZ,
+        double clearance
+    )
+    {
+        final RiverEdge receiver = owner == null ? null : owner.drainEdge();
+        final RegionPartition.Point point = partitionLookup.find(Mth.floor(blockX), Mth.floor(blockZ));
+        final double exactGridX = Units.blockToGridExact(blockX);
+        final double exactGridZ = Units.blockToGridExact(blockZ);
+        for (RiverEdge edge : point.rivers())
+        {
+            if (!edge.sourceEdge() || edge == owner || edge == receiver)
+            {
+                continue;
+            }
+            final double distanceBlocks = Math.sqrt(edge.fractal().intersectDistance(exactGridX, exactGridZ))
+                * Units.GRID_WIDTH_IN_BLOCK;
+            final double wetRadius = Math.sqrt(
+                edge.widthSq(exactGridX, exactGridZ) * TFC_WATER_CORE_RADIUS_SQ
+            );
+            if (distanceBlocks <= wetRadius + clearance)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -337,17 +559,24 @@ public final class NTERiverHydrology
                 continue;
             }
             final NTEHeadwaterNetwork.Sample sample = headwaters.sampleIfPlanned(edge, blockX, blockZ);
-            if (sample != null && (nearest == null || sample.normalizedDistanceSq() < nearest.normalizedDistanceSq()))
+            if (NTEHeadwaterNetwork.samplePreferred(sample, nearest))
             {
                 nearest = sample;
             }
         }
         final NTEHeadwaterNetwork.Sample spatial = headwaters.samplePlannedAt(blockX, blockZ, Double.POSITIVE_INFINITY);
-        if (spatial != null && (nearest == null || spatial.normalizedDistanceSq() < nearest.normalizedDistanceSq()))
+        if (NTEHeadwaterNetwork.samplePreferred(spatial, nearest))
         {
             nearest = spatial;
         }
         return nearest == null ? null : createProfile(nearest);
+    }
+
+    /** Read-only late-decoration query; never initiates a new drainage search. */
+    @Nullable
+    public ColumnProfile findGraphProfileIfPlanned(int blockX, int blockZ)
+    {
+        return findPlannedGraphProfile(blockX, blockZ);
     }
 
     /** Query stream geometry for groundwater influence without a per-column terrain rejection. */
@@ -370,6 +599,12 @@ public final class NTERiverHydrology
         double ambientHeight
     )
     {
+        // Intersecting leaves are coordinated as one branched network when
+        // their routes are planned. Complete that local planning pass before
+        // taking any samples, otherwise the first candidate can leave a stale
+        // pre-junction water profile in this column while a later candidate
+        // is still inserting the shared node into both routes.
+        planCandidateLeaves(blockX, blockZ);
         NTEHeadwaterNetwork.Sample nearest = null;
         for (RiverEdge edge : candidateEdges(blockX, blockZ))
         {
@@ -377,14 +612,19 @@ public final class NTERiverHydrology
             {
                 continue;
             }
-            final NTEHeadwaterNetwork.Sample sample = headwaters.sample(edge, blockX, blockZ, ambientHeight);
-            if (sample != null && (nearest == null || sample.normalizedDistanceSq() < nearest.normalizedDistanceSq()))
+            final NTEHeadwaterNetwork.Sample sample = headwaters.sampleIfPlanned(
+                edge,
+                blockX,
+                blockZ,
+                ambientHeight
+            );
+            if (NTEHeadwaterNetwork.samplePreferred(sample, nearest))
             {
                 nearest = sample;
             }
         }
         final NTEHeadwaterNetwork.Sample spatial = headwaters.samplePlannedAt(blockX, blockZ, ambientHeight);
-        if (spatial != null && (nearest == null || spatial.normalizedDistanceSq() < nearest.normalizedDistanceSq()))
+        if (NTEHeadwaterNetwork.samplePreferred(spatial, nearest))
         {
             nearest = spatial;
         }
@@ -440,6 +680,7 @@ public final class NTERiverHydrology
             sample.channelRadius(),
             0d,
             sample.extraIncision(),
+            sample.mouthWaterDrop(),
             sample.bankFillWeight(),
             sample.waterCoreRadiusSq(),
             sample.fillAllowed(),
