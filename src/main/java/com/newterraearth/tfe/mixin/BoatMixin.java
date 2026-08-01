@@ -2,10 +2,12 @@ package com.newterraearth.tfe.mixin;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,7 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * as loss-of-control states which sink the boat and eventually eject its
  * passengers. Reusing the ordinary in-water state retains vanilla's
  * depth-based surface correction while leaving fluid current vectors,
- * including the downward pull of falling water, untouched.</p>
+ * including the downward pull of falling water, untouched. Player-controlled
+ * boats also receive extra recovery lift while actively moving forward from a
+ * fully submerged state.</p>
  *
  * <p>The horizontal body is also narrowed for block movement so a centered
  * boat can pass through a one-block channel. Vanilla's wider entity query and
@@ -31,6 +35,15 @@ public abstract class BoatMixin
 {
     @Unique
     private static final float TFE_COMPACT_BOAT_WIDTH = 0.9F;
+
+    @Unique
+    private static final double TFE_DRIVEN_SUBMERGED_LIFT = 0.03D;
+
+    @Shadow
+    private boolean inputUp;
+
+    @Unique
+    private boolean tfe$fullySubmerged;
 
     @Inject(
         method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V",
@@ -45,9 +58,20 @@ public abstract class BoatMixin
     private void tfe$keepSubmergedBoatsBuoyant(CallbackInfoReturnable<Boat.Status> cir)
     {
         final Boat.Status status = cir.getReturnValue();
-        if (status == Boat.Status.UNDER_WATER || status == Boat.Status.UNDER_FLOWING_WATER)
+        tfe$fullySubmerged = status == Boat.Status.UNDER_WATER || status == Boat.Status.UNDER_FLOWING_WATER;
+        if (tfe$fullySubmerged)
         {
             cir.setReturnValue(Boat.Status.IN_WATER);
+        }
+    }
+
+    @Inject(method = "controlBoat", at = @At("TAIL"))
+    private void tfe$boostDrivenSubmergedLift(CallbackInfo ci)
+    {
+        final Boat boat = (Boat) (Object) this;
+        if (tfe$fullySubmerged && inputUp && boat.getControllingPassenger() instanceof Player)
+        {
+            boat.setDeltaMovement(boat.getDeltaMovement().add(0D, TFE_DRIVEN_SUBMERGED_LIFT, 0D));
         }
     }
 
