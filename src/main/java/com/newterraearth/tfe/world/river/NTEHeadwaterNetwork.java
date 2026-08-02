@@ -72,6 +72,7 @@ final class NTEHeadwaterNetwork
     private static final int SOURCE_ALIGNMENT_MAX_ATTEMPTS = 4;
     private static final double SOURCE_ALIGNMENT_TARGET_CONTACT_DOT = 0.90d;
     private static final double SOURCE_ALIGNMENT_SUPPRESSION_WIDTH_SCALE = 1.35d;
+    private static final double FLOW_DIRECTION_SAMPLE_RADIUS = 4d;
     private static final double MOUTH_BANK_TRANSITION_LENGTH = 24d;
     private static final double MOUTH_FAN_LENGTH = 8d;
     private static final double OUTLET_ADAPTER_LENGTH = SOURCE_ALIGNMENT_LENGTH + 40d;
@@ -3212,8 +3213,6 @@ final class NTEHeadwaterNetwork
             final double localRadius = Mth.lerp(bestDelta, radius[bestIndex], radius[bestIndex + 1]);
             final double rawNormalizedDistanceSq = bestDistanceSq / (localRadius * localRadius);
             final double localWaterY = Mth.lerp(bestDelta, waterY[bestIndex], waterY[bestIndex + 1]);
-            final double dx = x[bestIndex + 1] - x[bestIndex];
-            final double dz = z[bestIndex + 1] - z[bestIndex];
             final double along = Mth.lerp(bestDelta, distance[bestIndex], distance[bestIndex + 1]);
             final double downstreamWaterY = sampleWaterYAtAlong(along + 1d);
             final double downstreamWaterDrop = Math.max(0d, localWaterY - downstreamWaterY);
@@ -3319,7 +3318,13 @@ final class NTEHeadwaterNetwork
             final double receiverBlendWeight = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthReceiverBlendWeight(rawNormalizedDistanceSq, distanceToOutlet);
-            final Vec streamDirection = normalizedDirection(new Vec(0d, 0d), new Vec(dx, dz));
+            final Vec smoothedStreamDirection = flowDirectionAtAlong(along);
+            final Vec streamDirection = vectorLength(smoothedStreamDirection) < 1.0e-6d
+                ? normalizedDirection(
+                    new Vec(x[bestIndex], z[bestIndex]),
+                    new Vec(x[bestIndex + 1], z[bestIndex + 1])
+                )
+                : smoothedStreamDirection;
             final Vec flowDirection = receiverAlignment == null || retainedReceiverJoin
                 ? streamDirection
                 : receiverAlignment.blendedFlowDirection(
@@ -3461,11 +3466,12 @@ final class NTEHeadwaterNetwork
             {
                 return new Vec(x[x.length - 1], z[z.length - 1]);
             }
-            int upper = 1;
-            while (upper < distance.length && distance[upper] < targetAlong)
+            final int found = Arrays.binarySearch(distance, targetAlong);
+            if (found >= 0)
             {
-                upper++;
+                return new Vec(x[found], z[found]);
             }
+            final int upper = -found - 1;
             final int lower = upper - 1;
             final double segmentLength = distance[upper] - distance[lower];
             final double delta = segmentLength <= 1.0e-9d
@@ -3475,6 +3481,20 @@ final class NTEHeadwaterNetwork
                 Mth.lerp(delta, x[lower], x[upper]),
                 Mth.lerp(delta, z[lower], z[upper])
             );
+        }
+
+        /**
+         * Samples a centered secant around the projected route position. The
+         * route itself is already rounded, but assigning one flow to each raw
+         * segment made a whole water strip snap direction at segment borders.
+         * A short physical window exposes the intermediate 16-way TFC flow
+         * states without changing the channel geometry or its dynamic water.
+         */
+        private Vec flowDirectionAtAlong(double targetAlong)
+        {
+            final double before = Math.max(0d, targetAlong - FLOW_DIRECTION_SAMPLE_RADIUS);
+            final double after = Math.min(totalLength, targetAlong + FLOW_DIRECTION_SAMPLE_RADIUS);
+            return normalizedDirection(pointAtAlong(before), pointAtAlong(after));
         }
 
         private Vec directionAtAlong(double targetAlong)

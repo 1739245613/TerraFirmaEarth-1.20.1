@@ -573,6 +573,29 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void staticWaterFlowUsesIntermediateSixteenthTurnsAlongBends()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(12d, 0d),
+                new NTEHeadwaterNetwork.Vec(12d, 12d)
+            ),
+            74d,
+            72d,
+            (x, z) -> 80d
+        );
+
+        assertEquals(Flow.EEE, NTEHeadwaterNetwork.sampleTestStream(stream, 0, 0).flow());
+        assertEquals(Flow.EEE, NTEHeadwaterNetwork.sampleTestStream(stream, 4, 0).flow());
+        assertEquals(Flow.SEE, NTEHeadwaterNetwork.sampleTestStream(stream, 10, 0).flow());
+        assertEquals(Flow.S_E, NTEHeadwaterNetwork.sampleTestStream(stream, 12, 0).flow());
+        assertEquals(Flow.SSE, NTEHeadwaterNetwork.sampleTestStream(stream, 12, 2).flow());
+        assertEquals(Flow.SSS, NTEHeadwaterNetwork.sampleTestStream(stream, 12, 8).flow());
+        assertEquals(Flow.SSS, NTEHeadwaterNetwork.sampleTestStream(stream, 12, 12).flow());
+    }
+
+    @Test
     void onlyActualTurnsReceiveLocalDiagonalConnectorCells()
     {
         final List<NTEHeadwaterNetwork.Vec> roundedTurn = NTEHeadwaterNetwork.smoothRoute(List.of(
