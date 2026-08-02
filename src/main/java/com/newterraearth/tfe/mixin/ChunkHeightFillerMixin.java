@@ -368,9 +368,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         height = tfe$adjustHeightForCenteredFeatures(height);
         final double centeredFeatureHeight = height;
         RiverInfo info = tfe$suppressRiver ? null : sampleRiverInfo(false);
+        final boolean preparedHydrologyColumn = tfe$riverHydrology != null
+            && NTERiverHydrology.hasActiveGenerationColumn(tfe$riverHydrology, blockX, blockZ);
         if (tfe$riverHydrology != null && !tfe$suppressRiver)
         {
-            info = tfe$riverHydrology.retainedRiverInfo(info, blockX, blockZ);
+            info = preparedHydrologyColumn
+                ? tfe$riverHydrology.retainedRiverInfoPrepared(info, blockX, blockZ)
+                : tfe$riverHydrology.retainedRiverInfo(info, blockX, blockZ);
         }
         tfe$computeInitialExactRiverWeights(biomeWeights);
         final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights, info);
@@ -386,7 +390,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         }
         final NTERiverHydrology.ColumnProfile supplementalRiverProfile = tfe$riverHydrology == null
             ? null
-            : tfe$riverHydrology.sample(null, blockX, blockZ, height);
+            : preparedHydrologyColumn
+                ? NTERiverHydrology.activeGenerationProfile(blockX, blockZ)
+                : tfe$riverHydrology.samplePreparedColumn(blockX, blockZ, height);
         tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;
@@ -550,9 +556,13 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         height = tfe$adjustHeightForCenteredFeatures(height);
         final double centeredFeatureHeight = height;
         RiverInfo info = tfe$suppressRiver ? null : sampleRiverInfo(false);
+        final boolean preparedHydrologyColumn = tfe$riverHydrology != null
+            && NTERiverHydrology.hasActiveGenerationColumn(tfe$riverHydrology, blockX, blockZ);
         if (tfe$riverHydrology != null && !tfe$suppressRiver)
         {
-            info = tfe$riverHydrology.retainedRiverInfo(info, blockX, blockZ);
+            info = preparedHydrologyColumn
+                ? tfe$riverHydrology.retainedRiverInfoPrepared(info, blockX, blockZ)
+                : tfe$riverHydrology.retainedRiverInfo(info, blockX, blockZ);
         }
         tfe$computeInitialExactRiverWeights(biomeWeights);
         final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights, info);
@@ -568,7 +578,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         }
         final NTERiverHydrology.ColumnProfile supplementalRiverProfile = tfe$riverHydrology == null
             ? null
-            : tfe$riverHydrology.sample(null, blockX, blockZ, height);
+            : preparedHydrologyColumn
+                ? NTERiverHydrology.activeGenerationProfile(blockX, blockZ)
+                : tfe$riverHydrology.samplePreparedColumn(blockX, blockZ, height);
         tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;

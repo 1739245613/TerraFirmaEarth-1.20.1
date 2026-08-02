@@ -28,6 +28,7 @@ import net.dries007.tfc.world.river.RiverInfo;
 import com.newterraearth.tfe.world.NTEChunkBaseBlockSourceAccess;
 import com.newterraearth.tfe.world.NTEChunkHeightFillerAccess;
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
+import com.newterraearth.tfe.world.river.NTERiverCaveProtection;
 import com.newterraearth.tfe.world.river.NTERiverHydrology;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
@@ -285,13 +286,23 @@ public abstract class ChunkNoiseFillerMixin
         terrainAndCaveNoise = Math.min(terrainAndCaveNoise, noiseCaves.sample());
 
         mutableDensityFunctionContext.cursor().set(blockX, y, blockZ);
-        terrainAndCaveNoise += beardifier.compute(mutableDensityFunctionContext);
+        final double structureDensity = beardifier.compute(mutableDensityFunctionContext);
+        final double terrainWithoutCaves = terrainNoise + structureDensity;
+        terrainAndCaveNoise += structureDensity;
+
+        final int localX = access.tfe$getLocalX();
+        final int localZ = access.tfe$getLocalZ();
+        terrainAndCaveNoise = NTERiverCaveProtection.preserveTerrainDensity(
+            terrainWithoutCaves,
+            terrainAndCaveNoise,
+            NTERiverCaveProtection.protectsDensity(blockX, y, blockZ, surfaceHeight[localX + 16 * localZ])
+        );
 
         final BlockState aquiferState = aquifer.sampleState(blockX, y, blockZ, terrainAndCaveNoise);
-        final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
+        final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(localX, localZ);
         if (riverProfile != null)
         {
-            final double riverTerrainHeight = access.tfe$getRiverTerrainHeight(access.tfe$getLocalX(), access.tfe$getLocalZ());
+            final double riverTerrainHeight = access.tfe$getRiverTerrainHeight(localX, localZ);
             final int effectiveBedY = NTERiverHydrology.effectiveBedBlockY(riverProfile, riverTerrainHeight);
             if (NTERiverHydrology.clearsWetMouthHeadroom(riverProfile, y))
             {

@@ -5,6 +5,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import net.dries007.tfc.world.river.Flow;
+import net.minecraft.world.level.ChunkPos;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -986,15 +987,57 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
-    void carversKeepOnlyAShallowBroadRoofAroundTheCreek()
+    void densityCavesAndCarversShareOneTaperedShallowCorridor()
     {
-        final int outerBankMinimum = NTERiverCarverProtection.minimumProtectedY(90, 84d, 0d);
-        final int waterCoreMinimum = NTERiverCarverProtection.minimumProtectedY(90, 84d, 1d);
+        final int outerBankMinimum = NTERiverCaveProtection.minimumProtectedY(84d, 0d);
+        final int waterCoreMinimum = NTERiverCaveProtection.minimumProtectedY(84d, 1d);
+        final NTERiverCaveProtection.Geometry geometry = NTERiverCaveProtection.geometryForTest(
+            new ChunkPos(0, 0),
+            0,
+            0,
+            84d,
+            2d
+        );
 
-        assertEquals(79, outerBankMinimum);
-        assertEquals(73, waterCoreMinimum);
+        assertEquals(83, outerBankMinimum);
+        assertEquals(81, waterCoreMinimum);
         assertTrue(waterCoreMinimum < outerBankMinimum, "the roof should thicken smoothly toward the water core");
-        assertTrue(waterCoreMinimum > 60, "deep caves must remain outside the protected upper terrain band");
+        assertEquals(86, NTERiverCaveProtection.maximumProtectedY(90, 84d));
+        assertTrue(waterCoreMinimum > 60, "deep caves must remain outside the protected bed shell");
+        assertEquals(81, geometry.minimumProtectedY(0, 0, 90));
+        assertEquals(86, geometry.maximumProtectedY(0, 0, 90));
+        assertEquals(83, geometry.minimumProtectedY(12, 0, 90),
+            "the outer bank receives only a one-block support below the creek bed");
+        assertEquals(Integer.MAX_VALUE, geometry.minimumProtectedY(13, 0, 90),
+            "caves beyond the dynamic river corridor remain available");
+
+        final NTERiverCaveProtection.Geometry crossChunkGeometry = NTERiverCaveProtection.geometryForTest(
+            new ChunkPos(0, 0),
+            -1,
+            0,
+            84d,
+            2d
+        );
+        assertTrue(crossChunkGeometry.minimumProtectedY(0, 0, 90) < Integer.MAX_VALUE,
+            "a water core just across the chunk border must protect this chunk's shallow bank");
+
+        try (NTERiverCaveProtection.DensityScope ignored = NTERiverCaveProtection.openDensity(geometry))
+        {
+            assertTrue(NTERiverCaveProtection.protectsDensity(0, 81, 0, 90));
+            assertTrue(NTERiverCaveProtection.protectsDensity(0, 86, 0, 90));
+            assertFalse(NTERiverCaveProtection.protectsDensity(0, 80, 0, 90),
+                "the shared density mask stops below the support shell");
+            assertFalse(NTERiverCaveProtection.protectsDensity(0, 87, 0, 90),
+                "the mask must not refill a shallow cave room all the way to the surface");
+        }
+        assertFalse(NTERiverCaveProtection.protectsDensity(0, 81, 0, 90),
+            "density protection must not leak between asynchronous chunk tasks");
+
+        assertEquals(0.4d, NTERiverCaveProtection.preserveTerrainDensity(0.4d, -0.2d, true), 1.0e-9d,
+            "density caves are ignored only where the original terrain was solid");
+        assertEquals(-0.2d, NTERiverCaveProtection.preserveTerrainDensity(0.4d, -0.2d, false), 1.0e-9d);
+        assertEquals(-0.5d, NTERiverCaveProtection.preserveTerrainDensity(-0.1d, -0.5d, true), 1.0e-9d,
+            "the corridor must not fill positions which the original terrain already intended as air");
     }
 
     private static NTEHeadwaterNetwork.TestStream slopedValley(long seed)

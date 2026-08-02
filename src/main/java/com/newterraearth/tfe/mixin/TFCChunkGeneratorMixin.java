@@ -91,7 +91,7 @@ import com.newterraearth.tfe.world.forest.NTE121ForestHelpers;
 import com.newterraearth.tfe.world.region.NTERegionGeneratorAccess;
 import com.newterraearth.tfe.world.biome.NTERiverBiomeResolver;
 import com.newterraearth.tfe.world.river.NTERiverBlendType;
-import com.newterraearth.tfe.world.river.NTERiverCarverProtection;
+import com.newterraearth.tfe.world.river.NTERiverCaveProtection;
 import com.newterraearth.tfe.world.river.NTERiverHydrology;
 import com.newterraearth.tfe.world.river.NTERiverNoiseSampler;
 import com.newterraearth.tfe.world.shore.NTEShoreBlendType;
@@ -120,7 +120,8 @@ public abstract class TFCChunkGeneratorMixin
     @Unique private volatile NTETerrainUpliftSampler tfe$ambientTerrainUpliftSampler;
     @Unique private final ConcurrentHashMap<Long, CompletableFuture<ChunkHeightFiller>> tfe$ambientHeightFillers = new ConcurrentHashMap<>();
     @Unique private final Map<Long, NTERiverHydrology.ColumnProfile[]> tfe$riverProfilesByChunk = new ConcurrentHashMap<>();
-    @Unique private final ThreadLocal<NTERiverCarverProtection.Scope> tfe$riverCarverProtection = new ThreadLocal<>();
+    @Unique private final Map<Long, NTERiverCaveProtection.Geometry> tfe$riverCaveProtectionByChunk = new ConcurrentHashMap<>();
+    @Unique private final ThreadLocal<NTERiverCaveProtection.Scope> tfe$riverCarverProtection = new ThreadLocal<>();
 
     @Inject(method = "applyBiomeDecoration", at = @At("HEAD"))
     private void tfe$activateHydrologyForLateDecoration(
@@ -147,6 +148,7 @@ public abstract class TFCChunkGeneratorMixin
     )
     {
         tfe$riverProfilesByChunk.remove(chunk.getPos().toLong());
+        tfe$riverCaveProtectionByChunk.remove(chunk.getPos().toLong());
         NTERiverHydrology.clearActiveGeneration();
     }
 
@@ -198,24 +200,25 @@ public abstract class TFCChunkGeneratorMixin
         CallbackInfo ci
     )
     {
-        NTERiverHydrology.activateGeneration(
-            tfe$getOrCreateRiverHydrology(),
-            tfe$riverProfilesByChunk.get(chunk.getPos().toLong()),
-            chunk.getPos().getMinBlockX(),
-            chunk.getPos().getMinBlockZ()
-        );
         if (step == GenerationStep.Carving.AIR)
         {
-            final NTERiverCarverProtection.Scope previous = tfe$riverCarverProtection.get();
+            final NTERiverHydrology riverHydrology = tfe$getOrCreateRiverHydrology();
+            NTERiverHydrology.activateGeneration(
+                riverHydrology,
+                tfe$riverProfilesByChunk.get(chunk.getPos().toLong()),
+                chunk.getPos().getMinBlockX(),
+                chunk.getPos().getMinBlockZ()
+            );
+            final NTERiverCaveProtection.Scope previous = tfe$riverCarverProtection.get();
             if (previous != null)
             {
                 previous.close();
             }
-            tfe$riverCarverProtection.set(NTERiverCarverProtection.open(
-                tfe$getOrCreateRiverHydrology(),
-                chunk,
-                tfe$riverProfilesByChunk.get(chunk.getPos().toLong())
-            ));
+            final NTERiverCaveProtection.Geometry geometry = tfe$riverCaveProtectionByChunk.computeIfAbsent(
+                chunk.getPos().toLong(),
+                ignored -> NTERiverCaveProtection.plan(riverHydrology, chunk.getPos())
+            );
+            tfe$riverCarverProtection.set(NTERiverCaveProtection.openCarvers(geometry, chunk));
         }
     }
 
@@ -280,7 +283,7 @@ public abstract class TFCChunkGeneratorMixin
         }
         finally
         {
-            final NTERiverCarverProtection.Scope scope = tfe$riverCarverProtection.get();
+            final NTERiverCaveProtection.Scope scope = tfe$riverCarverProtection.get();
             if (scope != null)
             {
                 scope.close();
@@ -680,6 +683,7 @@ public abstract class TFCChunkGeneratorMixin
         final ChunkNoiseSamplingSettings settings = tfe$createNoiseSamplingSettingsForChunk(chunk);
         final LevelAccessor actualLevel = (LevelAccessor) ((ChunkAccessAccessor) chunk).accessor$getLevelHeightAccessor();
         final ChunkPos chunkPos = chunk.getPos();
+        final NTERiverHydrology riverHydrology = tfe$getOrCreateRiverHydrology();
         final RandomSource random = new XoroshiroRandomSource(chunkPos.x * 1842639486192314L, chunkPos.z * 579238196380231L);
         final ChunkData chunkData = chunkDataProvider.get(chunk);
         tfe$syncForestType121(chunkData);
@@ -732,13 +736,29 @@ public abstract class TFCChunkGeneratorMixin
             filler.sampleAquiferSurfaceHeight(this::tfe$sampleBiomeNoRiver);
             chunkData.generateFull(filler.surfaceHeight(), filler.aquifer().surfaceHeights());
             chunkData.getRockData().useCache(chunkPos);
-            filler.fillFromNoise();
+            final NTERiverCaveProtection.Geometry caveProtection = NTERiverCaveProtection.plan(riverHydrology, chunkPos);
+            NTERiverHydrology.activateGeneration(
+                riverHydrology,
+                caveProtection.localProfiles(),
+                chunkPos.getMinBlockX(),
+                chunkPos.getMinBlockZ()
+            );
+            try (NTERiverCaveProtection.DensityScope ignored = NTERiverCaveProtection.openDensity(caveProtection))
+            {
+                filler.fillFromNoise();
+            }
+            finally
+            {
+                NTERiverHydrology.clearActiveGeneration();
+            }
 
             if (tfe$riverProfilesByChunk.size() >= 1024)
             {
                 tfe$riverProfilesByChunk.clear();
+                tfe$riverCaveProtectionByChunk.clear();
             }
             tfe$riverProfilesByChunk.put(chunkPos.toLong(), tfe$copyRiverProfiles(filler));
+            tfe$riverCaveProtectionByChunk.put(chunkPos.toLong(), caveProtection);
 
             aquiferCache.set(chunkPos.x, chunkPos.z, filler.aquifer());
             return chunk;

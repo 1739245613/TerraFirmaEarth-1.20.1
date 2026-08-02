@@ -1,5 +1,6 @@
 package com.newterraearth.tfe.world.biome;
 
+import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -15,7 +16,7 @@ import com.newterraearth.tfe.world.river.NTERiverHydrology;
  */
 public final class NTERiverBiomeResolver
 {
-    private static final Map<BiomeSourceExtension, NTERiverHydrology> HYDROLOGY = new WeakHashMap<>();
+    private static final Map<BiomeSourceExtension, WeakReference<NTERiverHydrology>> HYDROLOGY = new WeakHashMap<>();
     private static final ThreadLocal<Set<BiomeSourceExtension>> ACTIVE_QUERIES = ThreadLocal.withInitial(
         () -> Collections.newSetFromMap(new IdentityHashMap<>())
     );
@@ -35,7 +36,7 @@ public final class NTERiverBiomeResolver
     {
         synchronized (HYDROLOGY)
         {
-            HYDROLOGY.put(biomeSource, hydrology);
+            HYDROLOGY.put(biomeSource, new WeakReference<>(hydrology));
         }
     }
 
@@ -44,7 +45,13 @@ public final class NTERiverBiomeResolver
     {
         synchronized (HYDROLOGY)
         {
-            return HYDROLOGY.get(biomeSource);
+            final WeakReference<NTERiverHydrology> reference = HYDROLOGY.get(biomeSource);
+            final NTERiverHydrology hydrology = reference == null ? null : reference.get();
+            if (reference != null && hydrology == null)
+            {
+                HYDROLOGY.remove(biomeSource);
+            }
+            return hydrology;
         }
     }
 
@@ -57,7 +64,12 @@ public final class NTERiverBiomeResolver
         final NTERiverHydrology hydrology;
         synchronized (HYDROLOGY)
         {
-            hydrology = HYDROLOGY.get(biomeSource);
+            final WeakReference<NTERiverHydrology> reference = HYDROLOGY.get(biomeSource);
+            hydrology = reference == null ? null : reference.get();
+            if (reference != null && hydrology == null)
+            {
+                HYDROLOGY.remove(biomeSource);
+            }
         }
         if (hydrology == null)
         {

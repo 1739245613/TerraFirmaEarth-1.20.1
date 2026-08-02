@@ -346,6 +346,16 @@ public final class NTERiverHydrology
         return context.hydrology().findGraphProfileIfPlanned(blockX, blockZ);
     }
 
+    public static boolean hasActiveGenerationColumn(NTERiverHydrology hydrology, int blockX, int blockZ)
+    {
+        final GenerationContext context = ACTIVE_GENERATION.get();
+        return context != null
+            && context.hydrology() == hydrology
+            && context.localProfiles() != null
+            && blockX >= context.chunkMinX() && blockX < context.chunkMinX() + 16
+            && blockZ >= context.chunkMinZ() && blockZ < context.chunkMinZ() + 16;
+    }
+
     private record GenerationContext(
         NTERiverHydrology hydrology,
         @Nullable ColumnProfile[] localProfiles,
@@ -449,6 +459,18 @@ public final class NTERiverHydrology
     public RiverInfo retainedRiverInfo(@Nullable RiverInfo nearest, int blockX, int blockZ)
     {
         planCandidateLeaves(blockX, blockZ);
+        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ);
+    }
+
+    @Nullable
+    public RiverInfo retainedRiverInfoPrepared(@Nullable RiverInfo nearest, int blockX, int blockZ)
+    {
+        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ);
+    }
+
+    @Nullable
+    private RiverInfo retainedRiverInfoFromPlannedCandidates(@Nullable RiverInfo nearest, int blockX, int blockZ)
+    {
         if (nearest != null && retainsTfcEdge(nearest.edge()))
         {
             return headwaters.suppressesRetainedAt(nearest.edge(), blockX, blockZ)
@@ -503,6 +525,12 @@ public final class NTERiverHydrology
     public ColumnProfile sample(@Nullable RiverInfo ignored, int blockX, int blockZ, double ambientHeight)
     {
         return findProfile(blockX, blockZ, ambientHeight);
+    }
+
+    @Nullable
+    public ColumnProfile samplePreparedColumn(int blockX, int blockZ, double ambientHeight)
+    {
+        return findProfileFromPlannedCandidates(blockX, blockZ, ambientHeight);
     }
 
     /**
@@ -599,12 +627,17 @@ public final class NTERiverHydrology
         double ambientHeight
     )
     {
-        // Intersecting leaves are coordinated as one branched network when
-        // their routes are planned. Complete that local planning pass before
-        // taking any samples, otherwise the first candidate can leave a stale
-        // pre-junction water profile in this column while a later candidate
-        // is still inserting the shared node into both routes.
         planCandidateLeaves(blockX, blockZ);
+        return findProfileFromPlannedCandidates(blockX, blockZ, ambientHeight);
+    }
+
+    @Nullable
+    private ColumnProfile findProfileFromPlannedCandidates(
+        int blockX,
+        int blockZ,
+        double ambientHeight
+    )
+    {
         NTEHeadwaterNetwork.Sample nearest = null;
         for (RiverEdge edge : candidateEdges(blockX, blockZ))
         {

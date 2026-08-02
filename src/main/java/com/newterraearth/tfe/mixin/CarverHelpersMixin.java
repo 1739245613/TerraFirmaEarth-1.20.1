@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.carver.CarvingContext;
 
 import net.dries007.tfc.world.carver.CarverHelpers;
 
-import com.newterraearth.tfe.world.river.NTERiverCarverProtection;
+import com.newterraearth.tfe.world.river.NTERiverCaveProtection;
 
 @Mixin(value = CarverHelpers.class, remap = false)
 public abstract class CarverHelpersMixin
@@ -35,7 +35,7 @@ public abstract class CarverHelpersMixin
         CallbackInfoReturnable<Boolean> cir
     )
     {
-        if (NTERiverCarverProtection.protects(pos.getX(), pos.getY(), pos.getZ()))
+        if (NTERiverCaveProtection.protectsCarver(pos.getX(), pos.getY(), pos.getZ()))
         {
             cir.setReturnValue(false);
         }
