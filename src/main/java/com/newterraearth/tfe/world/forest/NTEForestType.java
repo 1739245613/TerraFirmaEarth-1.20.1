@@ -12,35 +12,35 @@ import net.minecraft.util.valueproviders.UniformInt;
 
 public enum NTEForestType implements StringRepresentable
 {
-    GRASSLAND(ForestSubType.NONE, 0, zero(), zero(), zero(), zero(), 2, 0f, 0),
-    CLEARING(ForestSubType.NONE, 0, zero(), zero(), zero(), zero(), 2, 0f, 0),
-    SHRUBLAND(ForestSubType.NONE, 0, zero(), value(10), range(0, 1), range(2, 7), 2, 1f, 0),
-    SPARSE(ForestSubType.NONE, 0, value(2), value(6), zero(), range(0, 2), 2, 0.08f, 0),
-    SAVANNA_MONOCULTURE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 1, 0.55f, 0),
-    SAVANNA_DIVERSE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 2, 0.65f, 0),
-    SAVANNA_ALTERNATE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 3, 0.40f, 2),
-    SAVANNA_SHRUB_MONOCULTURE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 1, 0.9f, 0),
-    SAVANNA_SHRUB_DIVERSE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 2, 1f, 0),
-    SAVANNA_SHRUB_ALTERNATE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 3, 0.8f, 2),
-    PRIMARY_MONOCULTURE(ForestSubType.PRIMARY, 3, value(5), value(25), range(0, 1), zero(), 1, 1f, 0),
-    PRIMARY_DIVERSE(ForestSubType.PRIMARY, 4, value(7), value(40), range(0, 1), range(0, 3), 2, 1f, 0),
-    PRIMARY_ALTERNATE(ForestSubType.PRIMARY, 4, value(7), value(40), range(0, 1), range(0, 3), 3, 1f, 2),
-    SECONDARY_MONOCULTURE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 1, 1f, 0),
-    SECONDARY_MONOCULTURE_TALL(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 1, 1f, 0),
-    SECONDARY_DIVERSE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 2, 1f, 0),
-    SECONDARY_BAMBOO(ForestSubType.SECONDARY, 3, value(1), value(25), range(0, 1), range(0, 1), 2, 0.3f, 0),
-    SECONDARY_DIVERSE_TALL(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 2, 1f, 0),
-    SECONDARY_DENSE(ForestSubType.SECONDARY, 4, value(7), value(40), range(0, 1), value(3), 2, 1f, 0),
-    SECONDARY_DENSE_TALL(ForestSubType.SECONDARY, 4, value(7), value(40), range(0, 1), value(3), 2, 1f, 0),
-    SECONDARY_ALTERNATE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 3, 1f, 2),
-    EDGE_MONOCULTURE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 1, 1f, 0),
-    EDGE_DIVERSE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 2, 1f, 0),
-    EDGE_ALTERNATE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 3, 1f, 2),
-    EDGE_BAMBOO(ForestSubType.EDGE, 2, value(1), value(10), range(0, 1), range(0, 1), 1, 0.7f, 0),
-    DEAD_MONOCULTURE(ForestSubType.DEAD, 2, value(5), value(25), zero(), range(2, 4), 1, 1f, 0),
-    DEAD_DIVERSE(ForestSubType.DEAD, 2, value(5), value(25), zero(), range(2, 4), 2, 1f, 0),
-    DEAD_ALTERNATE(ForestSubType.DEAD, 3, value(4), value(40), range(0, 1), range(0, 3), 3, 1f, 2),
-    DEAD_BAMBOO(ForestSubType.DEAD, 3, value(4), value(25), range(0, 1), range(2, 4), 2, 1f, 0);
+    GRASSLAND(ForestSubType.NONE, 0, zero(), zero(), zero(), zero(), 2, 0f),
+    CLEARING(ForestSubType.NONE, 0, zero(), zero(), zero(), zero(), 2, 0f),
+    SHRUBLAND(ForestSubType.NONE, 0, zero(), value(10), range(0, 1), range(2, 7), 2, 1f),
+    SPARSE(ForestSubType.NONE, 0, value(2), value(6), zero(), range(0, 2), 2, 0.08f),
+    SAVANNA_MONOCULTURE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 1, 0.55f),
+    SAVANNA_DIVERSE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 2, 0.65f),
+    SAVANNA_ALTERNATE(ForestSubType.SAVANNA, 1, value(3), value(6), zero(), range(0, 2), 3, 0.40f),
+    SAVANNA_SHRUB_MONOCULTURE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 1, 0.9f),
+    SAVANNA_SHRUB_DIVERSE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 2, 1f),
+    SAVANNA_SHRUB_ALTERNATE(ForestSubType.SAVANNA, 1, value(1), value(6), zero(), range(3, 6), 3, 0.8f),
+    PRIMARY_MONOCULTURE(ForestSubType.PRIMARY, 3, value(5), value(25), range(0, 1), zero(), 1, 1f),
+    PRIMARY_DIVERSE(ForestSubType.PRIMARY, 4, value(7), value(40), range(0, 1), range(0, 3), 2, 1f),
+    PRIMARY_ALTERNATE(ForestSubType.PRIMARY, 4, value(7), value(40), range(0, 1), range(0, 3), 3, 1f),
+    SECONDARY_MONOCULTURE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 1, 1f),
+    SECONDARY_MONOCULTURE_TALL(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 1, 1f),
+    SECONDARY_DIVERSE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 2, 1f),
+    SECONDARY_BAMBOO(ForestSubType.SECONDARY, 3, value(1), value(25), range(0, 1), range(0, 1), 2, 0.3f),
+    SECONDARY_DIVERSE_TALL(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 2, 1f),
+    SECONDARY_DENSE(ForestSubType.SECONDARY, 4, value(7), value(40), range(0, 1), value(3), 2, 1f),
+    SECONDARY_DENSE_TALL(ForestSubType.SECONDARY, 4, value(7), value(40), range(0, 1), value(3), 2, 1f),
+    SECONDARY_ALTERNATE(ForestSubType.SECONDARY, 3, value(5), value(25), zero(), range(1, 2), 3, 1f),
+    EDGE_MONOCULTURE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 1, 1f),
+    EDGE_DIVERSE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 2, 1f),
+    EDGE_ALTERNATE(ForestSubType.EDGE, 2, value(2), value(10), range(0, 1), range(0, 1), 3, 1f),
+    EDGE_BAMBOO(ForestSubType.EDGE, 2, value(1), value(10), range(0, 1), range(0, 1), 1, 0.7f),
+    DEAD_MONOCULTURE(ForestSubType.DEAD, 2, value(5), value(25), zero(), range(2, 4), 1, 1f),
+    DEAD_DIVERSE(ForestSubType.DEAD, 2, value(5), value(25), zero(), range(2, 4), 2, 1f),
+    DEAD_ALTERNATE(ForestSubType.DEAD, 3, value(4), value(40), range(0, 1), range(0, 3), 3, 1f),
+    DEAD_BAMBOO(ForestSubType.DEAD, 3, value(4), value(25), range(0, 1), range(2, 4), 2, 1f);
 
     public static final Codec<NTEForestType> CODEC = StringRepresentable.fromEnum(NTEForestType::values);
 
@@ -109,9 +109,8 @@ public enum NTEForestType implements StringRepresentable
     private final IntProvider bushCount;
     private final int maxTreeTypes;
     private final float perChunkChance;
-    private final int alternateSize;
 
-    NTEForestType(ForestSubType subType, int density, IntProvider treeCount, IntProvider groundcoverCount, IntProvider leafPileCount, IntProvider bushCount, int maxTreeTypes, float perChunkChance, int alternateSize)
+    NTEForestType(ForestSubType subType, int density, IntProvider treeCount, IntProvider groundcoverCount, IntProvider leafPileCount, IntProvider bushCount, int maxTreeTypes, float perChunkChance)
     {
         this.subType = subType;
         this.density = density;
@@ -121,7 +120,6 @@ public enum NTEForestType implements StringRepresentable
         this.bushCount = bushCount;
         this.maxTreeTypes = maxTreeTypes;
         this.perChunkChance = perChunkChance;
-        this.alternateSize = alternateSize;
     }
 
     @Override
@@ -218,11 +216,6 @@ public enum NTEForestType implements StringRepresentable
     public float getPerChunkChance()
     {
         return perChunkChance;
-    }
-
-    public int getAlternateSize()
-    {
-        return alternateSize;
     }
 
     public enum ForestSubType

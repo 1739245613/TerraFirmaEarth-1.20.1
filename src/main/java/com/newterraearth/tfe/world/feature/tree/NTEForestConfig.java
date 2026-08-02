@@ -69,39 +69,16 @@ public record NTEForestConfig(HolderSet<ConfiguredFeature<?, ?>> entries) implem
         {
             final NTEClimatePlacementAccess access = access();
             final float adjustedRainVar = access.nte$isRainVarianceAbsolute() ? Math.abs(rainVar) : rainVar;
-            final float tempDist = (temperature - getAverageTemp()) * 10f;
-            final float waterDist = groundwater - getAverageGroundwater();
-            final float rainVarDist = (adjustedRainVar - getAverageRainVar()) * 250f;
-            final float elevationDist = (elevation - getAverageElevation()) * 5f;
-            return tempDist + waterDist + rainVarDist + elevationDist;
-        }
-
-        public float getAverageTemp()
-        {
-            return (climate.getMaxTemp() - climate.getMinTemp()) / 2f;
+            final double tempDist = NTEForestSpeciesSelector.normalizedIntervalDistance(temperature, climate.getMinTemp(), climate.getMaxTemp());
+            final double waterDist = NTEForestSpeciesSelector.normalizedIntervalDistance(groundwater, access.nte$getMinGroundwater(), access.nte$getMaxGroundwater());
+            final double rainVarDist = NTEForestSpeciesSelector.normalizedIntervalDistance(adjustedRainVar, access.nte$getMinRainVariance(), access.nte$getMaxRainVariance());
+            final double elevationDist = NTEForestSpeciesSelector.normalizedIntervalDistance(elevation, access.nte$getMinElevation(), access.nte$getMaxElevation());
+            return (float) Math.sqrt((tempDist * tempDist + waterDist * waterDist + rainVarDist * rainVarDist + elevationDist * elevationDist) / 4d);
         }
 
         public ClimatePlacement getClimatePlacement()
         {
             return climate;
-        }
-
-        public float getAverageGroundwater()
-        {
-            final NTEClimatePlacementAccess access = access();
-            return (access.nte$getMaxGroundwater() - access.nte$getMinGroundwater()) / 2f;
-        }
-
-        public float getAverageRainVar()
-        {
-            final NTEClimatePlacementAccess access = access();
-            return (access.nte$getMaxRainVariance() - access.nte$getMinRainVariance()) / 2f;
-        }
-
-        public float getAverageElevation()
-        {
-            final NTEClimatePlacementAccess access = access();
-            return (access.nte$getMaxElevation() - access.nte$getMinElevation()) / 2f;
         }
 
         public ConfiguredFeature<?, ?> getFeature()

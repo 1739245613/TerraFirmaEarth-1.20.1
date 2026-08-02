@@ -4,7 +4,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
@@ -76,28 +75,33 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         final long levelSeed = level.getSeed();
         final int treeCount = forestType.sampleTrees(random);
         final int bushCount = forestType.sampleBushes(random);
+        final List<ForestEntryHandle> treeCandidates = config.entries().stream()
+            .map(configuredFeature -> configuredFeature.value().config())
+            .map(NTEForestFeature::adaptEntry)
+            .filter(Objects::nonNull)
+            .toList();
 
         boolean placedTrees = false;
         boolean placedBushes = false;
 
         for (int i = 0; i < treeCount; i++)
         {
-            placedTrees |= placeTree(level, context.chunkGenerator(), random, pos, config, data, mutablePos, forestType, levelSeed);
+            placedTrees |= placeTree(level, context.chunkGenerator(), random, pos, treeCandidates, data, mutablePos, forestType, levelSeed);
         }
         for (int i = 0; i < bushCount; i++)
         {
-            placedBushes |= placeBush(level, random, pos, config, data, mutablePos, forestType, context.chunkGenerator(), levelSeed);
+            placedBushes |= placeBush(level, random, pos, treeCandidates, data, mutablePos, forestType, context.chunkGenerator(), levelSeed);
         }
         if (placedTrees)
         {
-            placeGroundcover(level, random, pos, config, data, mutablePos, forestType.sampleGroundcover(random), forestType, context.chunkGenerator(), levelSeed);
-            placeLeafPile(level, random, pos, config, data, mutablePos, forestType.sampleLeafPiles(random), forestType, context.chunkGenerator(), levelSeed);
-            placeFallenTree(level, random, pos, config, data, mutablePos, forestType, context.chunkGenerator(), levelSeed);
+            placeGroundcover(level, random, pos, treeCandidates, data, mutablePos, forestType.sampleGroundcover(random), forestType, context.chunkGenerator(), levelSeed);
+            placeLeafPile(level, random, pos, treeCandidates, data, mutablePos, forestType.sampleLeafPiles(random), forestType, context.chunkGenerator(), levelSeed);
+            placeFallenTree(level, random, pos, treeCandidates, data, mutablePos, forestType, context.chunkGenerator(), levelSeed);
         }
         return placedTrees || placedBushes;
     }
 
-    private boolean placeTree(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType typeConfig, long levelSeed)
+    private boolean placeTree(WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos chunkBlockPos, List<ForestEntryHandle> treeCandidates, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType typeConfig, long levelSeed)
     {
         final int chunkX = chunkBlockPos.getX();
         final int chunkZ = chunkBlockPos.getZ();
@@ -105,7 +109,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         mutablePos.set(chunkX + random.nextInt(16), 0, chunkZ + random.nextInt(16));
         mutablePos.setY(level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, mutablePos.getX(), mutablePos.getZ()));
 
-        final ForestEntryHandle entry = getTree(data, random, config, mutablePos, typeConfig, generator, levelSeed);
+        final ForestEntryHandle entry = getTree(data, random, treeCandidates, mutablePos, typeConfig, generator, levelSeed);
         if (entry == null)
         {
             return false;
@@ -185,7 +189,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
             && (state.canBeReplaced() || EnvironmentHelpers.isWorldgenReplaceable(state) || state.getCollisionShape(level, pos).isEmpty());
     }
 
-    private boolean placeBush(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType type, ChunkGenerator generator, long levelSeed)
+    private boolean placeBush(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, List<ForestEntryHandle> treeCandidates, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType type, ChunkGenerator generator, long levelSeed)
     {
         final int chunkX = chunkBlockPos.getX();
         final int chunkZ = chunkBlockPos.getZ();
@@ -193,7 +197,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         mutablePos.set(chunkX + random.nextInt(16), 0, chunkZ + random.nextInt(16));
         mutablePos.setY(level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, mutablePos.getX(), mutablePos.getZ()));
 
-        final ForestEntryHandle entry = getTree(data, random, config, mutablePos, type, generator, levelSeed);
+        final ForestEntryHandle entry = getTree(data, random, treeCandidates, mutablePos, type, generator, levelSeed);
         if (entry != null && EnvironmentHelpers.canPlaceBushOn(level, mutablePos))
         {
             entry.bushLog().ifPresent(log -> entry.bushLeaves().ifPresent(leaves -> {
@@ -241,7 +245,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         }
     }
 
-    private void placeGroundcover(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, int tries, NTEForestType type, ChunkGenerator generator, long levelSeed)
+    private void placeGroundcover(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, List<ForestEntryHandle> treeCandidates, ChunkData data, BlockPos.MutableBlockPos mutablePos, int tries, NTEForestType type, ChunkGenerator generator, long levelSeed)
     {
         if (tries == 0)
         {
@@ -254,7 +258,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         mutablePos.set(chunkX + random.nextInt(16), 0, chunkZ + random.nextInt(16));
         mutablePos.setY(level.getHeight(Heightmap.Types.OCEAN_FLOOR, mutablePos.getX(), mutablePos.getZ()));
 
-        final ForestEntryHandle entry = getTree(data, random, config, mutablePos, type, generator, levelSeed);
+        final ForestEntryHandle entry = getTree(data, random, treeCandidates, mutablePos, type, generator, levelSeed);
         if (entry != null)
         {
             entry.groundcover().ifPresent(groundcover -> {
@@ -274,7 +278,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         }
     }
 
-    private void placeLeafPile(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, int tries, NTEForestType type, ChunkGenerator generator, long levelSeed)
+    private void placeLeafPile(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, List<ForestEntryHandle> treeCandidates, ChunkData data, BlockPos.MutableBlockPos mutablePos, int tries, NTEForestType type, ChunkGenerator generator, long levelSeed)
     {
         final int chunkX = chunkBlockPos.getX();
         final int chunkZ = chunkBlockPos.getZ();
@@ -282,7 +286,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         mutablePos.set(chunkX + random.nextInt(16), 0, chunkZ + random.nextInt(16));
         mutablePos.setY(level.getHeight(Heightmap.Types.OCEAN_FLOOR, mutablePos.getX(), mutablePos.getZ()));
 
-        final ForestEntryHandle entry = getTree(data, random, config, mutablePos, type, generator, levelSeed);
+        final ForestEntryHandle entry = getTree(data, random, treeCandidates, mutablePos, type, generator, levelSeed);
         if (entry != null)
         {
             entry.fallenLeaves().ifPresent(placementState -> {
@@ -306,7 +310,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         }
     }
 
-    private void placeFallenTree(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, NTEForestConfig config, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType type, ChunkGenerator generator, long levelSeed)
+    private void placeFallenTree(WorldGenLevel level, RandomSource random, BlockPos chunkBlockPos, List<ForestEntryHandle> treeCandidates, ChunkData data, BlockPos.MutableBlockPos mutablePos, NTEForestType type, ChunkGenerator generator, long levelSeed)
     {
         final int chunkX = chunkBlockPos.getX();
         final int chunkZ = chunkBlockPos.getZ();
@@ -319,7 +323,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         mutablePos.move(Direction.UP);
         if (Helpers.isBlock(downState, TFCTags.Blocks.BUSH_PLANTABLE_ON) || Helpers.isBlock(downState, TFCTags.Blocks.SEA_BUSH_PLANTABLE_ON))
         {
-            final ForestEntryHandle entry = getTree(data, random, config, mutablePos, type, generator, levelSeed);
+            final ForestEntryHandle entry = getTree(data, random, treeCandidates, mutablePos, type, generator, levelSeed);
             if (entry != null)
             {
                 final int fallChance = entry.fallenChance();
@@ -396,7 +400,7 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
     }
 
     @Nullable
-    private ForestEntryHandle getTree(ChunkData chunkData, RandomSource random, NTEForestConfig config, BlockPos pos, NTEForestType type, ChunkGenerator generator, long levelSeed)
+    private ForestEntryHandle getTree(ChunkData chunkData, RandomSource random, List<ForestEntryHandle> treeCandidates, BlockPos pos, NTEForestType type, ChunkGenerator generator, long levelSeed)
     {
         final boolean northernHemisphere = NTE121ClimateHelpers.isNorthernHemisphere(generator, pos.getZ());
         final float rainVariance = NTE121ClimateHelpers.getRainVariance(levelSeed, generator, pos) * (northernHemisphere ? 1f : -1f);
@@ -405,40 +409,12 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         final float rainfall = chunkData.getRainfall(pos);
         final float averageTemperature = OverworldClimateModel.getAdjustedAverageTempByElevation(pos, chunkData);
 
-        final List<ForestEntryHandle> entries = config.entries().stream()
-            .map(configuredFeature -> configuredFeature.value().config())
-            .map(NTEForestFeature::adaptEntry)
-            .filter(Objects::nonNull)
+        final List<ForestEntryHandle> rankedEntries = treeCandidates.stream()
             .filter(entry -> entry.isValid(averageTemperature, rainfall, groundwater, rainVariance, elevation))
             .sorted(Comparator.comparingDouble(entry -> entry.distanceFromMean(averageTemperature, rainfall, groundwater, rainVariance, elevation)))
-            .collect(Collectors.toList());
+            .toList();
 
-        if (entries.isEmpty())
-        {
-            return null;
-        }
-        if (entries.size() == 1)
-        {
-            return entries.get(0);
-        }
-
-        while (entries.size() > type.getMaxTreeTypes())
-        {
-            entries.remove(entries.size() - 1);
-        }
-        int alternate = type.getAlternateSize();
-        while (entries.size() > 1 && alternate > 0)
-        {
-            entries.remove(0);
-            alternate--;
-        }
-
-        int index = 0;
-        while (index < entries.size() - 1 && random.nextFloat() < 0.6f)
-        {
-            index++;
-        }
-        return entries.get(index);
+        return NTEForestSpeciesSelector.selectForPlacement(rankedEntries, type.getMaxTreeTypes(), random);
     }
 
     @Nullable
@@ -624,7 +600,10 @@ public class NTEForestFeature extends Feature<NTEForestConfig>
         @Override
         public double distanceFromMean(float temperature, float rainfall, float groundwater, float rainVariance, int elevation)
         {
-            return entry.distanceFromMean(temperature, rainfall);
+            final ClimatePlacement climate = entry.climate();
+            final double temperatureDistance = NTEForestSpeciesSelector.normalizedIntervalDistance(temperature, climate.getMinTemp(), climate.getMaxTemp());
+            final double rainfallDistance = NTEForestSpeciesSelector.normalizedIntervalDistance(rainfall, climate.getMinRainfall(), climate.getMaxRainfall());
+            return Math.sqrt((temperatureDistance * temperatureDistance + rainfallDistance * rainfallDistance) / 2d);
         }
 
         @Override
