@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import net.dries007.tfc.world.ChunkBaseBlockSource;
 import net.dries007.tfc.world.ChunkNoiseFiller;
@@ -54,24 +54,16 @@ public abstract class ChunkNoiseFillerMixin
     @Shadow private TFCAquifer aquifer;
     @Shadow private ChunkNoiseSamplingSettings settings;
 
-    @Shadow
-    private Flow calculateFlowAt(int cellX, int cellZ)
-    {
-        throw new AssertionError();
-    }
-
-    @Redirect(
+    @ModifyVariable(
         method = "fillColumn",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/dries007/tfc/world/ChunkNoiseFiller;calculateFlowAt(II)Lnet/dries007/tfc/world/river/Flow;"
-        )
+        at = @At("STORE"),
+        ordinal = 0
     )
-    private Flow tfe$calculateHydrologyFlow(ChunkNoiseFiller instance, int cellX, int cellZ)
+    private Flow tfe$applyHydrologyColumnFlow(Flow nativeFlow)
     {
         final NTEChunkHeightFillerAccess access = (NTEChunkHeightFillerAccess) this;
         final NTERiverHydrology.ColumnProfile profile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
-        return profile != null && profile.inWaterCore() ? profile.flow() : calculateFlowAt(cellX, cellZ);
+        return NTERiverHydrology.effectiveColumnFlow(profile, nativeFlow);
     }
 
     /**
@@ -330,13 +322,16 @@ public abstract class ChunkNoiseFillerMixin
                 && y > effectiveBedY
                 && (aquiferState == null || aquiferState.getFluidState().isEmpty() || aquiferState.getFluidState().is(net.minecraft.tags.FluidTags.WATER)))
             {
-                if (riverProfile.inSourceWaterCore()
-                    || NTERiverHydrology.usesDirectionalReceiverSurfaceWater(
-                        riverProfile,
-                        y,
-                        SEA_LEVEL_Y - 1
-                    ))
+                if (NTERiverHydrology.usesDirectionalSupplementalWater(
+                    riverProfile,
+                    y,
+                    SEA_LEVEL_Y - 1
+                ))
                 {
+                    // fillColumn now carries the supplemental route's final
+                    // geometric flow independently of the biome river flag;
+                    // keep returning vanilla source water here so TFC performs
+                    // its standard directional-water conversion in one place.
                     return Blocks.WATER.defaultBlockState();
                 }
                 // The mouth fringe is deliberately generated as flowing water

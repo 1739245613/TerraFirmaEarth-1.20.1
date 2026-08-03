@@ -56,7 +56,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.dries007.tfc.mixin.accessor.ChunkAccessAccessor;
-import net.dries007.tfc.common.fluids.RiverWaterFluid;
 import net.dries007.tfc.common.fluids.TFCFluids;
 import net.dries007.tfc.world.BiomeNoiseSampler;
 import net.dries007.tfc.world.ChunkBaseBlockSource;
@@ -581,9 +580,7 @@ public abstract class TFCChunkGeneratorMixin
             final boolean joinsDirectionalReceiver = y <= SEA_LEVEL_Y - 1
                 || below.getFluidState().getType() == TFCFluids.RIVER_WATER.get();
             final BlockState water = joinsDirectionalReceiver
-                ? TFCFluids.RIVER_WATER.get().defaultFluidState()
-                    .setValue(RiverWaterFluid.FLOW, flow)
-                    .createLegacyBlock()
+                ? NTERiverHydrology.directionalRiverWaterState(flow)
                 : landsHere ? spreadingWater : fallingWater;
             chunk.setBlockState(cursor, water, false);
             if (!joinsDirectionalReceiver)

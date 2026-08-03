@@ -425,6 +425,38 @@ class NTEHeadwaterNetworkTest
         assertNotNull(sharedVertical);
         assertEquals(sharedHorizontal.waterY(), sharedVertical.waterY(), 1.0e-9d,
             "the shared node must have one coordinated water level");
+        assertTrue(NTEHeadwaterNetwork.routeDerivedStateMatchesGeometry(horizontal),
+            "junction reconstruction must rebuild bounds and segment indexes from its new geometry");
+        assertTrue(NTEHeadwaterNetwork.routeDerivedStateMatchesGeometry(vertical));
+    }
+
+    @Test
+    void junctionRebuildRemovesOldOuterChunkMembershipBeforePublishingNewGeometry()
+    {
+        final NTEHeadwaterNetwork.HeightSampler valley = (x, z) -> 82d;
+        final NTEHeadwaterNetwork.TestStream horizontal = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(-96d, 0d),
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(96d, 0d)
+            ),
+            78d,
+            68d,
+            valley
+        );
+        final NTEHeadwaterNetwork.TestStream vertical = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 96d),
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(0d, -96d)
+            ),
+            72d,
+            64d,
+            valley
+        );
+
+        assertTrue(NTEHeadwaterNetwork.routeIsPublishedOnlyInCurrentChunksAfterCoordination(horizontal, vertical),
+            "the outer chunk index must contain only the rebuilt immutable Route geometry");
     }
 
     @Test
@@ -458,6 +490,9 @@ class NTEHeadwaterNetworkTest
             "the shared trunk may not retain a one-block high/low double water surface");
         assertEquals(higherSample.flow(), lowerSample.flow(),
             "both owners of a shared trunk must bake water in the same downstream direction");
+        assertTrue(NTEHeadwaterNetwork.routeDerivedStateMatchesGeometry(higher),
+            "shared-profile reconstruction must rebuild all geometry-derived state");
+        assertTrue(NTEHeadwaterNetwork.routeDerivedStateMatchesGeometry(lower));
     }
 
     @Test
@@ -570,6 +605,86 @@ class NTEHeadwaterNetworkTest
         assertFalse(points.contains(new NTEHeadwaterNetwork.Vec(8d, 0d)), "the sharp grid corner must be replaced by an arc");
         assertEquals(new NTEHeadwaterNetwork.Vec(0d, 0d), points.get(0));
         assertEquals(new NTEHeadwaterNetwork.Vec(8d, 8d), points.get(points.size() - 1));
+    }
+
+    @Test
+    void fallbackFeederParticipatesInIntersectionCoordination()
+    {
+        final NTEHeadwaterNetwork.HeightSampler valley = (x, z) -> 82d;
+        final NTEHeadwaterNetwork.TestStream feeder = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(80d, 0d),
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(-80d, 0d)
+            ),
+            78d,
+            70d,
+            valley,
+            false
+        );
+        final NTEHeadwaterNetwork.TestStream replacement = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 80d),
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(0d, -80d)
+            ),
+            70d,
+            64d,
+            valley
+        );
+        assertTrue(NTEHeadwaterNetwork.coordinateTestStreams(feeder, replacement),
+            "the production coordinator and outer index must include a retained-leaf feeder");
+        final List<NTEHeadwaterNetwork.DiagnosticPoint> feederPoints = feeder.points();
+        final List<NTEHeadwaterNetwork.DiagnosticPoint> replacementPoints = replacement.points();
+        assertTrue(feederPoints.stream().anyMatch(left -> replacementPoints.stream().anyMatch(right ->
+                Math.hypot(left.x() - right.x(), left.z() - right.z()) <= 1.0e-9d
+                    && Math.abs(left.waterY() - right.waterY()) <= 1.0e-9d)),
+            "feeder and replacement must share one water level at their physical contact");
+    }
+
+    @Test
+    void routeSegmentIndexMatchesTheLinearProjectionReference()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = slopedValley(55667788L);
+        assertTrue(stream.valid());
+        for (int z = -64; z <= 64; z += 4)
+        {
+            for (int x = -32; x <= 352; x += 4)
+            {
+                assertTrue(NTEHeadwaterNetwork.routeSampleMatchesLinearReference(stream, x, z),
+                    "the route segment index must preserve the exact nearest projection");
+            }
+        }
+    }
+
+    @Test
+    void routeSegmentIndexKeepsTheNearestNarrowSegmentWhenAWideSegmentReturnsNearby()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(48d, 0d),
+                new NTEHeadwaterNetwork.Vec(48d, 12d),
+                new NTEHeadwaterNetwork.Vec(0d, 12d)
+            ),
+            78d,
+            72d,
+            new double[] { 0.65d, 0.65d, 5.5d, 5.5d },
+            (x, z) -> 82d,
+            true
+        );
+
+        // The route returns close to itself with a much wider downstream
+        // segment. The legacy rule still owns the column by the absolute
+        // nearest centerline segment, so the narrow upstream segment must not
+        // disappear from the broad-phase candidate set.
+        for (int x = 0; x <= 48; x++)
+        {
+            for (int z = -2; z <= 14; z++)
+            {
+                assertTrue(NTEHeadwaterNetwork.routeSampleMatchesLinearReference(stream, x, z));
+            }
+        }
     }
 
     @Test
@@ -935,6 +1050,30 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void supplementalStaticWaterKeepsItsOwnFlowAcrossNoRiverBiomes()
+    {
+        final NTERiverHydrology.ColumnProfile ordinarySource = withSourceWaterAllowed(
+            profileAtWater(67d, false),
+            true
+        );
+        final NTERiverHydrology.ColumnProfile dynamicWater = withSourceWaterAllowed(
+            profileAtWater(67d, false),
+            false
+        );
+
+        assertTrue(NTERiverHydrology.usesDirectionalSupplementalWater(ordinarySource, 67, 62),
+            "a supplemental source owns its direction even when the base biome has no native rivers");
+        assertFalse(NTERiverHydrology.usesDirectionalSupplementalWater(dynamicWater, 67, 62),
+            "ordinary dynamic waterfall water must stay vanilla flowing water");
+        assertTrue(NTERiverHydrology.usesDirectionalSupplementalWater(profileAtWater(62d, true), 62, 62),
+            "receiver contact remains directional even when it is not a source-water column");
+        assertEquals(ordinarySource.flow(), NTERiverHydrology.effectiveColumnFlow(ordinarySource, Flow.NONE),
+            "a no-river biome must not erase the rebuilt route's final geometric flow");
+        assertEquals(Flow.NONE, NTERiverHydrology.effectiveColumnFlow(null, Flow.NONE),
+            "columns outside the supplemental water core must preserve TFC's native flow");
+    }
+
+    @Test
     void sourceWaterCoreRetractsWithoutShorteningTheGeneratedWaterfall()
     {
         assertEquals(1d, NTEHeadwaterNetwork.mouthSourceWaterInset(0.2d), 0d);
@@ -961,6 +1100,34 @@ class NTEHeadwaterNetworkTest
             assertEquals(new NTERiverHydrology.CardinalStep(1, 0),
                 NTERiverHydrology.cardinalFlowStep(Flow.EEE, step));
         }
+    }
+
+    @Test
+    void steepHeadwaterOnlyLetsTheRouteOriginBypassSourceWaterSlopeRules()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(4d, 0d),
+                new NTEHeadwaterNetwork.Vec(8d, 0d)
+            ),
+            80d,
+            70d,
+            (x, z) -> 82d
+        );
+
+        final NTEHeadwaterNetwork.Sample origin = NTEHeadwaterNetwork.sampleTestStream(stream, 0, 0);
+        final NTEHeadwaterNetwork.Sample besideOrigin = NTEHeadwaterNetwork.sampleTestStream(stream, 0, 1);
+        final NTEHeadwaterNetwork.Sample downstream = NTEHeadwaterNetwork.sampleTestStream(stream, 1, 0);
+        assertNotNull(origin);
+        assertNotNull(besideOrigin);
+        assertNotNull(downstream);
+        assertTrue(origin.sourceWaterAllowed(),
+            "the first water column must remain a source even before an immediate steep descent");
+        assertFalse(besideOrigin.sourceWaterAllowed(),
+            "forcing the spring source may not widen it into neighboring columns");
+        assertFalse(downstream.sourceWaterAllowed(),
+            "all downstream columns must retain the existing steep-flow source rules");
     }
 
     @Test
@@ -1161,6 +1328,34 @@ class NTEHeadwaterNetworkTest
             profile.waterAllowed(),
             profile.sourceWaterAllowed(),
             receiverBlendWeight,
+            profile.waterfallLanding(),
+            profile.headwater(),
+            profile.kind(),
+            profile.mode(),
+            profile.flow()
+        );
+    }
+
+    private static NTERiverHydrology.ColumnProfile withSourceWaterAllowed(
+        NTERiverHydrology.ColumnProfile profile,
+        boolean sourceWaterAllowed
+    )
+    {
+        return new NTERiverHydrology.ColumnProfile(
+            profile.waterSurfaceY(),
+            profile.centerBedY(),
+            profile.bedY(),
+            profile.normalizedDistanceSq(),
+            profile.channelRadius(),
+            profile.bankRaise(),
+            profile.terrainIncision(),
+            profile.mouthWaterDrop(),
+            profile.bankFillWeight(),
+            profile.waterCoreRadiusSq(),
+            profile.fillAllowed(),
+            profile.waterAllowed(),
+            sourceWaterAllowed,
+            profile.receiverBlendWeight(),
             profile.waterfallLanding(),
             profile.headwater(),
             profile.kind(),

@@ -589,7 +589,6 @@ final class NTEHeadwaterNetwork
         }
 
         Sample nearest = null;
-        candidates.sort(HEADWATER_ORDER);
         for (Headwater headwater : candidates)
         {
             final Sample sample = headwater.sampleIfPlanned(blockX, blockZ, ambientHeight);
@@ -603,11 +602,17 @@ final class NTEHeadwaterNetwork
 
     boolean mayInfluence(RiverEdge edge, int blockX, int blockZ)
     {
+        return mayInfluence(edge, blockX, blockZ, 0d);
+    }
+
+    boolean mayInfluence(RiverEdge edge, int blockX, int blockZ, double extraBlocks)
+    {
         final double distanceSqGrid = edge.fractal().intersectDistance(
             Units.blockToGridExact(blockX),
             Units.blockToGridExact(blockZ)
         );
-        final double influenceGrid = (ROUTE_PADDING + 12d) / Units.GRID_WIDTH_IN_BLOCK;
+        final double influenceGrid = (ROUTE_PADDING + 12d + Math.max(0d, extraBlocks))
+            / Units.GRID_WIDTH_IN_BLOCK;
         return distanceSqGrid <= influenceGrid * influenceGrid;
     }
 
@@ -649,67 +654,129 @@ final class NTEHeadwaterNetwork
 
     private void indexPlanned(Headwater headwater)
     {
-        final Route route = headwater.plannedRoute();
-        if (route == null || headwater.indexed)
+        final Route observedRoute = headwater.plannedRoute();
+        if (observedRoute == null || headwater.indexedRoute == observedRoute)
         {
             return;
         }
         synchronized (headwaters)
         {
-            if (headwater.indexed)
+            if (!isCurrent(headwater))
+            {
+                return;
+            }
+            // Re-read after taking the publication lock. Coordination can
+            // replace Route between the optimistic check above and this lock;
+            // publishing the captured older instance would roll the spatial
+            // index back to stale geometry.
+            final Route route = headwater.plannedRoute();
+            if (route == null)
+            {
+                return;
+            }
+            if (headwater.indexedRoute == route)
             {
                 return;
             }
 
-            double minX = Double.POSITIVE_INFINITY;
-            double minZ = Double.POSITIVE_INFINITY;
-            double maxX = Double.NEGATIVE_INFINITY;
-            double maxZ = Double.NEGATIVE_INFINITY;
-            for (int i = 0; i < route.x.length; i++)
+            for (long key : headwater.indexedChunks)
             {
-                minX = Math.min(minX, route.x[i]);
-                minZ = Math.min(minZ, route.z[i]);
-                maxX = Math.max(maxX, route.x[i]);
-                maxZ = Math.max(maxZ, route.z[i]);
-            }
-            final int minChunkX = Mth.floor(minX - SPATIAL_INDEX_MARGIN) >> 4;
-            final int minChunkZ = Mth.floor(minZ - SPATIAL_INDEX_MARGIN) >> 4;
-            final int maxChunkX = Mth.floor(maxX + SPATIAL_INDEX_MARGIN) >> 4;
-            final int maxChunkZ = Mth.floor(maxZ + SPATIAL_INDEX_MARGIN) >> 4;
-            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++)
-            {
-                for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++)
+                final List<Headwater> indexed = plannedByChunk.get(key);
+                if (indexed != null)
                 {
-                    plannedByChunk.computeIfAbsent(chunkKey(chunkX, chunkZ), ignored -> new ArrayList<>()).add(headwater);
+                    indexed.remove(headwater);
+                    if (indexed.isEmpty())
+                    {
+                        plannedByChunk.remove(key);
+                    }
                 }
             }
-            headwater.indexed = true;
+            headwater.indexedChunks.clear();
+
+            for (long key : route.spatialChunks)
+            {
+                final List<Headwater> indexed = plannedByChunk.computeIfAbsent(
+                    key,
+                    ignored -> new ArrayList<>()
+                );
+                if (!indexed.contains(headwater))
+                {
+                    indexed.add(headwater);
+                }
+                indexed.sort(HEADWATER_ORDER);
+                headwater.indexedChunks.add(key);
+            }
+            headwater.indexedRoute = route;
         }
     }
 
     private void coordinatePlannedIntersections(Headwater headwater)
     {
-        if (headwater.intersectionsCoordinated || !headwater.replacement || headwater.plannedRoute() == null)
+        if (headwater.intersectionsCoordinated || headwater.plannedRoute() == null)
         {
             return;
         }
         synchronized (headwaters)
         {
-            if (headwater.intersectionsCoordinated)
+            if (!isCurrent(headwater)
+                || headwater.intersectionsCoordinated
+                || headwater.plannedRoute() == null)
             {
                 return;
             }
-            final List<Headwater> planned = new ArrayList<>();
-            for (Headwater peer : headwaters.values())
-            {
-                if (peer.attempted && peer.replacement && peer.plannedRoute() != null)
-                {
-                    planned.add(peer);
-                }
-            }
+            final List<Headwater> planned = nearbyPlannedHeadwaters(headwater);
             planned.sort(HEADWATER_ORDER);
             coordinateNetwork(planned, heights);
+            // Coordination replaces immutable Route instances. Rebuild every
+            // affected outer index now; otherwise a peer indexed before this
+            // junction can keep publishing coverage for its old geometry.
+            for (Headwater plannedHeadwater : planned)
+            {
+                indexPlanned(plannedHeadwater);
+            }
         }
+    }
+
+    private List<Headwater> nearbyPlannedHeadwaters(Headwater target)
+    {
+        final Route targetRoute = target.plannedRoute();
+        if (targetRoute == null)
+        {
+            return List.of();
+        }
+        final Set<Headwater> nearby = Collections.newSetFromMap(new IdentityHashMap<>());
+        nearby.add(target);
+        if (target.indexedRoute == targetRoute)
+        {
+            for (long key : targetRoute.spatialChunks)
+            {
+                final List<Headwater> indexed = plannedByChunk.get(key);
+                if (indexed != null)
+                {
+                    nearby.addAll(indexed);
+                }
+            }
+        }
+        else
+        {
+            for (Headwater peer : headwaters.values())
+            {
+                final Route peerRoute = peer.plannedRoute();
+                if (peer.attempted && peerRoute != null
+                    && targetRoute.boundsOverlap(peerRoute, JUNCTION_MAX_WET_CONTACT_RADIUS))
+                {
+                    nearby.add(peer);
+                }
+            }
+        }
+        nearby.removeIf(peer -> !peer.attempted || peer.plannedRoute() == null);
+        return new ArrayList<>(nearby);
+    }
+
+    /** Must be called while holding the headwater publication lock. */
+    private boolean isCurrent(Headwater headwater)
+    {
+        return headwater.edge == null || headwaters.get(headwater.edge) == headwater;
     }
 
     private static long chunkKey(int chunkX, int chunkZ)
@@ -852,9 +919,23 @@ final class NTEHeadwaterNetwork
 
     static boolean coordinateTestStreams(TestStream left, TestStream right)
     {
-        left.headwater.route();
-        right.headwater.route();
-        return coordinatePair(left.headwater, right.headwater, left.headwater.heights);
+        final Route leftBefore = left.headwater.route();
+        final Route rightBefore = right.headwater.route();
+        if (leftBefore == null || rightBefore == null)
+        {
+            return false;
+        }
+        final NTEHeadwaterNetwork network = new NTEHeadwaterNetwork(
+            0L,
+            left.headwater.seaLevel,
+            left.headwater.heights
+        );
+        network.indexPlanned(left.headwater);
+        network.indexPlanned(right.headwater);
+        network.coordinatePlannedIntersections(left.headwater);
+        return (left.headwater.plannedRoute() != leftBefore || right.headwater.plannedRoute() != rightBefore)
+            && left.headwater.indexedRoute == left.headwater.plannedRoute()
+            && right.headwater.indexedRoute == right.headwater.plannedRoute();
     }
 
     @Nullable
@@ -886,6 +967,35 @@ final class NTEHeadwaterNetwork
 
     static TestStream testStreamFromRoute(List<Vec> points, double startWaterY, double endWaterY, HeightSampler heights)
     {
+        return testStreamFromRoute(points, startWaterY, endWaterY, heights, true);
+    }
+
+    static TestStream testStreamFromRoute(
+        List<Vec> points,
+        double startWaterY,
+        double endWaterY,
+        HeightSampler heights,
+        boolean replacement
+    )
+    {
+        final double[] radii = new double[points.size()];
+        Arrays.fill(radii, 2.5d);
+        return testStreamFromRoute(points, startWaterY, endWaterY, radii, heights, replacement);
+    }
+
+    static TestStream testStreamFromRoute(
+        List<Vec> points,
+        double startWaterY,
+        double endWaterY,
+        double[] radii,
+        HeightSampler heights,
+        boolean replacement
+    )
+    {
+        if (radii.length != points.size())
+        {
+            throw new IllegalArgumentException("one radius is required for each route point");
+        }
         final Headwater headwater = new Headwater(
             1L,
             (int) Math.floor(endWaterY + 1d),
@@ -917,14 +1027,109 @@ final class NTEHeadwaterNetwork
         for (int i = 0; i < size; i++)
         {
             water[i] = Mth.lerp(distance[i] / distance[size - 1], startWaterY, endWaterY);
-            radius[i] = 2.5d;
+            radius[i] = radii[i];
         }
         headwater.route = new Route(
             x, z, terrain, water, radius, distance, distance[size - 1], false, null, endWaterY
         );
         headwater.attempted = true;
-        headwater.replacement = true;
+        headwater.replacement = replacement;
         return new TestStream(headwater);
+    }
+
+    static boolean routeSampleMatchesLinearReference(TestStream stream, int blockX, int blockZ)
+    {
+        final Route route = stream.headwater.route();
+        if (route == null)
+        {
+            return false;
+        }
+        final RouteProjection indexed = route.nearestIndexedProjection(new Vec(blockX, blockZ));
+        final RouteProjection linear = route.nearestProjectionLinear(new Vec(blockX, blockZ));
+        return indexed.segment() == linear.segment()
+            && Math.abs(indexed.delta() - linear.delta()) <= 1.0e-9d
+            && Math.abs(indexed.along() - linear.along()) <= 1.0e-9d
+            && Math.abs(indexed.distanceSq() - linear.distanceSq()) <= 1.0e-9d;
+    }
+
+    static boolean routeDerivedStateMatchesGeometry(TestStream stream)
+    {
+        final Route route = stream.headwater.route();
+        if (route == null)
+        {
+            return false;
+        }
+        if (Math.abs(route.minX - minimum(route.x)) > 1.0e-9d
+            || Math.abs(route.minZ - minimum(route.z)) > 1.0e-9d
+            || Math.abs(route.maxX - maximum(route.x)) > 1.0e-9d
+            || Math.abs(route.maxZ - maximum(route.z)) > 1.0e-9d)
+        {
+            return false;
+        }
+        for (double blockZ = route.minZ - 4d; blockZ <= route.maxZ + 4d; blockZ += 4d)
+        {
+            for (double blockX = route.minX - 4d; blockX <= route.maxX + 4d; blockX += 4d)
+            {
+                final RouteProjection indexed = route.nearestIndexedProjection(new Vec(blockX, blockZ));
+                final RouteProjection linear = route.nearestProjectionLinear(new Vec(blockX, blockZ));
+                if (indexed.segment() != linear.segment()
+                    || Math.abs(indexed.delta() - linear.delta()) > 1.0e-9d
+                    || Math.abs(indexed.along() - linear.along()) > 1.0e-9d
+                    || Math.abs(indexed.distanceSq() - linear.distanceSq()) > 1.0e-9d)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    static boolean routeIsPublishedOnlyInCurrentChunksAfterCoordination(TestStream left, TestStream right)
+    {
+        final Route leftBefore = left.headwater.route();
+        final Route rightBefore = right.headwater.route();
+        if (leftBefore == null || rightBefore == null)
+        {
+            return false;
+        }
+        final Set<Long> previousChunks = new HashSet<>(leftBefore.spatialChunks);
+        previousChunks.addAll(rightBefore.spatialChunks);
+        final NTEHeadwaterNetwork network = new NTEHeadwaterNetwork(
+            0L,
+            left.headwater.seaLevel,
+            left.headwater.heights
+        );
+        network.indexPlanned(left.headwater);
+        network.indexPlanned(right.headwater);
+        network.coordinatePlannedIntersections(left.headwater);
+
+        final Route leftAfter = left.headwater.plannedRoute();
+        final Route rightAfter = right.headwater.plannedRoute();
+        if (leftAfter == null || rightAfter == null || leftAfter == leftBefore && rightAfter == rightBefore)
+        {
+            return false;
+        }
+        final Set<Long> currentChunks = new HashSet<>(leftAfter.spatialChunks);
+        currentChunks.addAll(rightAfter.spatialChunks);
+        previousChunks.addAll(currentChunks);
+        synchronized (network.headwaters)
+        {
+            for (long key : previousChunks)
+            {
+                final List<Headwater> indexed = network.plannedByChunk.get(key);
+                final boolean containsLeft = indexed != null && indexed.contains(left.headwater);
+                final boolean containsRight = indexed != null && indexed.contains(right.headwater);
+                if (containsLeft != leftAfter.spatialChunks.contains(key))
+                {
+                    return false;
+                }
+                if (containsRight != rightAfter.spatialChunks.contains(key))
+                {
+                    return false;
+                }
+            }
+        }
+        return left.headwater.indexedRoute == leftAfter && right.headwater.indexedRoute == rightAfter;
     }
 
     static boolean rejectsPastOutlet(List<Vec> points, int blockX, int blockZ)
@@ -1319,7 +1524,8 @@ final class NTEHeadwaterNetwork
         private volatile boolean attempted;
         @Nullable private volatile Route route;
         private volatile boolean replacement;
-        private volatile boolean indexed;
+        @Nullable private volatile Route indexedRoute;
+        private final Set<Long> indexedChunks = new HashSet<>();
         private volatile boolean intersectionsCoordinated;
         @Nullable private String failureReason;
         @Nullable private Vec failurePoint;
@@ -3153,10 +3359,16 @@ final class NTEHeadwaterNetwork
         private final double[] radius;
         private final double[] distance;
         private final double totalLength;
+        private final double minX;
+        private final double minZ;
+        private final double maxX;
+        private final double maxZ;
         private final boolean receiverMouth;
         @Nullable private final ReceiverAlignment receiverAlignment;
         private final double receiverWaterY;
         private final Set<Long> turnConnectorColumns;
+        private final Map<Long, int[]> segmentsByChunk;
+        private final Set<Long> spatialChunks;
 
         private Route(
             double[] x,
@@ -3178,10 +3390,16 @@ final class NTEHeadwaterNetwork
             this.radius = radius;
             this.distance = distance;
             this.totalLength = totalLength;
+            this.minX = minimum(x);
+            this.minZ = minimum(z);
+            this.maxX = maximum(x);
+            this.maxZ = maximum(z);
             this.receiverMouth = receiverMouth;
             this.receiverAlignment = receiverAlignment;
             this.receiverWaterY = receiverWaterY;
             this.turnConnectorColumns = rasterizeTurnConnectors(x, z);
+            this.segmentsByChunk = indexSegmentsByChunk(x, z, radius);
+            this.spatialChunks = indexRouteChunks(x, z, SPATIAL_INDEX_MARGIN);
         }
 
         private boolean suppresses(RiverEdge edge, int blockX, int blockZ)
@@ -3192,23 +3410,14 @@ final class NTEHeadwaterNetwork
         @Nullable
         private Sample sample(int blockX, int blockZ, double ambientHeight)
         {
-            double bestDistanceSq = Double.POSITIVE_INFINITY;
-            int bestIndex = -1;
-            double bestDelta = 0d;
-            for (int i = 0; i < x.length - 1; i++)
-            {
-                final Projection projection = project(x[i], z[i], x[i + 1], z[i + 1], blockX, blockZ);
-                if (projection.distanceSq() < bestDistanceSq)
-                {
-                    bestDistanceSq = projection.distanceSq();
-                    bestIndex = i;
-                    bestDelta = projection.delta();
-                }
-            }
-            if (bestIndex < 0)
+            final RouteProjection nearest = nearestIndexedProjection(new Vec(blockX, blockZ));
+            if (nearest.segment() < 0)
             {
                 return null;
             }
+            final double bestDistanceSq = nearest.distanceSq();
+            final int bestIndex = nearest.segment();
+            final double bestDelta = nearest.delta();
 
             final double localRadius = Mth.lerp(bestDelta, radius[bestIndex], radius[bestIndex + 1]);
             final double rawNormalizedDistanceSq = bestDistanceSq / (localRadius * localRadius);
@@ -3334,7 +3543,13 @@ final class NTEHeadwaterNetwork
                     distanceToOutlet
                 );
             final double angle = Mth.atan2(-flowDirection.z(), flowDirection.x());
-            final boolean sourceWaterAllowed = waterAllowed
+            // The route origin is the spring itself. Always keep exactly that
+            // center column as a source so a steep first step cannot leave the
+            // complete headwater supplied only by transient flowing water.
+            // Every neighboring and downstream column retains the ordinary
+            // slope, waterfall and receiver-mouth source rules below.
+            final boolean sourceAnchor = blockX == Mth.floor(x[0]) && blockZ == Mth.floor(z[0]);
+            final boolean sourceWaterAllowed = sourceAnchor || waterAllowed
                 && plannedSourceWaterAllowed(effectiveDownstreamWaterDrop)
                 && plannedSourceWaterAllowed(plannedWaterY, downstreamPlannedWaterY, secondDownstreamPlannedWaterY)
                 && !waterfallLanding
@@ -3445,10 +3660,10 @@ final class NTEHeadwaterNetwork
 
         private boolean boundsOverlap(Route other, double margin)
         {
-            return minimum(x) - margin <= maximum(other.x)
-                && maximum(x) + margin >= minimum(other.x)
-                && minimum(z) - margin <= maximum(other.z)
-                && maximum(z) + margin >= minimum(other.z);
+            return minX - margin <= other.maxX
+                && maxX + margin >= other.minX
+                && minZ - margin <= other.maxZ
+                && maxZ + margin >= other.minZ;
         }
 
         private double sampleRadiusAtAlong(double targetAlong)
@@ -3506,8 +3721,19 @@ final class NTEHeadwaterNetwork
 
         private RouteProjection nearestProjection(Vec point)
         {
+            return nearestProjectionLinear(point);
+        }
+
+        private RouteProjection nearestIndexedProjection(Vec point)
+        {
+            final int[] candidates = segmentsByChunk.get(chunkKey(Mth.floor(point.x()) >> 4, Mth.floor(point.z()) >> 4));
+            return candidates == null ? nearestProjectionLinear(point) : nearestProjection(point, candidates);
+        }
+
+        private RouteProjection nearestProjectionLinear(Vec point)
+        {
             double bestDistanceSq = Double.POSITIVE_INFINITY;
-            int bestSegment = 0;
+            int bestSegment = -1;
             double bestDelta = 0d;
             double bestAlong = 0d;
             for (int segment = 0; segment < x.length - 1; segment++)
@@ -3526,6 +3752,79 @@ final class NTEHeadwaterNetwork
             return new RouteProjection(bestSegment, bestDelta, bestAlong, bestDistanceSq);
         }
 
+        private RouteProjection nearestProjection(Vec point, int[] candidates)
+        {
+            double bestDistanceSq = Double.POSITIVE_INFINITY;
+            int bestSegment = -1;
+            double bestDelta = 0d;
+            double bestAlong = 0d;
+            for (int segment : candidates)
+            {
+                final Projection projection = project(
+                    x[segment], z[segment], x[segment + 1], z[segment + 1], point.x(), point.z()
+                );
+                if (projection.distanceSq() < bestDistanceSq)
+                {
+                    bestDistanceSq = projection.distanceSq();
+                    bestSegment = segment;
+                    bestDelta = projection.delta();
+                    bestAlong = Mth.lerp(projection.delta(), distance[segment], distance[segment + 1]);
+                }
+            }
+            return new RouteProjection(bestSegment, bestDelta, bestAlong, bestDistanceSq);
+        }
+
+        private static Map<Long, int[]> indexSegmentsByChunk(double[] x, double[] z, double[] radius)
+        {
+            final Map<Long, List<Integer>> mutable = new HashMap<>();
+            final double margin = maximum(radius) * Math.sqrt(MAX_INFLUENCE_SQ) + 1d;
+            for (int segment = 0; segment < x.length - 1; segment++)
+            {
+                final int minChunkX = Mth.floor(Math.min(x[segment], x[segment + 1]) - margin) >> 4;
+                final int maxChunkX = Mth.floor(Math.max(x[segment], x[segment + 1]) + margin) >> 4;
+                final int minChunkZ = Mth.floor(Math.min(z[segment], z[segment + 1]) - margin) >> 4;
+                final int maxChunkZ = Mth.floor(Math.max(z[segment], z[segment + 1]) + margin) >> 4;
+                for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++)
+                {
+                    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++)
+                    {
+                        mutable.computeIfAbsent(chunkKey(chunkX, chunkZ), ignored -> new ArrayList<>()).add(segment);
+                    }
+                }
+            }
+            final Map<Long, int[]> indexed = new HashMap<>(mutable.size());
+            for (Map.Entry<Long, List<Integer>> entry : mutable.entrySet())
+            {
+                final int[] segments = new int[entry.getValue().size()];
+                for (int index = 0; index < segments.length; index++)
+                {
+                    segments[index] = entry.getValue().get(index);
+                }
+                indexed.put(entry.getKey(), segments);
+            }
+            return indexed;
+        }
+
+        private static Set<Long> indexRouteChunks(double[] x, double[] z, double margin)
+        {
+            final Set<Long> chunks = new HashSet<>();
+            for (int segment = 0; segment < x.length - 1; segment++)
+            {
+                final int minChunkX = Mth.floor(Math.min(x[segment], x[segment + 1]) - margin) >> 4;
+                final int maxChunkX = Mth.floor(Math.max(x[segment], x[segment + 1]) + margin) >> 4;
+                final int minChunkZ = Mth.floor(Math.min(z[segment], z[segment + 1]) - margin) >> 4;
+                final int maxChunkZ = Mth.floor(Math.max(z[segment], z[segment + 1]) + margin) >> 4;
+                for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++)
+                {
+                    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++)
+                    {
+                        chunks.add(chunkKey(chunkX, chunkZ));
+                    }
+                }
+            }
+            return Set.copyOf(chunks);
+        }
+
         private double sampleAtAlong(double[] values, double targetAlong)
         {
             if (targetAlong <= 0d)
@@ -3536,11 +3835,12 @@ final class NTEHeadwaterNetwork
             {
                 return values[values.length - 1];
             }
-            int upper = 1;
-            while (upper < distance.length && distance[upper] < targetAlong)
+            final int found = Arrays.binarySearch(distance, targetAlong);
+            if (found >= 0)
             {
-                upper++;
+                return values[found];
             }
+            final int upper = -found - 1;
             final int lower = upper - 1;
             final double segmentLength = distance[upper] - distance[lower];
             final double delta = segmentLength <= 1.0e-9d
