@@ -51,6 +51,7 @@ final class NTEHeadwaterNetwork
     private static final double SHARED_CORRIDOR_TRANSITION_LENGTH = 16d;
     private static final double JUNCTION_TANGENT_REWRITE_LENGTH = 16d;
     private static final double JUNCTION_PROFILE_TRANSITION_LENGTH = 18d;
+    private static final double JUNCTION_FLOW_TRANSITION_RADIUS = 6d;
     private static final double VALLEY_SNAP_RADIUS = 8d;
     private static final double VALLEY_SNAP_STEP = 2d;
     private static final double TFC_RIVER_ROUTE_CLEARANCE = 6d;
@@ -188,6 +189,10 @@ final class NTEHeadwaterNetwork
         double rightEndAlong,
         double length
     ) {}
+
+    private record JunctionFlowAnchor(Vec point, Flow flow) {}
+
+    private record JunctionFlowTransition(double along, Flow flow) {}
 
     private record CorridorPoint(Vec point, double waterY, double radius) {}
 
@@ -1267,6 +1272,15 @@ final class NTEHeadwaterNetwork
             <= rightRoute.sampleWaterYAtAlong(intersection.rightAlong())
                 ? leftRoute.directionAtAlong(intersection.leftAlong() + 2d)
                 : rightRoute.directionAtAlong(intersection.rightAlong() + 2d);
+        Flow junctionFlow = leftRoute.junctionAnchorFlowAt(intersection.point());
+        if (junctionFlow == null)
+        {
+            junctionFlow = rightRoute.junctionAnchorFlowAt(intersection.point());
+        }
+        if (junctionFlow == null)
+        {
+            junctionFlow = Flow.fromAngle(Mth.atan2(-junctionDirection.z(), junctionDirection.x()));
+        }
         left.route = leftRoute.withJunction(
             intersection.leftSegment(),
             intersection.leftDelta(),
@@ -1274,6 +1288,7 @@ final class NTEHeadwaterNetwork
             junctionWater,
             junctionRadius,
             junctionDirection,
+            junctionFlow,
             heights
         );
         right.route = rightRoute.withJunction(
@@ -1283,6 +1298,7 @@ final class NTEHeadwaterNetwork
             junctionWater,
             junctionRadius,
             junctionDirection,
+            junctionFlow,
             heights
         );
         left.junctionPeers.add(right);
@@ -3369,6 +3385,8 @@ final class NTEHeadwaterNetwork
         private final Set<Long> turnConnectorColumns;
         private final Map<Long, int[]> segmentsByChunk;
         private final Set<Long> spatialChunks;
+        private final List<JunctionFlowAnchor> junctionFlowAnchors;
+        @Nullable private final JunctionFlowTransition[] junctionFlowTransitions;
 
         private Route(
             double[] x,
@@ -3381,6 +3399,35 @@ final class NTEHeadwaterNetwork
             boolean receiverMouth,
             @Nullable ReceiverAlignment receiverAlignment,
             double receiverWaterY
+        )
+        {
+            this(
+                x,
+                z,
+                terrainY,
+                waterY,
+                radius,
+                distance,
+                totalLength,
+                receiverMouth,
+                receiverAlignment,
+                receiverWaterY,
+                List.of()
+            );
+        }
+
+        private Route(
+            double[] x,
+            double[] z,
+            double[] terrainY,
+            double[] waterY,
+            double[] radius,
+            double[] distance,
+            double totalLength,
+            boolean receiverMouth,
+            @Nullable ReceiverAlignment receiverAlignment,
+            double receiverWaterY,
+            List<JunctionFlowAnchor> junctionFlowAnchors
         )
         {
             this.x = x;
@@ -3400,6 +3447,24 @@ final class NTEHeadwaterNetwork
             this.turnConnectorColumns = rasterizeTurnConnectors(x, z);
             this.segmentsByChunk = indexSegmentsByChunk(x, z, radius);
             this.spatialChunks = indexRouteChunks(x, z, SPATIAL_INDEX_MARGIN);
+            this.junctionFlowAnchors = List.copyOf(junctionFlowAnchors);
+            if (junctionFlowAnchors.isEmpty())
+            {
+                this.junctionFlowTransitions = null;
+            }
+            else
+            {
+                this.junctionFlowTransitions = new JunctionFlowTransition[junctionFlowAnchors.size()];
+                for (int index = 0; index < junctionFlowAnchors.size(); index++)
+                {
+                    final JunctionFlowAnchor anchor = junctionFlowAnchors.get(index);
+                    junctionFlowTransitions[index] = new JunctionFlowTransition(
+                        nearestProjectionLinear(anchor.point()).along(),
+                        anchor.flow()
+                    );
+                }
+                Arrays.sort(junctionFlowTransitions, Comparator.comparingDouble(JunctionFlowTransition::along));
+            }
         }
 
         private boolean suppresses(RiverEdge edge, int blockX, int blockZ)
@@ -3543,6 +3608,7 @@ final class NTEHeadwaterNetwork
                     distanceToOutlet
                 );
             final double angle = Mth.atan2(-flowDirection.z(), flowDirection.x());
+            final Flow flow = junctionFlowAtAlong(along, Flow.fromAngle(angle));
             // The route origin is the spring itself. Always keep exactly that
             // center column as a source so a steep first step cannot leave the
             // complete headwater supplied only by transient flowing water.
@@ -3571,7 +3637,7 @@ final class NTEHeadwaterNetwork
                 receiverBlendWeight,
                 waterfallLanding,
                 along / totalLength < 0.15d,
-                Flow.fromAngle(angle)
+                flow
             );
         }
 
@@ -3717,6 +3783,57 @@ final class NTEHeadwaterNetwork
             final double before = Math.max(0d, targetAlong - 1.5d);
             final double after = Math.min(totalLength, targetAlong + 1.5d);
             return normalizedDirection(pointAtAlong(before), pointAtAlong(after));
+        }
+
+        /**
+         * TFC river flow interpolates between its sixteen discrete directions.
+         * A rebuilt junction needs the same local transition, but only around
+         * its explicit shared node; ordinary bends already use the centered
+         * secant above and must remain unchanged.
+         */
+        private Flow junctionFlowAtAlong(double targetAlong, Flow routeFlow)
+        {
+            if (junctionFlowTransitions == null)
+            {
+                return routeFlow;
+            }
+            JunctionFlowTransition nearest = null;
+            double nearestDistance = Double.POSITIVE_INFINITY;
+            for (JunctionFlowTransition transition : junctionFlowTransitions)
+            {
+                final double distance = Math.abs(targetAlong - transition.along());
+                if (distance < nearestDistance && distance < JUNCTION_FLOW_TRANSITION_RADIUS)
+                {
+                    nearest = transition;
+                    nearestDistance = distance;
+                }
+            }
+            if (nearest == null)
+            {
+                return routeFlow;
+            }
+
+            final float weight = (float) smootherStep(
+                1d - nearestDistance / JUNCTION_FLOW_TRANSITION_RADIUS
+            );
+            final Flow blended = Flow.lerp(routeFlow, nearest.flow(), weight);
+            // Opposite directions have no unique midpoint and TFC represents
+            // that exact tie as NONE. A junction is still directional water,
+            // so keep the nearer endpoint instead of erasing its Flow.
+            return blended == Flow.NONE ? weight < 0.5f ? routeFlow : nearest.flow() : blended;
+        }
+
+        @Nullable
+        private Flow junctionAnchorFlowAt(Vec junction)
+        {
+            for (JunctionFlowAnchor anchor : junctionFlowAnchors)
+            {
+                if (distanceSq(anchor.point(), junction) <= 1.0e-6d)
+                {
+                    return anchor.flow();
+                }
+            }
+            return null;
         }
 
         private RouteProjection nearestProjection(Vec point)
@@ -3981,7 +4098,8 @@ final class NTEHeadwaterNetwork
                 coordinatedDistance[size - 1],
                 receiverMouth,
                 receiverAlignment,
-                receiverWaterY
+                receiverWaterY,
+                junctionFlowAnchors
             );
         }
 
@@ -3992,6 +4110,7 @@ final class NTEHeadwaterNetwork
             double junctionWater,
             double junctionRadius,
             Vec junctionDirection,
+            Flow junctionFlow,
             HeightSampler heights
         )
         {
@@ -4090,6 +4209,11 @@ final class NTEHeadwaterNetwork
             }
             coordinatedWater[size - 1] = waterY[waterY.length - 1];
 
+            final List<JunctionFlowAnchor> coordinatedFlowAnchors = new ArrayList<>(junctionFlowAnchors);
+            if (junctionAnchorFlowAt(junction) == null)
+            {
+                coordinatedFlowAnchors.add(new JunctionFlowAnchor(junction, junctionFlow));
+            }
             return new Route(
                 coordinatedX,
                 coordinatedZ,
@@ -4100,7 +4224,8 @@ final class NTEHeadwaterNetwork
                 coordinatedDistance[size - 1],
                 receiverMouth,
                 receiverAlignment,
-                receiverWaterY
+                receiverWaterY,
+                coordinatedFlowAnchors
             );
         }
 
