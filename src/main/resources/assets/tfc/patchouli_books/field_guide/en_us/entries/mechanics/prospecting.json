@@ -1,0 +1,70 @@
+{
+  "name": "Prospecting",
+  "category": "tfc:mechanics",
+  "icon": "tfc:metal/propick/wrought_iron",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "You remembered where you picked up those $(l:getting_started/finding_ores)Small Metal Nuggets$(), right? Finding additional ores may require extensive exploration and mining. You should become very familiar with $(l:the_world/ores_and_minerals)Ores and Minerals$(). If you need a specific resource, you must first find a rock type in which it can occur."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "When picking up small nuggets becomes insufficient, it is time to prospect for ore veins:$(br)$(li)Small nuggets occur when ore is nearby, within 15 blocks horizontally and 35 vertically. A vein is likely beneath the center of a group of nuggets.$(li)Exposed ore can also occur in cliffs and water bodies, where it is easier to spot."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "propick",
+      "item": "tfc:metal/propick/copper",
+      "title": "Prospector's Pick",
+      "link_recipes": false,
+      "text": "If you cannot find a desired ore or mineral vein (only ores produce surface nuggets), it is time to make a $(thing)Prospector's Pick$().$(br2)Using it on a block scans an area centered on the clicked position and reports the detected mineral types and amounts to the action bar. Its range and identification ability depend on the tool material."
+    },
+    {
+      "type": "tfc:knapping_recipe",
+      "recipe": "tfc:clay_knapping/propick_head_mold",
+      "text": "To make a Prospector's Pick, you can $(l:getting_started/pottery)knap$() an unfired head mold out of clay as shown above."
+    },
+    {
+      "type": "tfc:heat_recipe",
+      "recipe": "tfc:heating/propick_head_mold",
+      "text": "Once the mold has been $(l:getting_started/pottery)knapped$(), it must be $(l:mechanics/heating)fired$().$(br2)The tool head can then be $(l:getting_started/finding_ores#casting)cast$() by pouring liquid metal into the fired mold."
+    },
+    {
+      "type": "tfc:anvil_recipe",
+      "recipe": "tfc:anvil/wrought_iron_propick_head",
+      "text": "A Prospector's Pick Head can also be $(l:mechanics/anvils#working)smithed$() from an $(thing)ingot$() of any tool metal on an $(l:mechanics/anvils)Anvil$().$(br2)Craft the finished head with a stick to assemble the tool."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Material and Scan Power",
+      "text": "Every Prospector's Pick is $(thing)100% accurate$(): a negative report means its scan area contains no prospectable mineral.$(br2)Scan radius / maximum revealed types:$(br)$(li)Copper: 12 / 1$(li)Copper Alloys: 13 / 1$(li)Wrought Iron: 14 / 2$(li)Steel: 15 / 3$(li)Black Steel: 15 / 4$(li)Red or Blue Steel: 16 / 4"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Multiple Minerals",
+      "text": "When several minerals are found, the tool reveals as many as its material allows. Every mineral beyond that limit appears as one $(thing)?$(), so the question mark count is the number of unidentified mineral types.$(br2)At most two identified minerals are shown per line. A third begins a new line, and hidden question marks follow the final identified mineral."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Direction Guidance",
+      "text": "After a successful scan, a direction ring appears for three seconds and points toward the nearest prospectable mineral block in that scan.$(br2)The top of the ring is forward relative to the player; the bottom is behind. An up or down arrow shows whether the target is above or below, while a diamond means similar height. The lit arc grows with proximity and fills the ring within two blocks."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Sample Sizes",
+      "text": "Reports are based on the number of scanned blocks of each mineral:$(br)$(li)Traces: 1–9$(li)Small: 10–19$(li)Medium: 20–39$(li)Large: 40–79$(li)Very Large: 80 or more$(br2)Moving or turning does not change the locked target block, but its player-relative direction and distance arc update continuously during the three-second display."
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfc:metal/propick/bismuth_bronze": 2,
+    "tfc:metal/propick/black_bronze": 2,
+    "tfc:metal/propick/bronze": 2,
+    "tfc:metal/propick/copper": 2,
+    "tfc:metal/propick/wrought_iron": 2,
+    "tfc:metal/propick/steel": 2,
+    "tfc:metal/propick/black_steel": 2,
+    "tfc:metal/propick/blue_steel": 2,
+    "tfc:metal/propick/red_steel": 2
+  }
+}

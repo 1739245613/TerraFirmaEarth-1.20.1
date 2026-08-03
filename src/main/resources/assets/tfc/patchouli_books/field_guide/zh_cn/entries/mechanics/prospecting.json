@@ -1,0 +1,70 @@
+{
+  "name": "勘探",
+  "category": "tfc:mechanics",
+  "icon": "tfc:metal/propick/wrought_iron",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "你还记得你是在哪里捡到那些$(l:getting_started/finding_ores)小矿粒$()的，对吧？寻找更多矿石需要花费大量精力来勘探和开采。现在，你应该已经通读$(l:the_world/ores_and_minerals)矿石和矿物$()这一章节。寻找特定矿石时，必须先找到适合它生成的岩石类型——不论就在家门口，还是千里之外。"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "当仅靠捡拾小矿粒不能满足发展需要时，就应开始勘矿了。$(br)$(li)小矿粒只会生成在矿脉水平 15 格、垂直 35 格以内的地表上。一片矿粒几何中心的正下方很可能就有一支矿脉。$(li)有时矿石也会暴露在断崖或水底，这种矿脉会更容易发现。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "propick",
+      "item": "tfc:metal/propick/copper",
+      "title": "勘矿镐",
+      "link_recipes": false,
+      "text": "如果你挖了很久仍没找到想要的矿石或矿物（只有矿石会在地表生成矿粒），那么就该制作一把$(thing)勘矿镐$()了。$(br2)对方块使用勘矿镐，会以点击处为中心扫描周围区域，并在动作栏报告发现的矿种与矿量。扫描范围和可辨认矿种数由工具材质决定。"
+    },
+    {
+      "type": "tfc:knapping_recipe",
+      "recipe": "tfc:clay_knapping/propick_head_mold",
+      "text": "你可以用粘土按上图$(l:getting_started/pottery)塑形$()成一个未烧制的勘矿镐头模具。"
+    },
+    {
+      "type": "tfc:heat_recipe",
+      "recipe": "tfc:heating/propick_head_mold",
+      "text": "模具$(l:getting_started/pottery)塑形$()完成后还需要$(l:mechanics/heating)烧制$()。$(br2)将液态金属倒入烧制好的模具中，就能$(l:getting_started/finding_ores#casting)铸造$()出勘矿镐头。"
+    },
+    {
+      "type": "tfc:anvil_recipe",
+      "recipe": "tfc:anvil/wrought_iron_propick_head",
+      "text": "勘矿镐头也可以在$(l:mechanics/anvils)砧$()上，使用任何可制造工具的金属$(thing)锭$()$(l:mechanics/anvils#working)锻造$()而成。$(br2)最后用木棍和工具头在合成栏中合成即可。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "材质与扫描能力",
+      "text": "所有勘矿镐均为 $(thing)100% 准确$()，报告无矿即表示范围内确实无矿。$(br2)扫描半径 / 最多公开矿种：$(br)$(li)铜：12 格 / 1 种$(li)铜合金：13 格 / 1 种$(li)锻铁：14 格 / 2 种$(li)钢：15 格 / 3 种$(li)黑钢：15 格 / 4 种$(li)红钢、蓝钢：16 格 / 4 种"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "多种矿物",
+      "text": "发现多种矿物时，勘矿镐会按材质能力公开结果。超过公开上限的每一种矿物都会显示为一个$(thing)？$()，因此问号数量就是尚未辨认的矿种数。$(br2)每行最多显示两种已辨认矿物，第三种起换到下一行；隐藏问号跟在最后一种已辨认矿物之后。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "方向指引",
+      "text": "每次发现矿物后，屏幕中心会显示 3 秒方向轨道，指向本次扫描范围内$(thing)离玩家最近$()的一块可勘探矿物。$(br2)轨道上方代表玩家前方，下方代表后方；左右同理。上箭头表示目标在玩家上方，下箭头表示在下方，菱形表示高度接近。距离越近，点亮的圆弧越长；2 格内会点亮整圈。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "矿量等级",
+      "text": "勘矿镐按扫描到的同种矿物方块数报告矿量：$(br)$(li)微量：1–9 块$(li)少量：10–19 块$(li)中量：20–39 块$(li)大量：40–79 块$(li)巨量：至少 80 块$(br2)转身或移动不会改变已锁定的目标方块，但三秒内的相对方向和距离圆弧会实时更新。"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfc:metal/propick/bismuth_bronze": 2,
+    "tfc:metal/propick/black_bronze": 2,
+    "tfc:metal/propick/bronze": 2,
+    "tfc:metal/propick/copper": 2,
+    "tfc:metal/propick/wrought_iron": 2,
+    "tfc:metal/propick/steel": 2,
+    "tfc:metal/propick/black_steel": 2,
+    "tfc:metal/propick/blue_steel": 2,
+    "tfc:metal/propick/red_steel": 2
+  }
+}

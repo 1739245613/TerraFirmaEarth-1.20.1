@@ -64,6 +64,7 @@ public final class NewTerraEarthMod
     {
         event.enqueueWork(() -> {
             NTERockBlocks.registerRockSettings();
+            NTERockBlocks.registerProspectingRepresentatives();
             NTEFluids.registerCauldronInteractions();
         });
     }

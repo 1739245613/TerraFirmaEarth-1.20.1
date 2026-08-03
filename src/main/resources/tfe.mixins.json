@@ -53,6 +53,7 @@
     "NaturalSpawnerMixin",
     "NormalSurfaceBuilderMixin",
     "PlantRegrowthMixin",
+    "PropickItemMixin",
     "RegionMixin",
     "RegionChunkDataGeneratorMixin",
     "RegionEdgeBiomeLayerMixin",

@@ -52,6 +52,7 @@ public final class NTEClientEventHandler
     public static void init(IEventBus bus)
     {
         NTEClientRainVarianceCache.init();
+        NTEProspectingHud.init();
         bus.addListener(NTEClientEventHandler::clientSetup);
         bus.addListener(NTEClientEventHandler::registerSpecialModels);
         bus.addListener(NTEClientEventHandler::registerModelLoaders);

@@ -22,6 +22,7 @@ import net.dries007.tfc.common.blocks.SandstoneBlockType;
 import net.dries007.tfc.common.blocks.TFCBlocks;
 import net.dries007.tfc.common.blocks.rock.Ore;
 import net.dries007.tfc.common.blocks.rock.Rock;
+import net.dries007.tfc.common.items.PropickItem;
 import net.dries007.tfc.util.Helpers;
 import net.dries007.tfc.util.registry.RegistrationHelpers;
 import net.dries007.tfc.world.settings.RockSettings;
@@ -95,6 +96,15 @@ public final class NTERockBlocks
             RockSettings.register(Helpers.identifier(rock.getSerializedName()), settings);
             RockSettings.register(new ResourceLocation(NewTerraEarthMod.MOD_ID, rock.getSerializedName()), settings);
         }
+    }
+
+    public static void registerProspectingRepresentatives()
+    {
+        GRADED_ORES.values().forEach(ores -> ores.values().forEach(blocks -> PropickItem.registerRepresentative(
+            blocks.get(Ore.Grade.NORMAL).get(),
+            blocks.get(Ore.Grade.RICH).get(),
+            blocks.get(Ore.Grade.POOR).get()
+        )));
     }
 
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<T> blockSupplier, @Nullable Function<T, ? extends BlockItem> blockItemFactory)
