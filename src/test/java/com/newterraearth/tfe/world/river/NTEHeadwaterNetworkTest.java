@@ -162,6 +162,53 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void representativeRouteGeometryMatchesTheStableBaseline()
+    {
+        final List<NTEHeadwaterNetwork.TestStream> streams = List.of(
+            slopedValley(55667788L),
+            highlandDrainageStream(),
+            NTEHeadwaterNetwork.planTestStream(
+                77889911L,
+                SEA_LEVEL,
+                320d,
+                0d,
+                0d,
+                0d,
+                16,
+                (x, z) -> {
+                    final double bend = Math.max(0d, Math.min(1d, (x - 64d) / 192d));
+                    final double valleyZ = 48d * bend;
+                    return 68d + Math.max(0, x) * 0.035d + Math.abs(z - valleyZ) * 0.22d;
+                }
+            ),
+            NTEHeadwaterNetwork.planTestStream(
+                1357911L,
+                SEA_LEVEL,
+                320d,
+                0d,
+                0d,
+                0d,
+                16,
+                (x, z) -> 70d + Math.max(0, x) * 0.035d + Math.abs(z) * 0.05d,
+                (owner, x, z, clearance) -> x > 136d && x < 184d && Math.abs(z) < 22d
+            )
+        );
+        final List<String> expectedHashes = List.of(
+            "1a7879345b3efe75",
+            "8f76927620b1c749",
+            "97fe7c87a3d6bd42",
+            "8346b033026a282c"
+        );
+
+        for (int index = 0; index < streams.size(); index++)
+        {
+            final NTEHeadwaterNetwork.TestStream stream = streams.get(index);
+            assertTrue(stream.valid());
+            assertEquals(expectedHashes.get(index), routeGeometryHash(stream));
+        }
+    }
+
+    @Test
     void drainagePlannerFollowsACurvedCatchmentInsteadOfTheOldStraightCorridor()
     {
         final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.planTestStream(
@@ -1242,6 +1289,42 @@ class NTEHeadwaterNetworkTest
             16,
             (x, z) -> 65d + Math.max(0, x) * 0.04d + Math.abs(z) * 0.08d
         );
+    }
+
+    private static NTEHeadwaterNetwork.TestStream highlandDrainageStream()
+    {
+        return NTEHeadwaterNetwork.planTestStream(
+            66778899L,
+            SEA_LEVEL,
+            320d,
+            0d,
+            0d,
+            0d,
+            16,
+            (x, z) -> 95d + Math.max(0, x) * 0.02d + Math.abs(z) * 0.04d
+        );
+    }
+
+    private static String routeGeometryHash(NTEHeadwaterNetwork.TestStream stream)
+    {
+        long hash = 0xcbf29ce484222325L;
+        hash = mixRouteHash(hash, stream.attemptedDrainageCandidates());
+        hash = mixRouteHash(hash, stream.availableDrainageCandidates());
+        hash = mixRouteHash(hash, stream.points().size());
+        for (NTEHeadwaterNetwork.DiagnosticPoint point : stream.points())
+        {
+            hash = mixRouteHash(hash, Double.doubleToLongBits(point.x()));
+            hash = mixRouteHash(hash, Double.doubleToLongBits(point.z()));
+            hash = mixRouteHash(hash, Double.doubleToLongBits(point.terrainY()));
+            hash = mixRouteHash(hash, Double.doubleToLongBits(point.waterY()));
+            hash = mixRouteHash(hash, Double.doubleToLongBits(point.radius()));
+        }
+        return Long.toUnsignedString(hash, 16);
+    }
+
+    private static long mixRouteHash(long hash, long value)
+    {
+        return (hash ^ value) * 0x100000001b3L;
     }
 
     private static void assertWaterNeverClimbs(List<NTEHeadwaterNetwork.DiagnosticPoint> points)

@@ -152,8 +152,6 @@ final class NTEHeadwaterNetwork
 
     private record SearchNode(int index, double score) {}
 
-    private record DrainageNode(int index, double spill, double travel) {}
-
     private record DrainageField(
         int[] downstream,
         double[] spill,
@@ -161,6 +159,382 @@ final class NTEHeadwaterNetwork
     ) {}
 
     private record SourceCandidate(int index, double score) {}
+
+    /** Primitive min-heap matching the former score/index PriorityQueue order. */
+    private static final class SearchHeap
+    {
+        private int[] indices;
+        private double[] scores;
+        private int size;
+
+        private SearchHeap(int expectedSize)
+        {
+            final int capacity = Math.max(16, Math.min(expectedSize, 1024));
+            indices = new int[capacity];
+            scores = new double[capacity];
+        }
+
+        private boolean isEmpty()
+        {
+            return size == 0;
+        }
+
+        private void clear()
+        {
+            size = 0;
+        }
+
+        private void add(int index, double score)
+        {
+            if (size >= indices.length)
+            {
+                grow();
+            }
+            int child = size++;
+            while (child > 0)
+            {
+                final int parent = (child - 1) >>> 1;
+                if (compare(score, index, scores[parent], indices[parent]) >= 0)
+                {
+                    break;
+                }
+                indices[child] = indices[parent];
+                scores[child] = scores[parent];
+                child = parent;
+            }
+            indices[child] = index;
+            scores[child] = score;
+        }
+
+        private int removeFirst()
+        {
+            final int first = indices[0];
+            final int lastSlot = --size;
+            if (lastSlot > 0)
+            {
+                final int lastIndex = indices[lastSlot];
+                final double lastScore = scores[lastSlot];
+                int parent = 0;
+                final int half = lastSlot >>> 1;
+                while (parent < half)
+                {
+                    int child = (parent << 1) + 1;
+                    int childIndex = indices[child];
+                    double childScore = scores[child];
+                    final int right = child + 1;
+                    if (right < lastSlot
+                        && compare(childScore, childIndex, scores[right], indices[right]) > 0)
+                    {
+                        child = right;
+                        childIndex = indices[right];
+                        childScore = scores[right];
+                    }
+                    if (compare(lastScore, lastIndex, childScore, childIndex) <= 0)
+                    {
+                        break;
+                    }
+                    indices[parent] = childIndex;
+                    scores[parent] = childScore;
+                    parent = child;
+                }
+                indices[parent] = lastIndex;
+                scores[parent] = lastScore;
+            }
+            return first;
+        }
+
+        private void grow()
+        {
+            final int oldCapacity = indices.length;
+            final int newCapacity = oldCapacity < 64
+                ? oldCapacity + oldCapacity + 2
+                : oldCapacity + (oldCapacity >>> 1);
+            indices = Arrays.copyOf(indices, newCapacity);
+            scores = Arrays.copyOf(scores, newCapacity);
+        }
+
+        private static int compare(double leftScore, int leftIndex, double rightScore, int rightIndex)
+        {
+            final int scoreOrder = Double.compare(leftScore, rightScore);
+            return scoreOrder != 0 ? scoreOrder : Integer.compare(leftIndex, rightIndex);
+        }
+    }
+
+    /** Primitive min-heap matching the former spill/travel/index PriorityQueue order. */
+    private static final class DrainageHeap
+    {
+        private int[] indices;
+        private double[] spills;
+        private double[] travels;
+        private int size;
+        private int removedIndex;
+        private double removedSpill;
+        private double removedTravel;
+
+        private DrainageHeap(int expectedSize)
+        {
+            final int capacity = Math.max(16, Math.min(expectedSize, 1024));
+            indices = new int[capacity];
+            spills = new double[capacity];
+            travels = new double[capacity];
+        }
+
+        private boolean isEmpty()
+        {
+            return size == 0;
+        }
+
+        private void add(int index, double spill, double travel)
+        {
+            if (size >= indices.length)
+            {
+                grow();
+            }
+            int child = size++;
+            while (child > 0)
+            {
+                final int parent = (child - 1) >>> 1;
+                if (compare(spill, travel, index, spills[parent], travels[parent], indices[parent]) >= 0)
+                {
+                    break;
+                }
+                indices[child] = indices[parent];
+                spills[child] = spills[parent];
+                travels[child] = travels[parent];
+                child = parent;
+            }
+            indices[child] = index;
+            spills[child] = spill;
+            travels[child] = travel;
+        }
+
+        private void removeFirst()
+        {
+            removedIndex = indices[0];
+            removedSpill = spills[0];
+            removedTravel = travels[0];
+            final int lastSlot = --size;
+            if (lastSlot > 0)
+            {
+                final int lastIndex = indices[lastSlot];
+                final double lastSpill = spills[lastSlot];
+                final double lastTravel = travels[lastSlot];
+                int parent = 0;
+                final int half = lastSlot >>> 1;
+                while (parent < half)
+                {
+                    int child = (parent << 1) + 1;
+                    int childIndex = indices[child];
+                    double childSpill = spills[child];
+                    double childTravel = travels[child];
+                    final int right = child + 1;
+                    if (right < lastSlot && compare(
+                        childSpill,
+                        childTravel,
+                        childIndex,
+                        spills[right],
+                        travels[right],
+                        indices[right]
+                    ) > 0)
+                    {
+                        child = right;
+                        childIndex = indices[right];
+                        childSpill = spills[right];
+                        childTravel = travels[right];
+                    }
+                    if (compare(
+                        lastSpill,
+                        lastTravel,
+                        lastIndex,
+                        childSpill,
+                        childTravel,
+                        childIndex
+                    ) <= 0)
+                    {
+                        break;
+                    }
+                    indices[parent] = childIndex;
+                    spills[parent] = childSpill;
+                    travels[parent] = childTravel;
+                    parent = child;
+                }
+                indices[parent] = lastIndex;
+                spills[parent] = lastSpill;
+                travels[parent] = lastTravel;
+            }
+        }
+
+        private void grow()
+        {
+            final int oldCapacity = indices.length;
+            final int newCapacity = oldCapacity < 64
+                ? oldCapacity + oldCapacity + 2
+                : oldCapacity + (oldCapacity >>> 1);
+            indices = Arrays.copyOf(indices, newCapacity);
+            spills = Arrays.copyOf(spills, newCapacity);
+            travels = Arrays.copyOf(travels, newCapacity);
+        }
+
+        private static int compare(
+            double leftSpill,
+            double leftTravel,
+            int leftIndex,
+            double rightSpill,
+            double rightTravel,
+            int rightIndex
+        )
+        {
+            final int spillOrder = Double.compare(leftSpill, rightSpill);
+            if (spillOrder != 0)
+            {
+                return spillOrder;
+            }
+            final int travelOrder = Double.compare(leftTravel, rightTravel);
+            return travelOrder != 0 ? travelOrder : Integer.compare(leftIndex, rightIndex);
+        }
+    }
+
+    /** Reused fixed and mutable state for all source candidates of one route plan. */
+    private static final class RouteSearchWorkspace
+    {
+        private final double[] costs;
+        private final int[] parents;
+        private final int[] reachedGenerations;
+        private final int[] closedGenerations;
+        private final double[] heuristics;
+        private final double[] traversalBaseCosts;
+        private final int[] neighborOffsets;
+        private final double[] steps;
+        private final SearchHeap open;
+        private int generation;
+
+        private RouteSearchWorkspace(
+            int goal,
+            int width,
+            int depth,
+            int seaLevel,
+            double[] terrain,
+            DrainageField drainage,
+            boolean[] blocked
+        )
+        {
+            final int size = width * depth;
+            final int directionCount = DRAINAGE_DIRECTIONS.length / 2;
+            costs = new double[size];
+            parents = new int[size];
+            reachedGenerations = new int[size];
+            closedGenerations = new int[size];
+            heuristics = new double[size];
+            traversalBaseCosts = new double[size * directionCount];
+            Arrays.fill(traversalBaseCosts, Double.NaN);
+            neighborOffsets = new int[directionCount];
+            steps = new double[directionCount];
+            open = new SearchHeap(size);
+
+            final int goalX = goal % width;
+            final int goalZ = goal / width;
+            for (int direction = 0; direction < directionCount; direction++)
+            {
+                final int directionOffset = direction * 2;
+                final int dx = DRAINAGE_DIRECTIONS[directionOffset];
+                final int dz = DRAINAGE_DIRECTIONS[directionOffset + 1];
+                neighborOffsets[direction] = dx + dz * width;
+                steps[direction] = dx == 0 || dz == 0 ? 1d : Math.sqrt(2d);
+            }
+
+            for (int z = 0; z < depth; z++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    final int current = index(x, z, width);
+                    heuristics[current] = heuristic(x, z, goalX, goalZ);
+                    final int traversalOffset = current * directionCount;
+                    for (int direction = 0; direction < directionCount; direction++)
+                    {
+                        final int directionOffset = direction * 2;
+                        final int nextX = x + DRAINAGE_DIRECTIONS[directionOffset];
+                        final int nextZ = z + DRAINAGE_DIRECTIONS[directionOffset + 1];
+                        if (nextX < 0 || nextZ < 0 || nextX >= width || nextZ >= depth)
+                        {
+                            continue;
+                        }
+                        final int next = index(nextX, nextZ, width);
+                        if (blocked[next] && next != goal
+                            || drainage.downstream()[next] < 0 && next != goal)
+                        {
+                            continue;
+                        }
+                        if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                        {
+                            continue;
+                        }
+
+                        final double uphill = Math.max(0d, terrain[next] - terrain[current]);
+                        final double roughness = Math.abs(terrain[next] - terrain[current]);
+                        final double saddle = Math.max(0d, drainage.spill()[next] - terrain[next]);
+                        final double treeBias = drainage.downstream()[current] == next ? 0.72d : 1d;
+                        traversalBaseCosts[traversalOffset + direction] = treeBias
+                            + uphill * 14d
+                            + roughness * 0.35d
+                            + saddle * 4d;
+                    }
+                }
+            }
+        }
+
+        private void begin(int start)
+        {
+            if (generation == Integer.MAX_VALUE)
+            {
+                Arrays.fill(reachedGenerations, 0);
+                Arrays.fill(closedGenerations, 0);
+                generation = 1;
+            }
+            else
+            {
+                generation++;
+            }
+            open.clear();
+            reachedGenerations[start] = generation;
+            costs[start] = 0d;
+            parents[start] = -1;
+        }
+
+        private boolean isClosed(int cell)
+        {
+            return closedGenerations[cell] == generation;
+        }
+
+        private void close(int cell)
+        {
+            closedGenerations[cell] = generation;
+        }
+
+        private double cost(int cell)
+        {
+            return reachedGenerations[cell] == generation ? costs[cell] : Double.POSITIVE_INFINITY;
+        }
+
+        private boolean relax(int cell, double cost, int parent)
+        {
+            final double previous = reachedGenerations[cell] == generation
+                ? costs[cell]
+                : Double.POSITIVE_INFINITY;
+            if (!(cost < previous))
+            {
+                return false;
+            }
+            reachedGenerations[cell] = generation;
+            costs[cell] = cost;
+            parents[cell] = parent;
+            return true;
+        }
+
+        private int parent(int cell)
+        {
+            return reachedGenerations[cell] == generation ? parents[cell] : -1;
+        }
+    }
 
     private record SegmentApproach(
         double leftDelta,
@@ -1808,6 +2182,15 @@ final class NTEHeadwaterNetwork
             String lastFailure = "none";
             int attemptedCandidates = 0;
             final double[] routePenalty = new double[size];
+            final RouteSearchWorkspace routeSearch = new RouteSearchWorkspace(
+                goal,
+                width,
+                depth,
+                seaLevel,
+                terrain,
+                drainage,
+                blocked
+            );
             Route bestRoute = null;
             IncisionRisk bestRisk = null;
             for (SourceCandidate source : sources)
@@ -1818,11 +2201,8 @@ final class NTEHeadwaterNetwork
                     minCellX,
                     minCellZ,
                     width,
-                    depth,
-                    terrain,
-                    drainage,
                     routePenalty,
-                    blocked
+                    routeSearch
                 );
                 if (drainageRoute == null || drainageRoute.size() < 2)
                 {
@@ -2669,26 +3049,25 @@ final class NTEHeadwaterNetwork
             Arrays.fill(spill, Double.POSITIVE_INFINITY);
             Arrays.fill(travel, Double.POSITIVE_INFINITY);
 
-            final PriorityQueue<DrainageNode> open = new PriorityQueue<>(
-                Comparator.comparingDouble(DrainageNode::spill)
-                    .thenComparingDouble(DrainageNode::travel)
-                    .thenComparingInt(DrainageNode::index)
-            );
+            final DrainageHeap open = new DrainageHeap(size);
             spill[goal] = terrain[goal];
             travel[goal] = 0d;
-            open.add(new DrainageNode(goal, spill[goal], 0d));
+            open.add(goal, spill[goal], 0d);
 
             while (!open.isEmpty())
             {
-                final DrainageNode node = open.poll();
-                if (node.spill() > spill[node.index()] + DRAINAGE_SPILL_EPSILON
-                    || node.travel() > travel[node.index()] + DRAINAGE_SPILL_EPSILON)
+                open.removeFirst();
+                final int nodeIndex = open.removedIndex;
+                final double nodeSpill = open.removedSpill;
+                final double nodeTravel = open.removedTravel;
+                if (nodeSpill > spill[nodeIndex] + DRAINAGE_SPILL_EPSILON
+                    || nodeTravel > travel[nodeIndex] + DRAINAGE_SPILL_EPSILON)
                 {
                     continue;
                 }
 
-                final int currentX = node.index() % width;
-                final int currentZ = node.index() / width;
+                final int currentX = nodeIndex % width;
+                final int currentZ = nodeIndex / width;
                 for (int direction = 0; direction < DRAINAGE_DIRECTIONS.length; direction += 2)
                 {
                     final int nextX = currentX + DRAINAGE_DIRECTIONS[direction];
@@ -2709,19 +3088,19 @@ final class NTEHeadwaterNetwork
                     }
                     final double step = DRAINAGE_DIRECTIONS[direction] == 0
                         || DRAINAGE_DIRECTIONS[direction + 1] == 0 ? 1d : Math.sqrt(2d);
-                    final double nextSpill = Math.max(node.spill(), terrain[next]);
-                    final double nextTravel = node.travel() + step;
+                    final double nextSpill = Math.max(nodeSpill, terrain[next]);
+                    final double nextTravel = nodeTravel + step;
                     final boolean lowerSpill = nextSpill < spill[next] - DRAINAGE_SPILL_EPSILON;
                     final boolean equalSpill = Math.abs(nextSpill - spill[next]) <= DRAINAGE_SPILL_EPSILON;
                     final boolean shorter = nextTravel < travel[next] - DRAINAGE_SPILL_EPSILON;
                     final boolean stableTie = Math.abs(nextTravel - travel[next]) <= DRAINAGE_SPILL_EPSILON
-                        && (downstream[next] < 0 || node.index() < downstream[next]);
+                        && (downstream[next] < 0 || nodeIndex < downstream[next]);
                     if (lowerSpill || equalSpill && (shorter || stableTie))
                     {
                         spill[next] = nextSpill;
                         travel[next] = nextTravel;
-                        downstream[next] = node.index();
-                        open.add(new DrainageNode(next, nextSpill, nextTravel));
+                        downstream[next] = nodeIndex;
+                        open.add(next, nextSpill, nextTravel);
                     }
                 }
             }
@@ -2859,86 +3238,50 @@ final class NTEHeadwaterNetwork
             int minCellX,
             int minCellZ,
             int width,
-            int depth,
-            double[] terrain,
-            DrainageField drainage,
             double[] routePenalty,
-            boolean[] blocked
+            RouteSearchWorkspace workspace
         )
         {
-            final int size = width * depth;
-            final double[] cost = new double[size];
-            final int[] parent = new int[size];
-            final boolean[] closed = new boolean[size];
-            Arrays.fill(cost, Double.POSITIVE_INFINITY);
-            Arrays.fill(parent, -1);
-
-            final int goalX = goal % width;
-            final int goalZ = goal / width;
-            final PriorityQueue<SearchNode> open = new PriorityQueue<>(
-                Comparator.comparingDouble(SearchNode::score).thenComparingInt(SearchNode::index)
-            );
-            cost[start] = 0d;
-            open.add(new SearchNode(start, heuristic(start % width, start / width, goalX, goalZ)));
-            while (!open.isEmpty())
+            workspace.begin(start);
+            workspace.open.add(start, workspace.heuristics[start]);
+            final int directionCount = workspace.neighborOffsets.length;
+            while (!workspace.open.isEmpty())
             {
-                final int current = open.poll().index();
-                if (closed[current])
+                final int current = workspace.open.removeFirst();
+                if (workspace.isClosed(current))
                 {
                     continue;
                 }
-                closed[current] = true;
+                workspace.close(current);
                 if (current == goal)
                 {
                     break;
                 }
 
-                final int currentX = current % width;
-                final int currentZ = current / width;
-                for (int direction = 0; direction < DRAINAGE_DIRECTIONS.length; direction += 2)
+                final int traversalOffset = current * directionCount;
+                final double currentCost = workspace.cost(current);
+                for (int direction = 0; direction < directionCount; direction++)
                 {
-                    final int nextX = currentX + DRAINAGE_DIRECTIONS[direction];
-                    final int nextZ = currentZ + DRAINAGE_DIRECTIONS[direction + 1];
-                    if (nextX < 0 || nextZ < 0 || nextX >= width || nextZ >= depth)
+                    final double traversalBaseCost = workspace.traversalBaseCosts[traversalOffset + direction];
+                    if (Double.isNaN(traversalBaseCost))
                     {
                         continue;
                     }
-                    final int next = index(nextX, nextZ, width);
-                    if (closed[next]
-                        || blocked[next] && next != goal
-                        || drainage.downstream()[next] < 0 && next != goal)
+                    final int next = current + workspace.neighborOffsets[direction];
+                    if (workspace.isClosed(next))
                     {
                         continue;
                     }
-                    if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    final double nextCost = currentCost + workspace.steps[direction]
+                        * (traversalBaseCost + routePenalty[next]);
+                    if (workspace.relax(next, nextCost, current))
                     {
-                        continue;
-                    }
-
-                    final boolean cardinal = DRAINAGE_DIRECTIONS[direction] == 0
-                        || DRAINAGE_DIRECTIONS[direction + 1] == 0;
-                    final double step = cardinal ? 1d : Math.sqrt(2d);
-                    final double uphill = Math.max(0d, terrain[next] - terrain[current]);
-                    final double roughness = Math.abs(terrain[next] - terrain[current]);
-                    final double saddle = Math.max(0d, drainage.spill()[next] - terrain[next]);
-                    final double treeBias = drainage.downstream()[current] == next ? 0.72d : 1d;
-                    final double nextCost = cost[current] + step * (
-                        treeBias
-                            + uphill * 14d
-                            + roughness * 0.35d
-                            + saddle * 4d
-                            + routePenalty[next]
-                    );
-                    if (nextCost < cost[next])
-                    {
-                        cost[next] = nextCost;
-                        parent[next] = current;
-                        open.add(new SearchNode(next, nextCost + heuristic(nextX, nextZ, goalX, goalZ) * 0.55d));
+                        workspace.open.add(next, nextCost + workspace.heuristics[next] * 0.55d);
                     }
                 }
             }
 
-            if (start != goal && parent[goal] < 0)
+            if (start != goal && workspace.parent(goal) < 0)
             {
                 return null;
             }
@@ -2955,7 +3298,7 @@ final class NTEHeadwaterNetwork
                     Collections.reverse(route);
                     return route;
                 }
-                cursor = parent[cursor];
+                cursor = workspace.parent(cursor);
             }
             return null;
         }

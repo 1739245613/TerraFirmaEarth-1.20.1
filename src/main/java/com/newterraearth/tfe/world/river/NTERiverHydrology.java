@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -442,7 +443,7 @@ public final class NTERiverHydrology
     private final TerrainHeightSampler terrainHeightSampler;
     private final PartitionLookup partitionLookup;
     private final NTEHeadwaterNetwork headwaters;
-    private final Map<Long, Double> heightCache = new LinkedHashMap<>();
+    private final Map<Long, Double> heightCache = new LinkedHashMap<>(256, 0.75f, true);
 
     public NTERiverHydrology(
         long seed,
@@ -945,9 +946,19 @@ public final class NTERiverHydrology
         final double height = terrainHeightSampler.sample(blockX, blockZ);
         synchronized (heightCache)
         {
+            final Double raced = heightCache.get(key);
+            if (raced != null)
+            {
+                return raced;
+            }
             if (heightCache.size() >= MAX_HEIGHT_CACHE_SIZE)
             {
-                heightCache.clear();
+                final Iterator<Long> oldest = heightCache.keySet().iterator();
+                if (oldest.hasNext())
+                {
+                    oldest.next();
+                    oldest.remove();
+                }
             }
             heightCache.put(key, height);
         }

@@ -106,6 +106,7 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 public abstract class TFCChunkGeneratorMixin
 {
     @Unique private static final int TFE_WATER_HORIZONTAL_RANGE = 7;
+    @Unique private static final int TFE_MAX_AMBIENT_HEIGHT_FILLERS = 2048;
     @Shadow(remap = false) @Final private Holder<NoiseGeneratorSettings> noiseSettings;
     @Shadow(remap = false) @Final private FastConcurrentCache<TFCAquifer> aquiferCache;
     @Shadow(remap = false) private BiomeSourceExtension customBiomeSource;
@@ -118,6 +119,7 @@ public abstract class TFCChunkGeneratorMixin
     @Unique private volatile NTERiverHydrology tfe$riverHydrology;
     @Unique private volatile NTETerrainUpliftSampler tfe$ambientTerrainUpliftSampler;
     @Unique private final ConcurrentHashMap<Long, CompletableFuture<ChunkHeightFiller>> tfe$ambientHeightFillers = new ConcurrentHashMap<>();
+    @Unique private final ArrayDeque<Long> tfe$ambientHeightFillerOrder = new ArrayDeque<>();
     @Unique private final Map<Long, NTERiverHydrology.ColumnProfile[]> tfe$riverProfilesByChunk = new ConcurrentHashMap<>();
     @Unique private final Map<Long, NTERiverCaveProtection.Geometry> tfe$riverCaveProtectionByChunk = new ConcurrentHashMap<>();
     @Unique private final ThreadLocal<NTERiverCaveProtection.Scope> tfe$riverCarverProtection = new ThreadLocal<>();
@@ -962,19 +964,6 @@ public abstract class TFCChunkGeneratorMixin
         final long cacheKey = pos.toLong();
         try (NTERiverBiomeResolver.Scope ignoredBiomeRivers = NTERiverBiomeResolver.suppressRivers())
         {
-            if (!tfe$ambientHeightFillers.containsKey(cacheKey) && tfe$ambientHeightFillers.size() >= 2048)
-            {
-                // Eviction still uses a very short map-only critical section;
-                // filler construction and height sampling never hold it.
-                synchronized (tfe$ambientHeightFillers)
-                {
-                    if (!tfe$ambientHeightFillers.containsKey(cacheKey) && tfe$ambientHeightFillers.size() >= 2048)
-                    {
-                        tfe$ambientHeightFillers.clear();
-                    }
-                }
-            }
-
             CompletableFuture<ChunkHeightFiller> future = tfe$ambientHeightFillers.get(cacheKey);
             if (future == null)
             {
@@ -986,6 +975,7 @@ public abstract class TFCChunkGeneratorMixin
                     try
                     {
                         created.complete(tfe$createAmbientHeightFiller(pos));
+                        tfe$recordCompletedAmbientHeightFiller(cacheKey, created);
                     }
                     catch (RuntimeException | Error exception)
                     {
@@ -1002,6 +992,33 @@ public abstract class TFCChunkGeneratorMixin
             synchronized (filler)
             {
                 return filler.sampleHeight(blockX, blockZ);
+            }
+        }
+    }
+
+    @Unique
+    private void tfe$recordCompletedAmbientHeightFiller(
+        long cacheKey,
+        CompletableFuture<ChunkHeightFiller> completed
+    )
+    {
+        // Only completed fillers enter the FIFO, so eviction cannot discard a
+        // chunk while another worldgen task is still constructing its sampler.
+        synchronized (tfe$ambientHeightFillerOrder)
+        {
+            if (tfe$ambientHeightFillers.get(cacheKey) == completed)
+            {
+                tfe$ambientHeightFillerOrder.addLast(cacheKey);
+            }
+            while (tfe$ambientHeightFillers.size() > TFE_MAX_AMBIENT_HEIGHT_FILLERS
+                && !tfe$ambientHeightFillerOrder.isEmpty())
+            {
+                final long oldestKey = tfe$ambientHeightFillerOrder.removeFirst();
+                final CompletableFuture<ChunkHeightFiller> oldest = tfe$ambientHeightFillers.get(oldestKey);
+                if (oldest != null && oldest.isDone())
+                {
+                    tfe$ambientHeightFillers.remove(oldestKey, oldest);
+                }
             }
         }
     }
