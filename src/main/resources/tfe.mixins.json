@@ -78,6 +78,7 @@
   ],
   "client": [
     "client.ClientForgeEventHandlerMixin",
+    "client.IngameOverlaysMixin",
     "client.CalendarScreenMixin",
     "client.ClimateRenderCacheMixin",
     "client.ClimateScreenMixin",
