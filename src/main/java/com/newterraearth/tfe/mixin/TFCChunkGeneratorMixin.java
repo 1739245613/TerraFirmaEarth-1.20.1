@@ -1,6 +1,7 @@
 package com.newterraearth.tfe.mixin;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
@@ -656,6 +657,7 @@ public abstract class TFCChunkGeneratorMixin
             tfe$createShoreSamplersForChunk(),
             tfe$createTideHeightNoise(),
             tfe$createExactRiverSamplersForChunk(),
+            this::tfe$createExactRiverSamplersForChunk,
             tfe$createCenteredFeatureSamplersForChunk(),
             terrainUpliftSampler,
             riverHydrology,
@@ -710,7 +712,7 @@ public abstract class TFCChunkGeneratorMixin
             final NTETerrainUpliftSampler terrainUpliftSampler = tfe$createTerrainUpliftSampler();
 
             final ChunkNoiseFiller filler;
-            try (NTEChunkShoreContext.Scope ignored = NTEChunkShoreContext.open(exactShoreSamplers, tideHeightNoise, exactRiverSamplers, centeredFeatureSamplers, terrainUpliftSampler, tfe$getOrCreateRiverHydrology(), false))
+            try (NTEChunkShoreContext.Scope ignored = NTEChunkShoreContext.open(exactShoreSamplers, tideHeightNoise, exactRiverSamplers, this::tfe$createExactRiverSamplersForChunk, centeredFeatureSamplers, terrainUpliftSampler, tfe$getOrCreateRiverHydrology(), false))
             {
                 filler = new ChunkNoiseFiller(
                     (ProtoChunk) chunk,
@@ -1040,7 +1042,8 @@ public abstract class TFCChunkGeneratorMixin
         try (NTEChunkShoreContext.Scope ignored = NTEChunkShoreContext.open(
             tfe$createShoreSamplersForChunk(),
             tfe$createTideHeightNoise(),
-            tfe$createExactRiverSamplersForChunk(),
+            Collections.emptyMap(),
+            Collections::emptyMap,
             tfe$createCenteredFeatureSamplersForChunk(),
             terrainUpliftSampler,
             tfe$riverHydrology,

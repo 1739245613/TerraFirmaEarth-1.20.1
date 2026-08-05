@@ -33,6 +33,14 @@ public interface NTEChunkHeightFillerAccess
 
     Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$getExactRiverNoiseSamplers();
 
+    Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$getRetainedRiverNoiseSamplers();
+
+    double[] tfe$getSupplementalRiverBlendWeights();
+
+    double[] tfe$getRetainedRiverBlendWeights();
+
+    boolean tfe$usesConfluenceCarvingUnion();
+
     double[] tfe$getRiverBlendWeights();
 
     Map<RiverBlendType, RiverNoiseSampler> tfe$getRiverNoiseSamplers();

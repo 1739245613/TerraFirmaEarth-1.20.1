@@ -613,6 +613,7 @@ class NTEHeadwaterNetworkTest
             true,
             true,
             0d,
+            0d,
             false,
             true,
             NTERiverHydrology.ChannelKind.STREAM,
@@ -982,22 +983,129 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void receiverBedHandoffCompletesBeforeTheSupplementalWaterCoreCloses()
+    {
+        assertEquals(0d, NTEHeadwaterNetwork.mouthReceiverBedBlendWeight(8d, 3d), 1.0e-9d);
+        assertEquals(0.5d, NTEHeadwaterNetwork.mouthReceiverBedBlendWeight(5.5d, 3d), 1.0e-9d,
+            "the terminal bed must use one smooth curve rather than a late fixed-depth shelf");
+        assertEquals(1d, NTEHeadwaterNetwork.mouthReceiverBedBlendWeight(3d, 3d), 1.0e-9d,
+            "bed ownership must be complete when supplemental water ownership closes");
+
+        final NTERiverHydrology.ColumnProfile halfway = NTERiverHydrology.adaptToRetainedReceiverBed(
+            withReceiverBedBlend(profileAt(0.6d), 0.5d),
+            70d
+        );
+        assertNotNull(halfway);
+        assertEquals(73d, halfway.centerBedY(), 1.0e-9d);
+        assertEquals(73.25d, halfway.bedY(), 1.0e-9d);
+        assertEquals(74.25d, NTERiverHydrology.clampToAdaptedReceiverBed(halfway, 90d), 1.0e-9d,
+            "height and density stages must consume the same smoothly adapted bed");
+
+        final NTERiverHydrology.ColumnProfile noFill = NTERiverHydrology.adaptToRetainedReceiverBed(
+            withReceiverBedBlend(profileAt(0.6d), 1d),
+            90d
+        );
+        assertNotNull(noFill);
+        assertEquals(76.5d, noFill.bedY(), 1.0e-9d,
+            "a higher receiver sample may not fill or raise the creek bed");
+
+        assertEquals(0.2d, NTERiverHydrology.retainedReceiverCrossSectionSampleInfo(riverAt(0.5d), 0.2d).normDistSq(), 1.0e-9d,
+            "receiver floor probes must preserve the selected cross-section radius");
+        assertEquals(0.2d, NTERiverHydrology.retainedReceiverCrossSectionSampleInfo(riverAt(0.2d), 0.3d).normDistSq(), 1.0e-9d,
+            "receiver floor probes may not move outward past the real column");
+        assertTrue(NTERiverHydrology.crossesReceiverInnerBankCliff(80d, 58d),
+            "the tall-canyon inner-bank drop should be detected");
+        assertFalse(NTERiverHydrology.crossesReceiverInnerBankCliff(61d, 58d),
+            "a normal three-block descent must remain a slope rather than a cliff trigger");
+        assertEquals(56d, NTERiverHydrology.receiverDensityBedY(
+            62,
+            30,
+            y -> y >= 57
+        ), 1.0e-9d, "a density-carved receiver must hand off to its first solid bed layer");
+        assertEquals(Double.POSITIVE_INFINITY, NTERiverHydrology.receiverDensityBedY(
+            62,
+            30,
+            y -> false
+        ), "solid terrain without an opened receiver column is not a density bed target");
+        assertEquals(Double.POSITIVE_INFINITY, NTERiverHydrology.receiverDensityBedY(
+            62,
+            30,
+            y -> true
+        ), "an unbounded open cave must not invent a fixed floor");
+    }
+
+    @Test
+    void descendingMouthIncisionFeathersAcrossTheCompleteDryBank()
+    {
+        assertEquals(1d, NTEHeadwaterNetwork.mouthBankIncisionLateralWeight(
+            NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ
+        ), 1.0e-9d,
+            "the generated water core must receive the complete mouth descent");
+        assertEquals(0.5d, NTEHeadwaterNetwork.mouthBankIncisionLateralWeight(
+            (2.25d + NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ) * 0.5d
+        ), 1.0e-9d,
+            "the incision must remain continuous through the middle of the visible dry shoulder");
+        assertTrue(NTEHeadwaterNetwork.mouthBankIncisionLateralWeight(1.209d) > 0.5d,
+            "the reported sharp-bank column must descend with the receiver instead of retaining its upstream bed");
+        assertTrue(NTEHeadwaterNetwork.mouthBankIncision(6.8d, 1.209d)
+                > NTEHeadwaterNetwork.mouthBankIncision(6.8d, 1.53d),
+            "moving a junction sample inward during filleting must also deepen its matching bank incision");
+        assertEquals(0d, NTEHeadwaterNetwork.mouthBankIncisionLateralWeight(2.25d), 1.0e-9d,
+            "ordinary terrain outside the supplemental bank may not be excavated");
+    }
+
+    @Test
     void mouthDistanceFieldSeparatesTheWetConnectorFromTheOuterBankHandoff()
     {
+        assertEquals(427.6186951179694d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(
+            427.6186951179694d,
+            0.8434586539486739d,
+            200d
+        ), 1.0e-9d,
+            "a distant receiver column must not import an upstream high-water profile into the main river");
         assertEquals(0.2d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.2d, 4d, 24d), 1.0e-9d,
             "the ordinary creek cross-section remains authoritative before bank handoff starts");
         assertEquals(0.2d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.2d, 4d, 10d), 1.0e-9d,
             "a wet creek-center column may not be reclassified outside the receiver before the final fan");
         final double halfway = NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.2d, 4d, 4d);
-        assertTrue(halfway > 0.2d && halfway < 4d);
-        assertEquals(4d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.2d, 4d, 0d), 1.0e-9d,
-            "a column extending along the old creek direction must be outside at the receiver");
+        assertEquals(0.2d, halfway, 1.0e-9d,
+            "terrain SDF remains a union while water and flow perform their longitudinal handoff");
+        assertEquals(0.2d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.2d, 4d, 0d), 1.0e-9d,
+            "terrain carving is the union of both channels even after water ownership reaches the receiver");
         assertEquals(0.2d, NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(4d, 0.2d, 0d), 1.0e-9d,
             "the receiver-aligned side of a high-angle mouth must be opened instead");
-        assertTrue(NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.924d, 1.011d, 4d) > 1d,
-            "the first reported dry shoulder must leave the supplemental creek bank");
-        assertTrue(NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.835d, 1.327d, 6d) > 1d,
-            "the second reported dry shoulder must leave the supplemental creek bank");
+        assertTrue(NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.924d, 1.011d, 4d) < 1d,
+            "the first reported pillar must remain connected to the creek side of the rotating mouth");
+        assertTrue(NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(0.835d, 1.327d, 6d) < 1d,
+            "the second reported pillar must not become a closed dry island between both channels");
+        assertTrue(NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(
+            1.2752723888173887d,
+            3.034d,
+            12d
+        ) <= 1.2752723888173887d,
+            "a creek dry shoulder must remain in the union and may only be carved farther by the confluence fillet");
+        final double transitioningBank = NTEHeadwaterNetwork.mouthGeometryNormalizedDistanceSq(1d, 1d, 16d);
+        assertTrue(transitioningBank < 1d
+                && transitioningBank > NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(1d, 1d),
+            "the fillet must fade in longitudinally instead of appearing along the receiver's entire course");
+    }
+
+    @Test
+    void confluenceFilletRoundsOnlyTheDryBankInsteadOfWideningTheWetCore()
+    {
+        assertEquals(0.4d, NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(0.4d, 0.4d), 1.0e-9d,
+            "the shared wet core must remain the exact union so water width and source ownership do not change");
+        final double roundedBank = NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(1d, 1d);
+        assertTrue(roundedBank < 0.75d,
+            "two equal bank edges need a real fillet instead of retaining the hard-min medial ridge");
+        assertTrue(roundedBank > NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ,
+            "rounding a dry bank must not create a wider generated-water core");
+        assertEquals(1d, NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(1d, 4d), 1.0e-9d,
+            "a distant second channel must not flare an ordinary single bank");
+        final double leftRight = NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(0.92d, 1.08d);
+        final double rightLeft = NTEHeadwaterNetwork.smoothConfluenceNormalizedDistanceSq(1.08d, 0.92d);
+        assertEquals(leftRight, rightLeft, 1.0e-9d,
+            "the rounded confluence must not depend on route publication order");
     }
 
     @Test
@@ -1018,6 +1126,7 @@ class NTEHeadwaterNetworkTest
             true,
             false,
             0.5d,
+            0d,
             true,
             false,
             NTERiverHydrology.ChannelKind.STREAM,
@@ -1049,6 +1158,10 @@ class NTEHeadwaterNetworkTest
             64.95d,
             59.18d
         ), 1.0e-9d);
+        assertTrue(NTERiverHydrology.usesConfluenceCarvingUnion(mouth, riverAt(0.5d)),
+            "a real receiver overlap must combine both complete excavations instead of switching bank ownership");
+        assertFalse(NTERiverHydrology.usesConfluenceCarvingUnion(mouth, null),
+            "a supplemental-only mouth has no second excavation to union");
         assertEquals(64.95d, NTERiverHydrology.clampToRetainedReceiverBed(
             mouth,
             null,
@@ -1200,27 +1313,39 @@ class NTEHeadwaterNetworkTest
     {
         final NTERiverHydrology.ColumnProfile channel = profileAt(0.5d);
         final NTERiverHydrology.ColumnProfile outerBank = profileAt(1.4d);
+        final NTERiverHydrology.ColumnProfile receiverTransition = withReceiverBlend(outerBank, 0.5d);
 
         assertFalse(NTERiverHydrology.shouldUseSupplemental(channel, riverAt(0.20d)),
             "the retained main river owns its physical water core");
         assertTrue(NTERiverHydrology.shouldUseSupplemental(channel, riverAt(0.50d)),
             "the feeder may approach through the retained river's outer influence");
         assertFalse(NTERiverHydrology.shouldUseSupplemental(outerBank, riverAt(0.50d)));
+        assertTrue(NTERiverHydrology.shouldUseSupplemental(outerBank, riverAt(1.01d)),
+            "a distant receiver must not collapse the creek's dry-bank feather into a one-column cliff");
+        assertFalse(NTERiverHydrology.shouldUseSupplemental(receiverTransition, riverAt(0.50d)),
+            "a confluence dry shoulder must yield once it reaches the retained river's actual cross-section");
+        assertTrue(NTERiverHydrology.shouldUseSupplemental(receiverTransition, riverAt(1.01d)),
+            "the same dry shoulder remains supplemental before it reaches the retained river's physical bank");
         assertTrue(NTERiverHydrology.shouldUseSupplemental(outerBank, null));
     }
 
     @Test
-    void receiverBlendTransfersTheCrossSectionDistanceWithTheBedAndWater()
+    void receiverShapeTransferKeepsTheCreekBankUntilTheSharedWetCenter()
     {
         final net.dries007.tfc.world.river.RiverInfo receiver = riverAt(0.25d);
         final NTERiverHydrology.ColumnProfile creek = profileAt(0.75d);
         final NTERiverHydrology.ColumnProfile halfway = withReceiverBlend(creek, 0.5d);
         final NTERiverHydrology.ColumnProfile receiverOwned = withReceiverBlend(creek, 1d);
+        final NTERiverHydrology.ColumnProfile receiverCenter = withReceiverBlend(profileAt(0d), 1d);
 
         assertEquals(0.75d, NTERiverNoise.radialDistanceSq(receiver, creek), 1.0e-9d);
-        assertEquals(0.5d, NTERiverNoise.radialDistanceSq(receiver, halfway), 1.0e-9d);
-        assertEquals(0.25d, NTERiverNoise.radialDistanceSq(receiver, receiverOwned), 1.0e-9d,
-            "receiver-owned columns must not keep a raised creek-shaped outer bank");
+        assertEquals(0.75d, NTERiverNoise.radialDistanceSq(receiver, halfway), 1.0e-9d);
+        assertEquals(0.75d, NTERiverNoise.radialDistanceSq(receiver, receiverOwned), 1.0e-9d,
+            "water ownership alone must not replace the creek's dry shoulder with a canyon wall");
+        assertEquals(0.25d, NTERiverNoise.radialDistanceSq(receiver, receiverCenter), 1.0e-9d,
+            "the receiver's complete cross-section still owns the shared wet center");
+        assertEquals(0d, NTERiverHydrology.receiverBankShapeBlendWeight(receiverOwned), 1.0e-9d);
+        assertEquals(1d, NTERiverHydrology.receiverBankShapeBlendWeight(receiverCenter), 1.0e-9d);
     }
 
     @Test
@@ -1353,6 +1478,7 @@ class NTEHeadwaterNetworkTest
             true,
             true,
             0d,
+            0d,
             false,
             true,
             NTERiverHydrology.ChannelKind.STREAM,
@@ -1378,6 +1504,7 @@ class NTEHeadwaterNetworkTest
             true,
             false,
             0.5d,
+            0d,
             waterfallLanding,
             false,
             NTERiverHydrology.ChannelKind.STREAM,
@@ -1411,6 +1538,36 @@ class NTEHeadwaterNetworkTest
             profile.waterAllowed(),
             profile.sourceWaterAllowed(),
             receiverBlendWeight,
+            profile.receiverBedBlendWeight(),
+            profile.waterfallLanding(),
+            profile.headwater(),
+            profile.kind(),
+            profile.mode(),
+            profile.flow()
+        );
+    }
+
+    private static NTERiverHydrology.ColumnProfile withReceiverBedBlend(
+        NTERiverHydrology.ColumnProfile profile,
+        double receiverBedBlendWeight
+    )
+    {
+        return new NTERiverHydrology.ColumnProfile(
+            profile.waterSurfaceY(),
+            profile.centerBedY(),
+            profile.bedY(),
+            profile.normalizedDistanceSq(),
+            profile.channelRadius(),
+            profile.bankRaise(),
+            profile.terrainIncision(),
+            profile.mouthWaterDrop(),
+            profile.bankFillWeight(),
+            profile.waterCoreRadiusSq(),
+            profile.fillAllowed(),
+            profile.waterAllowed(),
+            profile.sourceWaterAllowed(),
+            profile.receiverBlendWeight(),
+            receiverBedBlendWeight,
             profile.waterfallLanding(),
             profile.headwater(),
             profile.kind(),
@@ -1439,6 +1596,7 @@ class NTEHeadwaterNetworkTest
             profile.waterAllowed(),
             sourceWaterAllowed,
             profile.receiverBlendWeight(),
+            profile.receiverBedBlendWeight(),
             profile.waterfallLanding(),
             profile.headwater(),
             profile.kind(),

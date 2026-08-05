@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntPredicate;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +30,7 @@ import net.dries007.tfc.world.river.RiverInfo;
  */
 public final class NTERiverHydrology
 {
-    static final double TFC_WATER_CORE_RADIUS_SQ = 0.28d;
+    public static final double TFC_WATER_CORE_RADIUS_SQ = 0.28d;
     static final double SUPPLEMENTAL_WATER_CORE_RADIUS_SQ = 0.72d;
     private static final int MAX_HEIGHT_CACHE_SIZE = 131072;
     private static final Comparator<RiverEdge> STABLE_EDGE_ORDER = Comparator
@@ -82,6 +83,7 @@ public final class NTERiverHydrology
         boolean waterAllowed,
         boolean sourceWaterAllowed,
         double receiverBlendWeight,
+        double receiverBedBlendWeight,
         boolean waterfallLanding,
         boolean headwater,
         ChannelKind kind,
@@ -182,17 +184,27 @@ public final class NTERiverHydrology
         {
             return true;
         }
-        if (!profile.inChannel())
-        {
-            return false;
-        }
-        // During the receiver-aligned fan the supplemental profile is the
-        // transition itself. Let it continue through the retained TFC water
-        // core so its bed and banks can converge over several columns instead
-        // of switching ownership on one vertical slice.
         if (profile.receiverBlendWeight() > 0d)
         {
-            return true;
+            // Keep one owner for every confluence column. The supplemental
+            // profile owns its channel and its dry shoulder only until that
+            // shoulder reaches the retained river's actual channel. Once the
+            // supplemental profile is outside its own channel while the native
+            // river is inside its physical cross-section, retaining the almost
+            // zero-weight supplemental bank would punch an ambient-height rock
+            // fin through the already excavated receiver bank.
+            return profile.inChannel() || retainedTfcRiver.normDistSq() > 1d;
+        }
+        if (!profile.inChannel())
+        {
+            // A supplemental route keeps a 1.0 -> 1.5-radius dry-bank feather
+            // outside its physical channel. RiverInfo can still point at the
+            // designated TFC receiver many widths away; rejecting the feather
+            // merely because that distant info exists collapses a deep cut
+            // from the creek floor straight back to ambient terrain in one
+            // column. Preserve the feather until it reaches the receiver's
+            // actual channel, where the native cross-section remains owner.
+            return retainedTfcRiver.normDistSq() > 1d;
         }
         if (profile.retainedFeederMouth())
         {
@@ -202,19 +214,44 @@ public final class NTERiverHydrology
     }
 
     /**
-     * A receiver-aligned supplemental cross-section may rotate and fade into a
-     * retained TFC river, but it may never leave a shallower bed on top of that
-     * river's already excavated column.
+     * A confluence is the union of two cuts, not an ownership boundary. Keep
+     * both complete cross-sections alive anywhere the supplemental mouth and
+     * its retained receiver overlap, including the dry shoulder. The height
+     * and density stages can then take the more-carved result instead of
+     * averaging two incompatible banks or switching between them per column.
      */
-    public static boolean usesRetainedReceiverBed(
+    public static boolean usesConfluenceCarvingUnion(
         @Nullable ColumnProfile profile,
         @Nullable RiverInfo retainedTfcRiver
     )
     {
         return profile != null
             && retainedTfcRiver != null
-            && profile.inChannel()
             && profile.receiverBlendWeight() > 0d;
+    }
+
+    /**
+     * Transfer the receiver's complete bank shape only through the center of
+     * the shared wet corridor. Water ownership still uses the full receiver
+     * blend, but allowing a tall-canyon sampler to take over the creek's dry
+     * shoulder creates a third, overhanging cross-section between both banks.
+     */
+    public static double receiverBankShapeBlendWeight(@Nullable ColumnProfile profile)
+    {
+        if (profile == null || profile.receiverBlendWeight() <= 0d)
+        {
+            return 0d;
+        }
+        final double coreRadiusSq = profile.waterCoreRadiusSq();
+        final double fullReceiverRadiusSq = coreRadiusSq * 0.25d;
+        final double t = Mth.clamp(
+            (profile.normalizedDistanceSq() - fullReceiverRadiusSq)
+                / (coreRadiusSq - fullReceiverRadiusSq),
+            0d,
+            1d
+        );
+        final double creekBankWeight = t * t * (3d - 2d * t);
+        return profile.receiverBlendWeight() * (1d - creekBankWeight);
     }
 
     public static double clampToRetainedReceiverBed(
@@ -224,9 +261,110 @@ public final class NTERiverHydrology
         double retainedReceiverHeight
     )
     {
-        return usesRetainedReceiverBed(profile, retainedTfcRiver)
+        return usesConfluenceCarvingUnion(profile, retainedTfcRiver)
             ? Math.min(supplementalHeight, retainedReceiverHeight)
             : supplementalHeight;
+    }
+
+    /**
+     * Cut the terminal supplemental bed into the receiving river's own wet-core
+     * profile. The target is sampled from the receiver's active river shape and
+     * noise at this column, so this never introduces a fixed Y or a synthetic
+     * stair. Both center and local bed use the same longitudinal handoff and the
+     * operation is cut-only.
+     */
+    @Nullable
+    public static ColumnProfile adaptToRetainedReceiverBed(
+        @Nullable ColumnProfile profile,
+        double retainedReceiverBedHeight
+    )
+    {
+        if (profile == null
+            || !profile.inWaterCore()
+            || profile.receiverBedBlendWeight() <= 0d
+            || !Double.isFinite(retainedReceiverBedHeight))
+        {
+            return profile;
+        }
+        final double blend = Mth.clamp(profile.receiverBedBlendWeight(), 0d, 1d);
+        final double targetCenterBedY = Math.min(profile.centerBedY(), retainedReceiverBedHeight);
+        final double targetBedY = Math.min(profile.bedY(), retainedReceiverBedHeight);
+        return new ColumnProfile(
+            profile.waterSurfaceY(),
+            Mth.lerp(blend, profile.centerBedY(), targetCenterBedY),
+            Mth.lerp(blend, profile.bedY(), targetBedY),
+            profile.normalizedDistanceSq(),
+            profile.channelRadius(),
+            profile.bankRaise(),
+            profile.terrainIncision(),
+            profile.mouthWaterDrop(),
+            profile.bankFillWeight(),
+            profile.waterCoreRadiusSq(),
+            profile.fillAllowed(),
+            profile.waterAllowed(),
+            profile.sourceWaterAllowed(),
+            profile.receiverBlendWeight(),
+            profile.receiverBedBlendWeight(),
+            profile.waterfallLanding(),
+            profile.headwater(),
+            profile.kind(),
+            profile.mode(),
+            profile.flow()
+        );
+    }
+
+    /** Keep the height-stage ceiling consistent with the density-stage bed. */
+    public static double clampToAdaptedReceiverBed(@Nullable ColumnProfile profile, double terrainHeight)
+    {
+        return profile != null && profile.inWaterCore() && profile.receiverBedBlendWeight() > 0d
+            ? Math.min(terrainHeight, profile.bedY() + 1d)
+            : terrainHeight;
+    }
+
+    /** Probe the same receiving cross-section at a caller-selected radius. */
+    public static RiverInfo retainedReceiverCrossSectionSampleInfo(
+        RiverInfo info,
+        double normalizedDistanceSq
+    )
+    {
+        final double clampedDistanceSq = Mth.clamp(normalizedDistanceSq, 0d, info.normDistSq());
+        return new RiverInfo(
+            info.edge(),
+            info.flow(),
+            clampedDistanceSq * info.widthSq(),
+            info.widthSq()
+        );
+    }
+
+    /** Detect the receiver's intentional inner-bank cliff without treating a normal slope as a step. */
+    public static boolean crossesReceiverInnerBankCliff(double outerHeight, double innerHeight)
+    {
+        return Double.isFinite(outerHeight)
+            && Double.isFinite(innerHeight)
+            && outerHeight - innerHeight >= 4d;
+    }
+
+    /**
+     * Find the first solid receiver layer below an already-open river column.
+     * Cave rivers carve their real bed in the density pass, so their sampled
+     * surface height is the cave roof / canyon wall and cannot be used as a
+     * confluence bed target.
+     */
+    public static double receiverDensityBedY(int waterBlockY, int minimumY, IntPredicate isReceiverAir)
+    {
+        boolean foundOpenRiver = false;
+        for (int y = waterBlockY; y >= minimumY; y--)
+        {
+            if (isReceiverAir.test(y))
+            {
+                foundOpenRiver = true;
+            }
+            else if (foundOpenRiver)
+            {
+                return y;
+            }
+        }
+        return Double.POSITIVE_INFINITY;
     }
 
     /** The density-stage bed follows any lower receiver-bed ceiling. */
@@ -870,6 +1008,7 @@ public final class NTERiverHydrology
             sample.waterAllowed(),
             sample.sourceWaterAllowed(),
             sample.receiverBlendWeight(),
+            sample.receiverBedBlendWeight(),
             sample.waterfallLanding(),
             sample.headwater(),
             kind,

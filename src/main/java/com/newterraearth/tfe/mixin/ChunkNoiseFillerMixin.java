@@ -77,9 +77,10 @@ public abstract class ChunkNoiseFillerMixin
         final Object2DoubleMap<net.dries007.tfc.world.BiomeNoiseSampler> columnBiomeNoiseSamplers = access.tfe$getColumnBiomeNoiseSamplers();
         final double[] riverBlendWeights = access.tfe$getExactRiverBlendWeights();
         final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(access.tfe$getLocalX(), access.tfe$getLocalZ());
+        final double riverTerrainHeight = access.tfe$getRiverTerrainHeight(access.tfe$getLocalX(), access.tfe$getLocalZ());
         final double terrainHeightNoiseValue = riverProfile == null
             ? heightNoiseValue
-            : access.tfe$getRiverTerrainHeight(access.tfe$getLocalX(), access.tfe$getLocalZ());
+            : riverTerrainHeight;
 
         double noise = 0;
         for (Object2DoubleMap.Entry<net.dries007.tfc.world.BiomeNoiseSampler> entry : columnBiomeNoiseSamplers.object2DoubleEntrySet())
@@ -89,22 +90,34 @@ public abstract class ChunkNoiseFillerMixin
         }
 
         final double initialNoise = tfe$applyTerrainUpliftLayerNoise(y, noise, access);
-        noise = 0;
-        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        if (access.tfe$usesConfluenceCarvingUnion())
         {
-            final double weight = riverBlendWeights[type.ordinal()];
-            if (type == NTERiverBlendType.NONE)
-            {
-                noise += weight * initialNoise;
-            }
-            else if (weight > 0)
-            {
-                final NTERiverNoiseSampler sampler = access.tfe$getExactRiverNoiseSamplers().get(type);
-                if (sampler != null)
-                {
-                    noise += weight * sampler.noise(y, initialNoise);
-                }
-            }
+            final double supplementalNoise = tfe$sampleExactRiverDensity(
+                y,
+                initialNoise,
+                access.tfe$getSupplementalRiverBlendWeights(),
+                access.tfe$getExactRiverNoiseSamplers()
+            );
+            final double retainedNoise = tfe$sampleExactRiverDensity(
+                y,
+                initialNoise,
+                access.tfe$getRetainedRiverBlendWeights(),
+                access.tfe$getRetainedRiverNoiseSamplers()
+            );
+            // Biome/rivers use larger pre-inversion values for air. Taking
+            // max therefore produces the Boolean union of both excavations:
+            // either the creek or receiver may remove terrain, neither may
+            // rebuild a rock/gravel fin left by the other.
+            noise = Math.max(supplementalNoise, retainedNoise);
+        }
+        else
+        {
+            noise = tfe$sampleExactRiverDensity(
+                y,
+                initialNoise,
+                riverBlendWeights,
+                access.tfe$getExactRiverNoiseSamplers()
+            );
         }
         final double riverAdjustedNoise = noise;
 
@@ -131,6 +144,18 @@ public abstract class ChunkNoiseFillerMixin
         }
         noise = tfe$protectTerrainUpliftLayerAfterShore(y, noise, access);
 
+        if (riverProfile != null
+            && riverProfile.receiverBlendWeight() > 0d
+            && y > Math.floor(riverTerrainHeight))
+        {
+            // Height already stores min(creek cut, receiver cut). Force the
+            // density pass to honor that same Boolean union exactly. Without
+            // this hard ceiling, vegetation/shore density can re-solidify a
+            // column above the lower envelope after both river samplers have
+            // correctly excavated it, recreating the apparent detached pillar.
+            noise = Math.max(noise, net.dries007.tfc.world.BiomeNoiseSampler.AIR_THRESHOLD + 1d);
+        }
+
         noise = net.dries007.tfc.world.BiomeNoiseSampler.AIR_THRESHOLD - noise;
         if (y > terrainHeightNoiseValue)
         {
@@ -138,6 +163,34 @@ public abstract class ChunkNoiseFillerMixin
         }
 
         return Mth.clamp(noise, -1, 1);
+    }
+
+    @Unique
+    private static double tfe$sampleExactRiverDensity(
+        int y,
+        double initialNoise,
+        double[] weights,
+        java.util.Map<NTERiverBlendType, NTERiverNoiseSampler> samplers
+    )
+    {
+        double noise = 0d;
+        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        {
+            final double weight = weights[type.ordinal()];
+            if (type == NTERiverBlendType.NONE)
+            {
+                noise += weight * initialNoise;
+            }
+            else if (weight > 0d)
+            {
+                final NTERiverNoiseSampler sampler = samplers.get(type);
+                if (sampler != null)
+                {
+                    noise += weight * sampler.noise(y, initialNoise);
+                }
+            }
+        }
+        return noise;
     }
 
     @Unique

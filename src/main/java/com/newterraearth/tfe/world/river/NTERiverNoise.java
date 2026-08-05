@@ -50,12 +50,11 @@ public final class NTERiverNoise
         {
             return profile.normalizedDistanceSq();
         }
-        // Cross-section ownership must move with the already blended bed,
-        // water and river-type weights. Keeping the supplemental distance all
-        // the way to receiverBlend=1 leaves a raised creek-shaped shoulder in
-        // the middle of the native U-cut, then drops it on the next column.
+        // Geometry and river type must use one shape handoff. Water ownership
+        // can transfer earlier, but the dry shoulder retains the creek slope
+        // until it reaches the receiver's actual wet center.
         return Mth.lerp(
-            profile.receiverBlendWeight(),
+            NTERiverHydrology.receiverBankShapeBlendWeight(profile),
             profile.normalizedDistanceSq(),
             info.normDistSq()
         );
@@ -65,14 +64,22 @@ public final class NTERiverNoise
     {
         return profile == null
             ? fallback
-            : Mth.lerp(profile.receiverBlendWeight(), profile.centerBedY(), fallback);
+            : Mth.lerp(
+                NTERiverHydrology.receiverBankShapeBlendWeight(profile),
+                profile.centerBedY(),
+                fallback
+            );
     }
 
     private static double waterY(NTERiverHydrology.ColumnProfile profile, double fallback)
     {
         return profile == null
             ? fallback
-            : Mth.lerp(profile.receiverBlendWeight(), profile.waterSurfaceY(), fallback);
+            : Mth.lerp(
+                NTERiverHydrology.receiverBankShapeBlendWeight(profile),
+                profile.waterSurfaceY(),
+                fallback
+            );
     }
 
     public static NTERiverNoiseSampler banked(NTESeed seed)

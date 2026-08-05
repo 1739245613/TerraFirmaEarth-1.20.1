@@ -52,6 +52,8 @@ final class NTEHeadwaterNetwork
     private static final double JUNCTION_TANGENT_REWRITE_LENGTH = 16d;
     private static final double JUNCTION_PROFILE_TRANSITION_LENGTH = 18d;
     private static final double JUNCTION_FLOW_TRANSITION_RADIUS = 6d;
+    /** Normalized-radius fillet used only where two coordinated dry banks meet. */
+    private static final double CONFLUENCE_BANK_FILLET_RADIUS = 0.55d;
     private static final double VALLEY_SNAP_RADIUS = 8d;
     private static final double VALLEY_SNAP_STEP = 2d;
     private static final double TFC_RIVER_ROUTE_CLEARANCE = 6d;
@@ -121,6 +123,7 @@ final class NTEHeadwaterNetwork
         boolean waterAllowed,
         boolean sourceWaterAllowed,
         double receiverBlendWeight,
+        double receiverBedBlendWeight,
         boolean waterfallLanding,
         boolean headwater,
         Flow flow
@@ -761,10 +764,18 @@ final class NTEHeadwaterNetwork
             * (1d - mouthBankFillWeight(distanceToOutlet));
     }
 
-    private static double mouthFanLateralWeight(double normalizedDistanceSq)
+    static double mouthBankIncisionLateralWeight(double normalizedDistanceSq)
     {
+        // The mouth water surface may descend several blocks to meet a deep
+        // receiver. Its matching incision must cross the complete visible
+        // bank, not stop at normalized radius 1. Stopping at the channel edge
+        // gives the wet core the low receiver bed while the very next dry
+        // column keeps the high upstream bed, which is the thin rock pinnacle
+        // seen at sharp/deep joins. Feather the descent all the way through
+        // the same 1.0 -> 1.5-radius shoulder used by the river shape.
         return smootherStep(Mth.clamp(
-            (1d - normalizedDistanceSq) / (1d - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
+            (MAX_INFLUENCE_SQ - normalizedDistanceSq)
+                / (MAX_INFLUENCE_SQ - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
             0d,
             1d
         ));
@@ -776,10 +787,63 @@ final class NTEHeadwaterNetwork
         double distanceToOutlet
     )
     {
-        return Mth.lerp(
-            mouthReceiverBlendWeight(streamNormalizedDistanceSq, distanceToOutlet),
+        final double receiverInfluence = mouthOuterBankReceiverBlendWeight(distanceToOutlet);
+        if (receiverInfluence <= 0d)
+        {
+            return streamNormalizedDistanceSq;
+        }
+
+        // The receiver is part of the mouth only inside the longitudinal bank
+        // transition. Applying its SDF along the route's full length can make
+        // an upstream high-water profile reappear as a wall in a distant part
+        // of the receiver river. Within the actual mouth, blend toward a
+        // rounded union which can only carve farther than the stream itself.
+        final double roundedUnion = smoothConfluenceNormalizedDistanceSq(
             streamNormalizedDistanceSq,
             receiverNormalizedDistanceSq
+        );
+        return Mth.lerp(receiverInfluence, streamNormalizedDistanceSq, roundedUnion);
+    }
+
+    static double smoothConfluenceNormalizedDistanceSq(double leftDistanceSq, double rightDistanceSq)
+    {
+        final double minimumDistanceSq = Math.min(leftDistanceSq, rightDistanceSq);
+        if (!Double.isFinite(minimumDistanceSq)
+            || minimumDistanceSq <= NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+        {
+            return minimumDistanceSq;
+        }
+
+        final double dryBankWeight = smootherStep(Mth.clamp(
+            (minimumDistanceSq - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+                / (1d - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
+            0d,
+            1d
+        ));
+        final double filletRadius = CONFLUENCE_BANK_FILLET_RADIUS * dryBankWeight;
+        if (filletRadius <= 1.0e-9d)
+        {
+            return minimumDistanceSq;
+        }
+
+        // Smooth-min actual normalized radii, not squared radii. This makes the
+        // rounding width proportional to the local channel radius and avoids
+        // over-carving narrow creeks or under-carving a deep/wide confluence.
+        final double leftRadius = Math.sqrt(Math.max(0d, leftDistanceSq));
+        final double rightRadius = Math.sqrt(Math.max(0d, rightDistanceSq));
+        final double difference = Math.abs(leftRadius - rightRadius);
+        if (difference >= filletRadius)
+        {
+            return minimumDistanceSq;
+        }
+        final double h = (filletRadius - difference) / filletRadius;
+        final double smoothRadius = Math.max(
+            0d,
+            Math.min(leftRadius, rightRadius) - filletRadius * h * h * 0.25d
+        );
+        return Math.max(
+            NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ + 1.0e-6d,
+            smoothRadius * smoothRadius
         );
     }
 
@@ -809,17 +873,43 @@ final class NTEHeadwaterNetwork
         // no retained TFC leaf to fall back to. Only the dry outer cross-
         // section transfers early; the transition is smooth between the
         // flowing-water edge and the physical bank edge.
-        final double outerBankWeight = smootherStep(Mth.clamp(
-            (streamNormalizedDistanceSq - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
-                / (1d - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
-            0d,
-            1d
-        ));
+        final double outerBankWeight = mouthOuterBankLateralWeight(streamNormalizedDistanceSq);
         return Mth.lerp(
             outerBankWeight,
             mouthReceiverBlendWeight(distanceToOutlet),
             mouthOuterBankReceiverBlendWeight(distanceToOutlet)
         );
+    }
+
+    private static double mouthOuterBankLateralWeight(double streamNormalizedDistanceSq)
+    {
+        return smootherStep(Mth.clamp(
+            (streamNormalizedDistanceSq - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ)
+                / (1d - NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ),
+            0d,
+            1d
+        ));
+    }
+
+    /**
+     * The wet supplemental corridor closes before the complete mouth fan ends.
+     * Its bed therefore needs a dedicated handoff which reaches the receiver
+     * at that exact closure point; reusing the slower geometry blend leaves a
+     * short level shelf followed by a sudden drop when waterAllowed flips.
+     */
+    static double mouthReceiverBedBlendWeight(double distanceToOutlet, double waterCutLength)
+    {
+        final double transitionLength = Math.max(1.0e-6d, MOUTH_FAN_LENGTH - waterCutLength);
+        return smootherStep(Mth.clamp(
+            (MOUTH_FAN_LENGTH - distanceToOutlet) / transitionLength,
+            0d,
+            1d
+        ));
+    }
+
+    static double mouthBankIncision(double mouthWaterDrop, double normalizedDistanceSq)
+    {
+        return mouthWaterDrop * mouthBankIncisionLateralWeight(normalizedDistanceSq);
     }
 
     /**
@@ -968,15 +1058,85 @@ final class NTEHeadwaterNetwork
         }
 
         Sample nearest = null;
+        Headwater nearestOwner = null;
+        Sample roundedNearest = null;
         for (Headwater headwater : candidates)
         {
             final Sample sample = headwater.sampleIfPlanned(blockX, blockZ, ambientHeight);
+            if (sample == null)
+            {
+                continue;
+            }
+            // Routes registered as parts of the same junction must share one
+            // rounded dry-bank field. Keep the wet core on the ordinary nearest
+            // sample so channel width and source/flow ownership stay unchanged.
+            if (nearest != null
+                && nearestOwner != null
+                && Math.min(sample.normalizedDistanceSq(), nearest.normalizedDistanceSq())
+                    > NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ
+                && sample.receiverBlendWeight() > 0d
+                && nearest.receiverBlendWeight() > 0d
+                && areJunctionPeers(headwater, nearestOwner))
+            {
+                final Sample preferred = samplePreferred(sample, nearest) ? sample : nearest;
+                final double roundedDistanceSq = smoothConfluenceNormalizedDistanceSq(
+                    sample.normalizedDistanceSq(),
+                    nearest.normalizedDistanceSq()
+                );
+                if (roundedDistanceSq + 1.0e-9d < preferred.normalizedDistanceSq())
+                {
+                    final Sample rounded = withNormalizedDistanceSq(preferred, roundedDistanceSq);
+                    if (samplePreferred(rounded, roundedNearest))
+                    {
+                        roundedNearest = rounded;
+                    }
+                }
+            }
             if (samplePreferred(sample, nearest))
             {
                 nearest = sample;
+                nearestOwner = headwater;
             }
         }
-        return nearest;
+        return samplePreferred(roundedNearest, nearest) ? roundedNearest : nearest;
+    }
+
+    private boolean areJunctionPeers(Headwater left, Headwater right)
+    {
+        synchronized (headwaters)
+        {
+            return left.junctionPeers.contains(right) || right.junctionPeers.contains(left);
+        }
+    }
+
+    private static Sample withNormalizedDistanceSq(Sample sample, double normalizedDistanceSq)
+    {
+        // Junction filleting can move a dry-bank sample inward after the
+        // route computed its original mouth incision. Re-evaluate the descent
+        // at the rounded radius; otherwise geometry says "inner slope" while
+        // its bed still keeps the shallower outer-slope elevation, leaving a
+        // pointed cap exactly on the fillet.
+        final double roundedExtraIncision = Math.max(
+            sample.extraIncision(),
+            mouthBankIncision(sample.mouthWaterDrop(), normalizedDistanceSq)
+        );
+        return new Sample(
+            sample.waterSurfaceY(),
+            normalizedDistanceSq,
+            sample.channelRadius(),
+            roundedExtraIncision,
+            sample.mouthWaterDrop(),
+            sample.bankFillWeight(),
+            sample.waterCoreRadiusSq(),
+            sample.fillAllowed(),
+            sample.waterAllowed(),
+            sample.sourceWaterAllowed(),
+            sample.receiverBlendWeight(),
+            sample.receiverBedBlendWeight(),
+            sample.waterfallLanding(),
+            sample.headwater(),
+            sample.flow()
+        );
     }
 
     boolean mayInfluence(RiverEdge edge, int blockX, int blockZ)
@@ -3928,13 +4088,16 @@ final class NTEHeadwaterNetwork
             final boolean waterfallLanding = naturalWaterfallLanding(upstreamWaterY, localWaterY);
             final double extraIncision = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
-                : mouthWaterDrop * mouthFanLateralWeight(normalizedDistanceSq);
+                : mouthBankIncision(mouthWaterDrop, normalizedDistanceSq);
             final double bankFillWeight = receiverAlignment == null
                 ? 1d
                 : mouthBankFillWeight(distanceToOutlet);
             final double receiverBlendWeight = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthReceiverBlendWeight(rawNormalizedDistanceSq, distanceToOutlet);
+            final double receiverBedBlendWeight = receiverAlignment == null || retainedReceiverJoin
+                ? 0d
+                : mouthReceiverBedBlendWeight(distanceToOutlet, waterCutLength);
             final Vec smoothedStreamDirection = flowDirectionAtAlong(along);
             final Vec streamDirection = vectorLength(smoothedStreamDirection) < 1.0e-6d
                 ? normalizedDirection(
@@ -3978,6 +4141,7 @@ final class NTEHeadwaterNetwork
                 waterAllowed,
                 sourceWaterAllowed,
                 receiverBlendWeight,
+                receiverBedBlendWeight,
                 waterfallLanding,
                 along / totalLength < 0.15d,
                 flow
@@ -4580,10 +4744,11 @@ final class NTEHeadwaterNetwork
             }
             final int targetX = Integer.getInteger("tfe.debug.traceX", Integer.MIN_VALUE);
             final int targetZ = Integer.getInteger("tfe.debug.traceZ", Integer.MIN_VALUE);
+            final int traceRadius = Math.max(6, Integer.getInteger("tfe.debug.traceRadius", 8));
             final List<String> nearby = new ArrayList<>();
             for (int i = 0; i < x.length; i++)
             {
-                if (Math.abs(x[i] - targetX) <= 6d && Math.abs(z[i] - targetZ) <= 6d)
+                if (Math.abs(x[i] - targetX) <= traceRadius && Math.abs(z[i] - targetZ) <= traceRadius)
                 {
                     nearby.add(String.format("%.1f/%.1f", x[i], z[i]));
                 }
@@ -4597,12 +4762,45 @@ final class NTEHeadwaterNetwork
             {
                 final int connectorX = (int) key;
                 final int connectorZ = (int) (key >>> 32);
-                if (Math.abs(connectorX - targetX) <= 6 && Math.abs(connectorZ - targetZ) <= 6)
+                if (Math.abs(connectorX - targetX) <= traceRadius && Math.abs(connectorZ - targetZ) <= traceRadius)
                 {
                     connectors.add(connectorX + "/" + connectorZ);
                 }
             }
-            return " nearby=" + nearby + " nearbyConnectors=" + connectors;
+            final Vec target = new Vec(targetX, targetZ);
+            final RouteProjection projection = nearestProjection(target);
+            final Vec streamDirection = directionAtAlong(projection.along());
+            final double distanceToOutlet = totalLength - projection.along();
+            if (receiverAlignment == null)
+            {
+                return String.format(
+                    " nearby=%s nearbyConnectors=%s targetAlong=%.2f outletDistance=%.2f streamDir=%.3f/%.3f alignment=none",
+                    nearby,
+                    connectors,
+                    projection.along(),
+                    distanceToOutlet,
+                    streamDirection.x(),
+                    streamDirection.z()
+                );
+            }
+            final double receiverAlong = nearestAlong(receiverAlignment.receiverPath, target);
+            final Vec receiverDirection = directionAlong(
+                receiverAlignment.receiverPath,
+                Math.min(polylineLength(receiverAlignment.receiverPath), receiverAlong + 1.0e-3d)
+            );
+            return String.format(
+                " nearby=%s nearbyConnectors=%s targetAlong=%.2f outletDistance=%.2f streamDir=%.3f/%.3f receiverDir=%.3f/%.3f directionDot=%.3f alignment=%s",
+                nearby,
+                connectors,
+                projection.along(),
+                distanceToOutlet,
+                streamDirection.x(),
+                streamDirection.z(),
+                receiverDirection.x(),
+                receiverDirection.z(),
+                directionDot(streamDirection, receiverDirection),
+                receiverAlignment.retainsNativeReceiver() ? "retained" : "replacement"
+            );
         }
     }
 

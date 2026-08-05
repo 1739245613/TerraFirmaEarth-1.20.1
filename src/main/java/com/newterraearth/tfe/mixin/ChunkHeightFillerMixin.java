@@ -3,6 +3,7 @@ package com.newterraearth.tfe.mixin;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
@@ -59,8 +60,16 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
 
     @Unique private boolean tfe$hasShoreRuntime;
     @Unique private Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$exactRiverNoiseSamplers = Collections.emptyMap();
+    @Unique private volatile Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$retainedRiverNoiseSamplers = Collections.emptyMap();
+    @Unique private volatile Supplier<Map<NTERiverBlendType, NTERiverNoiseSampler>> tfe$retainedRiverNoiseSamplerFactory;
     @Unique private double[] tfe$exactRiverBlendWeights = new double[NTERiverBlendType.SIZE];
     @Unique private double[] tfe$nativeRiverBlendWeights = new double[NTERiverBlendType.SIZE];
+    @Unique private double[] tfe$supplementalRiverBlendWeights = new double[NTERiverBlendType.SIZE];
+    @Unique private double[] tfe$retainedRiverDensityBlendWeights = new double[NTERiverBlendType.SIZE];
+    @Unique private boolean tfe$usesConfluenceCarvingUnion;
+    @Unique private double tfe$retainedReceiverBedHeight = Double.POSITIVE_INFINITY;
+    @Unique private double tfe$retainedReceiverHeight = Double.POSITIVE_INFINITY;
+    @Unique private double tfe$retainedReceiverNormDistSq = Double.POSITIVE_INFINITY;
     @Unique private Map<NTEShoreBlendType, NTEShoreNoiseSampler> tfe$shoreNoiseSamplers = Collections.emptyMap();
     @Unique private double[] tfe$shoreBlendWeights = new double[NTEShoreBlendType.SIZE];
     @Unique private Noise2D tfe$tideHeightNoise;
@@ -86,6 +95,8 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         {
             tfe$hasShoreRuntime = true;
             tfe$exactRiverNoiseSamplers = context.riverNoiseSamplers();
+            tfe$retainedRiverNoiseSamplers = Collections.emptyMap();
+            tfe$retainedRiverNoiseSamplerFactory = context.retainedRiverNoiseSamplerFactory();
             tfe$shoreNoiseSamplers = context.shoreNoiseSamplers();
             tfe$tideHeightNoise = context.tideHeightNoise();
             tfe$centeredFeatureNoiseSamplers = context.centeredFeatureNoiseSamplers();
@@ -97,6 +108,8 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         {
             tfe$hasShoreRuntime = false;
             tfe$exactRiverNoiseSamplers = Collections.emptyMap();
+            tfe$retainedRiverNoiseSamplers = Collections.emptyMap();
+            tfe$retainedRiverNoiseSamplerFactory = null;
             tfe$shoreNoiseSamplers = Collections.emptyMap();
             tfe$tideHeightNoise = null;
             tfe$centeredFeatureNoiseSamplers = Collections.emptyMap();
@@ -149,6 +162,30 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     public Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$getExactRiverNoiseSamplers()
     {
         return tfe$exactRiverNoiseSamplers;
+    }
+
+    @Override
+    public Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$getRetainedRiverNoiseSamplers()
+    {
+        return tfe$getOrCreateRetainedRiverNoiseSamplers();
+    }
+
+    @Override
+    public double[] tfe$getSupplementalRiverBlendWeights()
+    {
+        return tfe$supplementalRiverBlendWeights;
+    }
+
+    @Override
+    public double[] tfe$getRetainedRiverBlendWeights()
+    {
+        return tfe$retainedRiverDensityBlendWeights;
+    }
+
+    @Override
+    public boolean tfe$usesConfluenceCarvingUnion()
+    {
+        return tfe$usesConfluenceCarvingUnion;
     }
 
     @Override
@@ -381,6 +418,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
         final double preSupplementalRiverHeight = height;
+        tfe$usesConfluenceCarvingUnion = false;
+        Arrays.fill(tfe$supplementalRiverBlendWeights, 0d);
+        Arrays.fill(tfe$retainedRiverDensityBlendWeights, 0d);
         if (tfe$suppressRiver)
         {
             tfe$currentRiverHydrologyProfile = null;
@@ -393,15 +433,25 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             : preparedHydrologyColumn
                 ? NTERiverHydrology.activeGenerationProfile(blockX, blockZ)
                 : tfe$riverHydrology.samplePreparedColumn(blockX, blockZ, height);
-        tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
+        final boolean confluenceCarvingUnion = NTERiverHydrology.usesConfluenceCarvingUnion(
+            supplementalRiverProfile,
+            info
+        );
+        tfe$currentRiverHydrologyProfile = confluenceCarvingUnion
+            || NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;
         final RiverInfo retainedReceiverInfo = info;
+        tfe$usesConfluenceCarvingUnion = confluenceCarvingUnion;
         final double retainedReceiverHeight = tfe$sampleRetainedReceiverHeight(
             preSupplementalRiverHeight,
             retainedReceiverInfo,
-            tfe$currentRiverHydrologyProfile,
+            supplementalRiverProfile,
             terrainUplift
+        );
+        tfe$currentRiverHydrologyProfile = NTERiverHydrology.adaptToRetainedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            tfe$retainedReceiverBedHeight
         );
         if (tfe$currentRiverHydrologyProfile != null)
         {
@@ -414,6 +464,20 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 info = null;
             }
             tfe$selectRiverShapeForHydrology();
+            if (tfe$usesConfluenceCarvingUnion)
+            {
+                // The supplemental side of a confluence is sampled as one
+                // complete cut. The retained receiver is sampled separately
+                // below and density combines both with an air-union.
+                info = null;
+                System.arraycopy(
+                    tfe$supplementalRiverBlendWeights,
+                    0,
+                    tfe$exactRiverBlendWeights,
+                    0,
+                    tfe$exactRiverBlendWeights.length
+                );
+            }
         }
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
         final double caveTransitionTerrainUplift = terrainUplift * tfe$caveTransitionTerrainUpliftProtection(initialCaveWeight);
@@ -431,10 +495,14 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             );
         }
         height = NTERiverHydrology.clampToRetainedReceiverBed(
-            tfe$currentRiverHydrologyProfile,
+            supplementalRiverProfile,
             retainedReceiverInfo,
             height,
             retainedReceiverHeight
+        );
+        height = NTERiverHydrology.clampToAdaptedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            height
         );
         tfe$currentRiverTerrainHeight = height;
         if (trace)
@@ -569,6 +637,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
         final double preSupplementalRiverHeight = height;
+        tfe$usesConfluenceCarvingUnion = false;
+        Arrays.fill(tfe$supplementalRiverBlendWeights, 0d);
+        Arrays.fill(tfe$retainedRiverDensityBlendWeights, 0d);
         if (tfe$suppressRiver)
         {
             tfe$currentRiverHydrologyProfile = null;
@@ -581,15 +652,25 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             : preparedHydrologyColumn
                 ? NTERiverHydrology.activeGenerationProfile(blockX, blockZ)
                 : tfe$riverHydrology.samplePreparedColumn(blockX, blockZ, height);
-        tfe$currentRiverHydrologyProfile = NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
+        final boolean confluenceCarvingUnion = NTERiverHydrology.usesConfluenceCarvingUnion(
+            supplementalRiverProfile,
+            info
+        );
+        tfe$currentRiverHydrologyProfile = confluenceCarvingUnion
+            || NTERiverHydrology.shouldUseSupplemental(supplementalRiverProfile, info)
             ? supplementalRiverProfile
             : null;
         final RiverInfo retainedReceiverInfo = info;
+        tfe$usesConfluenceCarvingUnion = confluenceCarvingUnion;
         final double retainedReceiverHeight = tfe$sampleRetainedReceiverHeight(
             preSupplementalRiverHeight,
             retainedReceiverInfo,
-            tfe$currentRiverHydrologyProfile,
+            supplementalRiverProfile,
             terrainUplift
+        );
+        tfe$currentRiverHydrologyProfile = NTERiverHydrology.adaptToRetainedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            tfe$retainedReceiverBedHeight
         );
         if (tfe$currentRiverHydrologyProfile != null)
         {
@@ -599,6 +680,17 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
                 info = null;
             }
             tfe$selectRiverShapeForHydrology();
+            if (tfe$usesConfluenceCarvingUnion)
+            {
+                info = null;
+                System.arraycopy(
+                    tfe$supplementalRiverBlendWeights,
+                    0,
+                    tfe$exactRiverBlendWeights,
+                    0,
+                    tfe$exactRiverBlendWeights.length
+                );
+            }
         }
         final double initialCaveWeight = tfe$adjustExactRiverWeightsForCaves();
         final double caveTransitionTerrainUplift = terrainUplift * tfe$caveTransitionTerrainUpliftProtection(initialCaveWeight);
@@ -616,10 +708,14 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             );
         }
         height = NTERiverHydrology.clampToRetainedReceiverBed(
-            tfe$currentRiverHydrologyProfile,
+            supplementalRiverProfile,
             retainedReceiverInfo,
             height,
             retainedReceiverHeight
+        );
+        height = NTERiverHydrology.clampToAdaptedReceiverBed(
+            tfe$currentRiverHydrologyProfile,
+            height
         );
         tfe$currentRiverTerrainHeight = height;
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
@@ -910,7 +1006,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     private void tfe$selectRiverShapeForHydrology()
     {
         assert tfe$currentRiverHydrologyProfile != null;
-        final double[] supplementalWeights = new double[NTERiverBlendType.SIZE];
+        Arrays.fill(tfe$supplementalRiverBlendWeights, 0d);
 
         final double riverWeight = tfe$smoothStep(Mth.clampedMap(
             tfe$currentRiverHydrologyProfile.normalizedDistanceSq(),
@@ -919,36 +1015,39 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             0d,
             1d
         ));
-        supplementalWeights[NTERiverBlendType.NONE.ordinal()] = 1d - riverWeight;
+        tfe$supplementalRiverBlendWeights[NTERiverBlendType.NONE.ordinal()] = 1d - riverWeight;
         if (tfe$currentRiverHydrologyProfile.kind() == NTERiverHydrology.ChannelKind.RIVER)
         {
-            supplementalWeights[NTERiverBlendType.WIDE_DEEP.ordinal()] = riverWeight;
+            tfe$supplementalRiverBlendWeights[NTERiverBlendType.WIDE_DEEP.ordinal()] = riverWeight;
         }
         else
         {
-            // Keep the ordinary radius-based BANKED -> WIDE blend. The aligned
-            // mouth no longer adds a separate receiver-width expansion; bank
-            // construction can still fade without physically widening the creek.
+            // Keep the ordinary radius-based BANKED -> WIDE blend. Removing
+            // terrain fill must not also replace the creek's sloped bank with
+            // a third WIDE mouth profile; receiver shape ownership is handed
+            // off separately below, just as cave mouths delegate one height
+            // shape instead of deriving a new one from material ownership.
             final double radiusWideWeight = NTERiverHydrology.wideShapeWeight(
                 tfe$currentRiverHydrologyProfile.channelRadius()
             );
-            final double wideWeight = 1d - (1d - radiusWideWeight)
-                * tfe$currentRiverHydrologyProfile.bankFillWeight();
-            supplementalWeights[NTERiverBlendType.BANKED.ordinal()] = riverWeight * (1d - wideWeight);
-            supplementalWeights[NTERiverBlendType.WIDE.ordinal()] = riverWeight * wideWeight;
+            final double wideWeight = radiusWideWeight;
+            tfe$supplementalRiverBlendWeights[NTERiverBlendType.BANKED.ordinal()] = riverWeight * (1d - wideWeight);
+            tfe$supplementalRiverBlendWeights[NTERiverBlendType.WIDE.ordinal()] = riverWeight * wideWeight;
         }
 
-        // The same receiver-aware progress which rotates the mouth also
-        // transfers its complete cross-section from the creek to the native
-        // TFC river. Both weight sets sum to one, so this cannot create or
-        // remove total river influence; it only avoids a one-column U-cut handoff.
-        final double receiverBlend = tfe$currentRiverHydrologyProfile.receiverBlendWeight();
+        // Water may align with the receiver before the dry bank does. Reuse
+        // the same center-weighted scalar as distance, bed and water-height
+        // sampling so the bank type is handed off once instead of producing a
+        // third shape by stacking several independent interpolation fields.
+        final double receiverBlend = NTERiverHydrology.receiverBankShapeBlendWeight(
+            tfe$currentRiverHydrologyProfile
+        );
         for (NTERiverBlendType type : NTERiverBlendType.ALL)
         {
             final int index = type.ordinal();
             tfe$exactRiverBlendWeights[index] = Mth.lerp(
                 receiverBlend,
-                supplementalWeights[index],
+                tfe$supplementalRiverBlendWeights[index],
                 tfe$nativeRiverBlendWeights[index]
             );
         }
@@ -962,10 +1061,17 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         double terrainUplift
     )
     {
-        if (!NTERiverHydrology.usesRetainedReceiverBed(supplementalProfile, retainedReceiverInfo))
+        tfe$retainedReceiverBedHeight = Double.POSITIVE_INFINITY;
+        tfe$retainedReceiverHeight = Double.POSITIVE_INFINITY;
+        tfe$retainedReceiverNormDistSq = retainedReceiverInfo == null
+            ? Double.POSITIVE_INFINITY
+            : retainedReceiverInfo.normDistSq();
+        if (!NTERiverHydrology.usesConfluenceCarvingUnion(supplementalProfile, retainedReceiverInfo))
         {
             return Double.POSITIVE_INFINITY;
         }
+        final Map<NTERiverBlendType, NTERiverNoiseSampler> retainedRiverNoiseSamplers =
+            tfe$getOrCreateRetainedRiverNoiseSamplers();
 
         final NTERiverHydrology.ColumnProfile previousProfile = tfe$currentRiverHydrologyProfile;
         final boolean previousForceCaveRiver = tfe$forceSubterraneanCaveRiver;
@@ -978,15 +1084,61 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             tfe$exactRiverBlendWeights.length
         );
         final double nativeCaveWeight = tfe$adjustExactRiverWeightsForCaves();
+        System.arraycopy(
+            tfe$exactRiverBlendWeights,
+            0,
+            tfe$retainedRiverDensityBlendWeights,
+            0,
+            tfe$exactRiverBlendWeights.length
+        );
         final double caveTransitionTerrainUplift = terrainUplift
             * tfe$caveTransitionTerrainUpliftProtection(nativeCaveWeight);
         tfe$forceSubterraneanCaveRiver = false;
         final double retainedReceiverHeight = tfe$adjustHeightForExactRiverContributions(
+            retainedRiverNoiseSamplers,
             terrainHeight,
             retainedReceiverInfo,
             nativeCaveWeight,
             caveTransitionTerrainUplift
         );
+        tfe$retainedReceiverHeight = retainedReceiverHeight;
+        final boolean needsReceiverBed = supplementalProfile != null
+            && supplementalProfile.inWaterCore()
+            && supplementalProfile.receiverBedBlendWeight() > 0d;
+        if (needsReceiverBed)
+        {
+            final double receiverShapeBedHeight = tfe$sampleReceiverFloorBelowInnerBank(
+                retainedRiverNoiseSamplers,
+                terrainHeight,
+                retainedReceiverInfo,
+                retainedReceiverHeight,
+                nativeCaveWeight,
+                caveTransitionTerrainUplift
+            );
+            // Restore every stateful receiver sampler to this column's actual
+            // distance after probing inward; density generation consumes the
+            // state left by this final call.
+            tfe$adjustHeightForExactRiverContributions(
+                retainedRiverNoiseSamplers,
+                terrainHeight,
+                retainedReceiverInfo,
+                nativeCaveWeight,
+                caveTransitionTerrainUplift
+            );
+            final double receiverDensityBedHeight = nativeCaveWeight >= 0.25d
+                ? tfe$sampleReceiverDensityBed(
+                    retainedRiverNoiseSamplers,
+                    supplementalProfile,
+                    terrainHeight - terrainUplift,
+                    terrainHeight,
+                    terrainUplift
+                )
+                : Double.POSITIVE_INFINITY;
+            tfe$retainedReceiverBedHeight = Math.min(
+                receiverShapeBedHeight,
+                receiverDensityBedHeight
+            );
+        }
 
         tfe$currentRiverHydrologyProfile = previousProfile;
         tfe$forceSubterraneanCaveRiver = previousForceCaveRiver;
@@ -1001,7 +1153,152 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     }
 
     @Unique
+    private double tfe$sampleReceiverFloorBelowInnerBank(
+        Map<NTERiverBlendType, NTERiverNoiseSampler> retainedRiverNoiseSamplers,
+        double terrainHeight,
+        RiverInfo retainedReceiverInfo,
+        double outerHeight,
+        double nativeCaveWeight,
+        double caveTransitionTerrainUplift
+    )
+    {
+        final double outerNormDistSq = Math.min(
+            retainedReceiverInfo.normDistSq(),
+            NTERiverHydrology.TFC_WATER_CORE_RADIUS_SQ
+        );
+        final int steps = Math.max(1, Mth.ceil(outerNormDistSq / 0.015d));
+        double previousHeight = retainedReceiverInfo.normDistSq() > outerNormDistSq
+            ? tfe$adjustHeightForExactRiverContributions(
+                retainedRiverNoiseSamplers,
+                terrainHeight,
+                NTERiverHydrology.retainedReceiverCrossSectionSampleInfo(retainedReceiverInfo, outerNormDistSq),
+                nativeCaveWeight,
+                caveTransitionTerrainUplift
+            )
+            : outerHeight;
+        for (int step = 1; step <= steps; step++)
+        {
+            final double normDistSq = outerNormDistSq * (1d - step / (double) steps);
+            final double sampleHeight = tfe$adjustHeightForExactRiverContributions(
+                retainedRiverNoiseSamplers,
+                terrainHeight,
+                NTERiverHydrology.retainedReceiverCrossSectionSampleInfo(retainedReceiverInfo, normDistSq),
+                nativeCaveWeight,
+                caveTransitionTerrainUplift
+            );
+            if (NTERiverHydrology.crossesReceiverInnerBankCliff(previousHeight, sampleHeight))
+            {
+                return sampleHeight;
+            }
+            previousHeight = sampleHeight;
+        }
+        return outerHeight;
+    }
+
+    @Unique
+    private double tfe$sampleReceiverDensityBed(
+        Map<NTERiverBlendType, NTERiverNoiseSampler> retainedRiverNoiseSamplers,
+        NTERiverHydrology.ColumnProfile supplementalProfile,
+        double terrainUpliftBaseHeight,
+        double terrainUpliftTopHeight,
+        double terrainUplift
+    )
+    {
+        final int waterBlockY = supplementalProfile.waterBlockY();
+        return NTERiverHydrology.receiverDensityBedY(
+            waterBlockY,
+            waterBlockY - 32,
+            y -> tfe$sampleRetainedReceiverDensity(
+                retainedRiverNoiseSamplers,
+                y,
+                terrainUpliftBaseHeight,
+                terrainUpliftTopHeight,
+                terrainUplift
+            ) > BiomeNoiseSampler.AIR_THRESHOLD
+        );
+    }
+
+    @Unique
+    private double tfe$sampleRetainedReceiverDensity(
+        Map<NTERiverBlendType, NTERiverNoiseSampler> retainedRiverNoiseSamplers,
+        int y,
+        double terrainUpliftBaseHeight,
+        double terrainUpliftTopHeight,
+        double terrainUplift
+    )
+    {
+        double initialNoise = 0d;
+        for (Object2DoubleMap.Entry<BiomeNoiseSampler> entry : columnBiomeNoiseSamplers.object2DoubleEntrySet())
+        {
+            initialNoise += entry.getKey().noise(y) * entry.getDoubleValue();
+        }
+        if (terrainUplift > 0d && y > terrainUpliftBaseHeight && y <= terrainUpliftTopHeight)
+        {
+            initialNoise = Math.min(initialNoise, BiomeNoiseSampler.SOLID);
+        }
+
+        double receiverNoise = 0d;
+        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        {
+            final double weight = tfe$retainedRiverDensityBlendWeights[type.ordinal()];
+            if (type == NTERiverBlendType.NONE)
+            {
+                receiverNoise += weight * initialNoise;
+            }
+            else if (weight > 0d)
+            {
+                final NTERiverNoiseSampler sampler = retainedRiverNoiseSamplers.get(type);
+                if (sampler != null)
+                {
+                    receiverNoise += weight * sampler.noise(y, initialNoise);
+                }
+            }
+        }
+        return receiverNoise;
+    }
+
+    @Unique
+    private Map<NTERiverBlendType, NTERiverNoiseSampler> tfe$getOrCreateRetainedRiverNoiseSamplers()
+    {
+        Map<NTERiverBlendType, NTERiverNoiseSampler> samplers = tfe$retainedRiverNoiseSamplers;
+        if (samplers.isEmpty() && tfe$retainedRiverNoiseSamplerFactory != null)
+        {
+            synchronized (this)
+            {
+                samplers = tfe$retainedRiverNoiseSamplers;
+                final Supplier<Map<NTERiverBlendType, NTERiverNoiseSampler>> factory =
+                    tfe$retainedRiverNoiseSamplerFactory;
+                if (samplers.isEmpty() && factory != null)
+                {
+                    samplers = factory.get();
+                    tfe$retainedRiverNoiseSamplers = samplers;
+                    tfe$retainedRiverNoiseSamplerFactory = null;
+                }
+            }
+        }
+        return samplers;
+    }
+
+    @Unique
     private double tfe$adjustHeightForExactRiverContributions(double height, @Nullable RiverInfo info, double initialCaveWeight, double caveTransitionTerrainUplift)
+    {
+        return tfe$adjustHeightForExactRiverContributions(
+            tfe$exactRiverNoiseSamplers,
+            height,
+            info,
+            initialCaveWeight,
+            caveTransitionTerrainUplift
+        );
+    }
+
+    @Unique
+    private double tfe$adjustHeightForExactRiverContributions(
+        Map<NTERiverBlendType, NTERiverNoiseSampler> samplers,
+        double height,
+        @Nullable RiverInfo info,
+        double initialCaveWeight,
+        double caveTransitionTerrainUplift
+    )
     {
         if (info != null || tfe$currentRiverHydrologyProfile != null)
         {
@@ -1009,7 +1306,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             for (NTERiverBlendType type : NTERiverBlendType.ALL)
             {
                 final double weight = tfe$exactRiverBlendWeights[type.ordinal()];
-                final NTERiverNoiseSampler sampler = tfe$exactRiverNoiseSamplers.get(type);
+                final NTERiverNoiseSampler sampler = samplers.get(type);
                 if (type == NTERiverBlendType.NONE)
                 {
                     riverBlendHeight += weight * height;
@@ -1055,7 +1352,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     private void tfe$traceFinal(Object2DoubleMap<BiomeExtension> biomeWeights, double baseHeight, double shoreAdjustedHeight, double centeredFeatureHeight, double terrainUpliftBaseHeight, double terrainUplift, double initialCaveWeight, double caveTransitionTerrainUplift, @Nullable RiverInfo info, double finalHeight)
     {
         System.out.printf(
-            "[TFE][RuntimeTrace][terrain_cut][final] x=%d z=%d base=%.3f shore=%.3f centered=%.3f upliftBase=%.3f uplift=%.3f caveInitial=%.3f caveTransitionUplift=%.3f terrain=%.3f final=%.3f river=%s hydrology=%s exactWeights=%s biomeWeights=%s noRiverBiome=%s upliftSources=%s%n",
+            "[TFE][RuntimeTrace][terrain_cut][final] x=%d z=%d base=%.3f shore=%.3f centered=%.3f upliftBase=%.3f uplift=%.3f caveInitial=%.3f caveTransitionUplift=%.3f terrain=%.3f final=%.3f river=%s hydrology=%s exactWeights=%s nativeWeights=%s biomeWeights=%s noRiverBiome=%s upliftSources=%s%n",
             blockX,
             blockZ,
             baseHeight,
@@ -1070,6 +1367,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             tfe$formatRiverInfo(info),
             tfe$formatRiverHydrologyProfile(),
             tfe$formatExactRiverWeights(),
+            tfe$formatRiverWeights(tfe$nativeRiverBlendWeights),
             tfe$formatBiomeWeights(biomeWeights),
             tfe$biomeName(biomeSource.getBiomeExtensionNoRiver(net.minecraft.core.QuartPos.fromBlock(blockX), net.minecraft.core.QuartPos.fromBlock(blockZ))),
             tfe$formatTerrainUpliftSources()
@@ -1085,7 +1383,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             return "null";
         }
         return String.format(
-            "water=%.3f centerBed=%.3f bed=%.3f radialSq=%.3f radius=%.3f bankRaise=%.3f incision=%.3f bankFill=%.3f receiverBlend=%.3f fill=%s waterAllowed=%s sourceWaterAllowed=%s waterfallLanding=%s headwater=%s kind=%s mode=%s flow=%s",
+            "water=%.3f centerBed=%.3f bed=%.3f radialSq=%.3f radius=%.3f bankRaise=%.3f incision=%.3f bankFill=%.3f receiverBlend=%.3f receiverBedBlend=%.3f receiverNorm=%.3f receiverHeight=%.3f receiverBedTarget=%.3f fill=%s waterAllowed=%s sourceWaterAllowed=%s waterfallLanding=%s headwater=%s kind=%s mode=%s flow=%s",
             profile.waterSurfaceY(),
             profile.centerBedY(),
             profile.bedY(),
@@ -1095,6 +1393,10 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             profile.terrainIncision(),
             profile.bankFillWeight(),
             profile.receiverBlendWeight(),
+            profile.receiverBedBlendWeight(),
+            tfe$retainedReceiverNormDistSq,
+            tfe$retainedReceiverHeight,
+            tfe$retainedReceiverBedHeight,
             profile.fillAllowed(),
             profile.waterAllowed(),
             profile.sourceWaterAllowed(),
@@ -1144,9 +1446,15 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     @Unique
     private String tfe$formatExactRiverWeights()
     {
+        return tfe$formatRiverWeights(tfe$exactRiverBlendWeights);
+    }
+
+    @Unique
+    private static String tfe$formatRiverWeights(double[] weights)
+    {
         return Arrays.stream(NTERiverBlendType.ALL)
-            .filter(type -> tfe$exactRiverBlendWeights[type.ordinal()] > 1.0e-6d)
-            .map(type -> type.name() + "=" + String.format("%.3f", tfe$exactRiverBlendWeights[type.ordinal()]))
+            .filter(type -> weights[type.ordinal()] > 1.0e-6d)
+            .map(type -> type.name() + "=" + String.format("%.3f", weights[type.ordinal()]))
             .collect(Collectors.joining(","));
     }
 

@@ -1,6 +1,7 @@
 package com.newterraearth.tfe.world;
 
 import java.util.Map;
+import java.util.function.Supplier;
 
 import net.dries007.tfc.world.noise.Noise2D;
 
@@ -19,6 +20,7 @@ public final class NTEChunkShoreContext
         Map<NTEShoreBlendType, NTEShoreNoiseSampler> shoreNoiseSamplers,
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
+        Supplier<Map<NTERiverBlendType, NTERiverNoiseSampler>> retainedRiverNoiseSamplerFactory,
         Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
         NTETerrainUpliftSampler terrainUpliftSampler,
         NTERiverHydrology riverHydrology,
@@ -41,6 +43,7 @@ public final class NTEChunkShoreContext
         Map<NTEShoreBlendType, NTEShoreNoiseSampler> shoreNoiseSamplers,
         Noise2D tideHeightNoise,
         Map<NTERiverBlendType, NTERiverNoiseSampler> riverNoiseSamplers,
+        Supplier<Map<NTERiverBlendType, NTERiverNoiseSampler>> retainedRiverNoiseSamplerFactory,
         Map<NTECenteredFeatureBlendType, NTECenteredFeatureNoiseSampler> centeredFeatureNoiseSamplers,
         NTETerrainUpliftSampler terrainUpliftSampler,
         NTERiverHydrology riverHydrology,
@@ -48,7 +51,7 @@ public final class NTEChunkShoreContext
     )
     {
         final Context previous = CURRENT.get();
-        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, centeredFeatureNoiseSamplers, terrainUpliftSampler, riverHydrology, suppressRiver));
+        CURRENT.set(new Context(shoreNoiseSamplers, tideHeightNoise, riverNoiseSamplers, retainedRiverNoiseSamplerFactory, centeredFeatureNoiseSamplers, terrainUpliftSampler, riverHydrology, suppressRiver));
         return () -> {
             if (previous == null)
             {

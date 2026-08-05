@@ -16,6 +16,9 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 
 public final class NTESurfaceContext
 {
+    static final int BASE_GROUNDWATER_FULL_STRENGTH_OFFSET = 10;
+    static final int BASE_GROUNDWATER_ZERO_STRENGTH_OFFSET = 35;
+
     public static final class Context
     {
         private final ChunkGenerator generator;
@@ -154,12 +157,18 @@ public final class NTESurfaceContext
         );
     }
 
-    private static float modifyBaseGroundwaterPoint(int height, float startingWater)
+    static float modifyBaseGroundwaterPoint(int height, float startingWater)
     {
         if (startingWater == Float.NEGATIVE_INFINITY)
         {
             return 0f;
         }
-        return startingWater * Mth.clampedMap(height, SEA_LEVEL_Y + 10, SEA_LEVEL_Y + 25, 1f, 0f);
+        return startingWater * Mth.clampedMap(
+            height,
+            SEA_LEVEL_Y + BASE_GROUNDWATER_FULL_STRENGTH_OFFSET,
+            SEA_LEVEL_Y + BASE_GROUNDWATER_ZERO_STRENGTH_OFFSET,
+            1f,
+            0f
+        );
     }
 }
