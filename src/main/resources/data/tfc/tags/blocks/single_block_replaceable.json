@@ -1,0 +1,10 @@
+{
+    "replace": false,
+    "values": [
+        "tfe:plant/buttercup",
+        "tfe:plant/cornflower",
+        "tfe:plant/edelweiss",
+        "tfe:plant/yellow_saxifrage",
+        "tfe:plant/red_oat_grass"
+    ]
+}

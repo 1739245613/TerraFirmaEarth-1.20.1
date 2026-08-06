@@ -1,0 +1,13 @@
+{
+    "replace": false,
+    "values": [
+        "tfe:plant/bear_grass",
+        "tfe:plant/cornflower",
+        "tfe:plant/edelweiss",
+        "tfe:plant/elegant_sunburst_lichen",
+        "tfe:plant/fan_palm",
+        "tfe:plant/ramunda",
+        "tfe:plant/red_oat_grass",
+        "tfe:plant/sunflower"
+    ]
+}

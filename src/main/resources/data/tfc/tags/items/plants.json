@@ -1,12 +1,25 @@
 {
   "replace": false,
   "values": [
+    "tfc:plant/anemone_green",
+    "tfc:plant/anemone_large_orange",
+    "tfc:plant/anemone_large_purple",
+    "tfc:plant/anemone_purple",
+    "tfc:plant/barnacles",
+    "tfc:plant/mussels",
+    "tfc:plant/starfish",
     "tfe:plant/azalea",
     "tfe:plant/bear_grass",
+    "tfe:plant/bird_nest_fern",
     "tfe:plant/buttercup",
     "tfe:plant/cornflower",
+    "tfe:plant/cycad",
+    "tfe:plant/dry_grass",
     "tfe:plant/edelweiss",
     "tfe:plant/elegant_sunburst_lichen",
+    "tfe:plant/fan_palm",
+    "tfe:plant/flame_vine",
+    "tfe:plant/golden_bamboo",
     "tfe:plant/kinnikinnick",
     "tfe:plant/mountain_hullwort",
     "tfe:plant/moss_campion",
@@ -15,7 +28,9 @@
     "tfe:plant/prickly_pear",
     "tfe:plant/prickly_pear_purple",
     "tfe:plant/qantu",
+    "tfe:plant/ramirezella",
     "tfe:plant/ramunda",
+    "tfe:plant/red_oat_grass",
     "tfe:plant/shawiash",
     "tfe:plant/silken_pincushion_cactus",
     "tfe:plant/silver_bromeliad",
@@ -24,7 +39,6 @@
     "tfe:plant/white_water_lily",
     "tfe:plant/purple_water_lily",
     "tfe:plant/yellow_water_lily",
-    "tfe:plant/yellow_saxifrage",
-    "tfe:plant/flame_vine"
+    "tfe:plant/yellow_saxifrage"
   ]
 }

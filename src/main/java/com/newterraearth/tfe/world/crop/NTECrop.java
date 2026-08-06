@@ -15,7 +15,7 @@ import com.newterraearth.tfe.NewTerraEarthMod;
 public enum NTECrop
 {
     ALFALFA(FarmlandBlockEntity.NutrientType.NITROGEN, false, false),
-    CANOLA(FarmlandBlockEntity.NutrientType.PHOSPHOROUS, false, false),
+    CANOLA(FarmlandBlockEntity.NutrientType.PHOSPHOROUS, true, false, "canola"),
     CASSAVA(FarmlandBlockEntity.NutrientType.POTASSIUM, true, true),
     LENTIL(FarmlandBlockEntity.NutrientType.NITROGEN, true, true),
     PEANUT(FarmlandBlockEntity.NutrientType.NITROGEN, true, false),
@@ -25,14 +25,21 @@ public enum NTECrop
     private final FarmlandBlockEntity.NutrientType primaryNutrient;
     private final boolean foodItem;
     private final boolean cookedItem;
+    @Nullable private final String producePathOverride;
     private final Supplier<ClimateRange> climateRange;
 
     NTECrop(FarmlandBlockEntity.NutrientType primaryNutrient, boolean foodItem, boolean cookedItem)
+    {
+        this(primaryNutrient, foodItem, cookedItem, null);
+    }
+
+    NTECrop(FarmlandBlockEntity.NutrientType primaryNutrient, boolean foodItem, boolean cookedItem, @Nullable String producePathOverride)
     {
         this.serializedName = name().toLowerCase(Locale.ROOT);
         this.primaryNutrient = primaryNutrient;
         this.foodItem = foodItem;
         this.cookedItem = cookedItem;
+        this.producePathOverride = producePathOverride;
         this.climateRange = ClimateRange.MANAGER.register(new ResourceLocation(NewTerraEarthMod.MOD_ID, "crop/" + serializedName));
     }
 
@@ -63,7 +70,7 @@ public enum NTECrop
 
     public String producePath()
     {
-        return foodItem ? "food/" + serializedName : serializedName;
+        return producePathOverride != null ? producePathOverride : foodItem ? "food/" + serializedName : serializedName;
     }
 
     public boolean isFoodItem()

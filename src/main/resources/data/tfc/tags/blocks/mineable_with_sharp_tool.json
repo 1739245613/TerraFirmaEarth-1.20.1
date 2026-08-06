@@ -1,0 +1,24 @@
+{
+    "replace": false,
+    "values": [
+        "#tfc:plants",
+        "tfe:crop/alfalfa",
+        "tfe:crop/canola",
+        "tfe:crop/cassava",
+        "tfe:crop/lentil",
+        "tfe:crop/peanut",
+        "tfe:crop/radish",
+        "tfe:dead_crop/alfalfa",
+        "tfe:dead_crop/canola",
+        "tfe:dead_crop/cassava",
+        "tfe:dead_crop/lentil",
+        "tfe:dead_crop/peanut",
+        "tfe:dead_crop/radish",
+        "tfe:wild_crop/alfalfa",
+        "tfe:wild_crop/canola",
+        "tfe:wild_crop/cassava",
+        "tfe:wild_crop/lentil",
+        "tfe:wild_crop/peanut",
+        "tfe:wild_crop/radish"
+    ]
+}
