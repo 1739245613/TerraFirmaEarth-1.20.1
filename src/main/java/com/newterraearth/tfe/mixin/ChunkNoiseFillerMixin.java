@@ -39,6 +39,8 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 @Mixin(value = ChunkNoiseFiller.class, remap = false)
 public abstract class ChunkNoiseFillerMixin
 {
+    @Unique private static final double TFE_NATIVE_RIVER_BANK_RADIUS_SQ = 4d;
+
     @Shadow private int[] surfaceHeight;
     @Shadow private BiomeExtension[] localBiomes;
     @Shadow private BiomeExtension[] localBiomesNoRivers;
@@ -422,6 +424,10 @@ public abstract class ChunkNoiseFillerMixin
         final boolean couldBeSalty = access.tfe$couldBeSalty();
         access.tfe$recordRiverHydrologyProfile(localX, localZ);
         final NTERiverHydrology.ColumnProfile riverProfile = access.tfe$getRiverHydrologyProfile(localX, localZ);
+        access.tfe$getNativeDryRiverBanks()[localIndex] = info != null
+            && info.normDistSq() > 1d
+            && info.normDistSq() <= TFE_NATIVE_RIVER_BANK_RADIUS_SQ
+            && tfe$hasSurfaceRiverWeight(access.tfe$getExactRiverBlendWeights());
 
         localBiomesNoRivers[localIndex] = biomeAt;
         if (biomeAt.hasRivers() && (
@@ -440,6 +446,21 @@ public abstract class ChunkNoiseFillerMixin
             : (int) height;
 
         ((NTEChunkBaseBlockSourceAccess) baseBlockSource).tfe$useAccurateBiome(localX, localZ, biomeAt, biomeWeightAt, couldBeSalty);
+    }
+
+    @Unique
+    private static boolean tfe$hasSurfaceRiverWeight(double[] weights)
+    {
+        for (NTERiverBlendType type : NTERiverBlendType.ALL)
+        {
+            if (type != NTERiverBlendType.NONE
+                && type != NTERiverBlendType.CAVE
+                && weights[type.ordinal()] > 0d)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

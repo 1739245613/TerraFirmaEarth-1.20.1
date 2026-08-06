@@ -67,6 +67,8 @@ public interface NTEChunkHeightFillerAccess
 
     NTERiverHydrology.ColumnProfile tfe$getRiverHydrologyProfile(int localX, int localZ);
 
+    boolean[] tfe$getNativeDryRiverBanks();
+
     double tfe$getRiverTerrainHeight(int localX, int localZ);
 
     void tfe$recordRiverHydrologyProfile(int localX, int localZ);

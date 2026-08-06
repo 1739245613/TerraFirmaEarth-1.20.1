@@ -84,6 +84,7 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     @Unique private boolean tfe$suppressRiver;
     @Unique private NTERiverHydrology.ColumnProfile tfe$currentRiverHydrologyProfile;
     @Unique private NTERiverHydrology.ColumnProfile[] tfe$riverHydrologyProfiles = new NTERiverHydrology.ColumnProfile[16 * 16];
+    @Unique private boolean[] tfe$nativeDryRiverBanks = new boolean[16 * 16];
     @Unique private double tfe$currentRiverTerrainHeight;
     @Unique private double[] tfe$riverTerrainHeights = new double[16 * 16];
 
@@ -264,6 +265,12 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     public NTERiverHydrology.ColumnProfile tfe$getRiverHydrologyProfile(int localX, int localZ)
     {
         return tfe$riverHydrologyProfiles[localX + 16 * localZ];
+    }
+
+    @Override
+    public boolean[] tfe$getNativeDryRiverBanks()
+    {
+        return tfe$nativeDryRiverBanks;
     }
 
     @Override

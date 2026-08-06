@@ -780,7 +780,8 @@ public abstract class TFCChunkGeneratorMixin
                 cinderConeBiomeHolder[0],
                 tuffRingBiomeHolder[0],
                 tuyaBiomeHolder[0],
-                tfe$copyRiverProfiles(filler)
+                tfe$copyRiverProfiles(filler),
+                ((NTEChunkHeightFillerAccess) filler).tfe$getNativeDryRiverBanks()
             ))
             {
                 surfaceManager.buildSurface(

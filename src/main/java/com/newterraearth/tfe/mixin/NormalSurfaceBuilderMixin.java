@@ -11,6 +11,7 @@ import net.dries007.tfc.world.surface.SurfaceState;
 import net.dries007.tfc.world.surface.SurfaceStates;
 import net.dries007.tfc.world.surface.builder.NormalSurfaceBuilder;
 
+import com.newterraearth.tfe.world.NTESurfaceContext;
 import com.newterraearth.tfe.world.surface.NTESurfaceStates;
 
 @Mixin(value = NormalSurfaceBuilder.class, remap = false)
@@ -86,6 +87,14 @@ public abstract class NormalSurfaceBuilderMixin
                     else
                     {
                         surfaceDepth = context.calculateAltitudeSlopeSurfaceDepth(surfaceY, 5, subsurfaceMinDepth);
+                        if (surfaceDepth == -1 && subsurfaceMinDepth == -1)
+                        {
+                            final NTESurfaceContext.Context surfaceContext = NTESurfaceContext.current();
+                            if (surfaceContext != null && surfaceContext.isDryRiverBank(context.pos()))
+                            {
+                                surfaceDepth = 0;
+                            }
+                        }
                         if (surfaceDepth < -1)
                         {
                             surfaceDepth = 0;
