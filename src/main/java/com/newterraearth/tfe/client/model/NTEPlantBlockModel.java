@@ -140,7 +140,9 @@ public class NTEPlantBlockModel implements IDynamicBakedModel, IUnbakedGeometry<
             return normalizeSeason(start);
         }
 
-        start += positionData.seasonOffset();
+        start += seasonalConfig.wetSeasonBlooming()
+            ? positionData.seasonOffset()
+            : NTEClimateRenderHelpers.isClientInNorthernHemisphere() ? 1.5f : 1f;
         start += Mth.lerp(positionData.randomUnit(), -positionData.randomScale(), positionData.randomScale());
         return normalizeSeason(start);
     }
@@ -205,8 +207,7 @@ public class NTEPlantBlockModel implements IDynamicBakedModel, IUnbakedGeometry<
     {
         final Random random = new Random(Helpers.hash(POSITION_SALT, pos.getX(), 0, pos.getZ()));
         final float randomScale = Mth.clampedMap(NTEClimateRenderHelpers.getAdjustedAverageTemperature(level, pos), 16f, 26f, 0.03f, 0.5f);
-        final float seasonOffset = NTEClimateRenderHelpers.isNorthernHemisphere(level, pos) ? 1.5f : 1f;
-        return new PositionClimateData(randomScale, random.nextFloat(), seasonOffset);
+        return new PositionClimateData(randomScale, random.nextFloat(), 0f);
     }
 
     private BakedModel getFallbackModel()

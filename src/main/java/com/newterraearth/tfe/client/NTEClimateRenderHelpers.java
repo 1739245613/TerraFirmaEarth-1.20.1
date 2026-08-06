@@ -112,6 +112,13 @@ public final class NTEClimateRenderHelpers
         return NTE121ClimateHelpers.isNorthernHemisphere(pos.getZ(), getHemisphereScale(level));
     }
 
+    public static boolean isClientInNorthernHemisphere()
+    {
+        final Level level = ClientHelpers.getLevel();
+        final Player player = ClientHelpers.getPlayer();
+        return level == null || player == null || isNorthernHemisphere(level, player.blockPosition());
+    }
+
     public static Month getHemispheralCalendarMonthOfYear(Level level, BlockPos pos)
     {
         final ICalendar calendar = Calendars.get(level);

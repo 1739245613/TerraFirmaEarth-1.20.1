@@ -24,6 +24,7 @@ import net.dries007.tfc.world.surface.builder.SurfaceBuilder;
 import net.dries007.tfc.world.surface.builder.SurfaceBuilderFactory;
 
 import com.newterraearth.tfe.world.NTESeed;
+import com.newterraearth.tfe.world.NTEClimateSeasonModel;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseHelpers;
 
 import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
@@ -509,10 +510,7 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
     private static float getMaxAnnualTemperature(OverworldClimateModel model, int z, int y, float averageTemperature)
     {
         final float hemisphereScale = getHemisphereScale(model);
-        final float monthFactor = isNorthernHemisphere(z, hemisphereScale) ? 1f : -1f;
-        final float monthlyTemperature = hemisphereScale == 0f
-            ? 0f
-            : monthFactor * Helpers.triangle(-18f, 0f, 1f / (4f * hemisphereScale), z - hemisphereScale / 2f);
+        final float monthlyTemperature = NTEClimateSeasonModel.seasonalTemperatureAmplitude(z, hemisphereScale);
         return OverworldClimateModel.getAdjustedAverageTempByElevation(y, averageTemperature) + monthlyTemperature;
     }
 
@@ -529,18 +527,6 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
             }
         }
         return DEFAULT_HEMISPHERE_SCALE;
-    }
-
-    private static boolean isNorthernHemisphere(int z, float hemisphereScale)
-    {
-        if (hemisphereScale == 0)
-        {
-            return true;
-        }
-        final int adjustedZ = z - (int) (hemisphereScale / 2);
-        final int poleToPoleDistance = (int) (hemisphereScale * 2);
-        final int normalizedZ = Mth.positiveModulo(adjustedZ, poleToPoleDistance * 2);
-        return normalizedZ > poleToPoleDistance;
     }
 
     private static Field resolveTemperatureScaleField()

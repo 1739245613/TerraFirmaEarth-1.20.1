@@ -357,8 +357,9 @@ public final class NTEWeatherHelpers
         final Month currentMonth = ICalendar.getMonthOfYear(calendarTick, daysInMonth);
         final float monthDelta = ICalendar.getFractionOfMonth(calendarTick, daysInMonth);
         final float monthFactor = Mth.lerp(monthDelta, currentMonth.getTemperatureModifier(), currentMonth.next().getTemperatureModifier());
+        final float localMonthFactor = NTESeasonalHelpers.isNorthernHemisphere(level, pos) ? monthFactor : -monthFactor;
         final ChunkData chunkData = NTEChunkDataHelpers.get(level, pos);
-        return model.getAverageMonthlyTemperature(pos.getZ(), pos.getY(), chunkData.getAverageTemp(pos), monthFactor);
+        return model.getAverageMonthlyTemperature(pos.getZ(), pos.getY(), chunkData.getAverageTemp(pos), localMonthFactor);
     }
 
     private static int getSeasonalCatchUpMeltUpdates(ServerLevel level, BlockPos snowPlacementSurfacePos, BlockPos climateCheckSurfacePos, long lastCalendarTick, long currentCalendarTick, int daysInMonth)

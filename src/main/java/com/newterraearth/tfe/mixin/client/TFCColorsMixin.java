@@ -38,11 +38,8 @@ public abstract class TFCColorsMixin
         }
 
         final float temp = NTEClimateRenderHelpers.getAdjustedAverageTemperature(actualLevel, pos);
-        float timeOfYear = Calendars.CLIENT.getCalendarFractionOfYear();
-        if (!NTEClimateRenderHelpers.isNorthernHemisphere(actualLevel, pos))
-        {
-            timeOfYear = (timeOfYear + 0.5f) % 1f;
-        }
+        final float hemisphereOffset = NTEClimateRenderHelpers.isClientInNorthernHemisphere() ? 0f : 0.5f;
+        final float timeOfYear = (Calendars.CLIENT.getCalendarFractionOfYear() + hemisphereOffset) % 1f;
         final float tempClamped = temp > 12f ? 12f : Math.max(temp, -20f);
 
         final float cubedTerm = 1.5f * (float) Math.pow(tempClamped + 3f, 3f) / 4913f;

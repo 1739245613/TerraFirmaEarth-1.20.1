@@ -219,14 +219,7 @@ public final class NTE121ClimateHelpers
 
     public static boolean isNorthernHemisphere(int z, float hemisphereScale)
     {
-        if (hemisphereScale == 0)
-        {
-            return true;
-        }
-        final int adjustedZ = z - (int) (hemisphereScale / 2);
-        final int poleToPoleDistance = (int) (hemisphereScale * 2);
-        final int normalizedZ = Mth.positiveModulo(adjustedZ, poleToPoleDistance * 2);
-        return normalizedZ > poleToPoleDistance;
+        return NTEClimateSeasonModel.isNorthernHemisphere(z, hemisphereScale);
     }
 
     private static float adjustGroundwaterNearRiver(float currentValue, float widthInfluence, MidpointFractal fractal, double gridX, double gridZ)

@@ -52,6 +52,7 @@
     "NaturalSpawnerAccessor",
     "NaturalSpawnerMixin",
     "NormalSurfaceBuilderMixin",
+    "OverworldClimateModelMixin",
     "PlantRegrowthMixin",
     "PropickItemMixin",
     "RegionMixin",
