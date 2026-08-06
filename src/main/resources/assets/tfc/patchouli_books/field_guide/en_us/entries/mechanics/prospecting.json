@@ -37,7 +37,7 @@
     {
       "type": "patchouli:text",
       "title": "Material and Scan Power",
-      "text": "Every Prospector's Pick is $(thing)100% accurate$(): a negative report means its scan area contains no prospectable mineral.$(br2)Scan radius / maximum revealed types:$(br)$(li)Copper: 12 / 1$(li)Copper Alloys: 13 / 1$(li)Wrought Iron: 14 / 2$(li)Steel: 15 / 3$(li)Black Steel: 15 / 4$(li)Red or Blue Steel: 16 / 4"
+      "text": "Detection radius / guidance radius / maximum revealed types:$(br)$(li)Copper: 12 / 6 / 1$(li)Copper Alloys: 13 / 8 / 1$(li)Wrought Iron: 14 / 10 / 2$(li)Steel: 15 / 12 / 3$(li)Black Steel: 15 / 14 / 4$(li)Red or Blue Steel: 16 / 16 / 4"
     },
     {
       "type": "patchouli:text",
@@ -47,7 +47,7 @@
     {
       "type": "patchouli:text",
       "title": "Direction Guidance",
-      "text": "After a successful scan, a direction ring appears for three seconds and points toward the nearest prospectable mineral block in that scan.$(br2)The top of the ring is forward relative to the player; the bottom is behind. An up or down arrow shows whether the target is above or below, while a diamond means similar height. The lit arc grows with proximity and fills the ring within two blocks."
+      "text": "After a successful scan, a direction ring appears for three seconds and points toward the nearest prospectable mineral block within the tool's guidance range. The guidance range may be smaller than its detection range.$(br2)The top of the ring is forward relative to the player; the bottom is behind. An up or down arrow shows whether the target is above or below, while a diamond means similar height. The lit arc grows with proximity and fills the ring within two blocks."
     },
     {
       "type": "patchouli:text",

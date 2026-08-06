@@ -35,6 +35,19 @@ public final class NTEProspectingRules
         };
     }
 
+    public static int navigationRadius(int toolLevel)
+    {
+        return switch (Math.max(1, Math.min(6, toolLevel)))
+        {
+            case 1 -> 6;
+            case 2 -> 8;
+            case 3 -> 10;
+            case 4 -> 12;
+            case 5 -> 14;
+            default -> 16;
+        };
+    }
+
     public static int revealedMinerals(int toolLevel)
     {
         return switch (revealTier(toolLevel))

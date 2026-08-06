@@ -88,7 +88,14 @@ public abstract class PropickItemMixin
         {
             return PropickItem.scanAreaFor(level, center, radius, tag);
         }
-        final NTEProspectingScan scan = NTEProspectingScan.scan(level, center, player, tfe$scanRadius(), tag);
+        final NTEProspectingScan scan = NTEProspectingScan.scan(
+            level,
+            center,
+            player,
+            tfe$scanRadius(),
+            tfe$navigationRadius(),
+            tag
+        );
         TFE_SCAN.set(scan);
         return scan.counts();
     }
@@ -124,16 +131,17 @@ public abstract class PropickItemMixin
                 context.getClickedPos(),
                 player,
                 tfe$scanRadius(),
+                tfe$navigationRadius(),
                 TFCTags.Blocks.PROSPECTABLE
             );
         }
         final List<MineralResult> minerals;
         final int hiddenMinerals;
         final BlockPos nearestPos;
-        if (scan != null && !scan.counts().isEmpty())
+        if (!scan.counts().isEmpty())
         {
             minerals = NTEProspectingRules.selectResults(scan.counts(), prospected.block(), tfe$toolLevel());
-            hiddenMinerals = Math.max(0, scan.mineralTypes() - minerals.size());
+            hiddenMinerals = scan.mineralTypes() - minerals.size();
             nearestPos = scan.nearestPos();
         }
         else if (result == ProspectResult.FOUND)
@@ -170,5 +178,11 @@ public abstract class PropickItemMixin
     private int tfe$scanRadius()
     {
         return NTEProspectingRules.scanRadius(tfe$toolLevel());
+    }
+
+    @Unique
+    private int tfe$navigationRadius()
+    {
+        return NTEProspectingRules.navigationRadius(tfe$toolLevel());
     }
 }

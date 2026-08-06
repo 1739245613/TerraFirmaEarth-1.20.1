@@ -40,7 +40,7 @@ class NTEProspectingRulesTest
     }
 
     @Test
-    void everyTierUsesTheRequestedRadiusAndRevealLimit()
+    void everyTierUsesTheRequestedScanNavigationAndRevealLimits()
     {
         assertEquals(12, NTEProspectingRules.scanRadius(1));
         assertEquals(13, NTEProspectingRules.scanRadius(2));
@@ -48,6 +48,13 @@ class NTEProspectingRulesTest
         assertEquals(15, NTEProspectingRules.scanRadius(4));
         assertEquals(15, NTEProspectingRules.scanRadius(5));
         assertEquals(16, NTEProspectingRules.scanRadius(6));
+
+        assertEquals(6, NTEProspectingRules.navigationRadius(1));
+        assertEquals(8, NTEProspectingRules.navigationRadius(2));
+        assertEquals(10, NTEProspectingRules.navigationRadius(3));
+        assertEquals(12, NTEProspectingRules.navigationRadius(4));
+        assertEquals(14, NTEProspectingRules.navigationRadius(5));
+        assertEquals(16, NTEProspectingRules.navigationRadius(6));
 
         assertEquals(1, NTEProspectingRules.revealedMinerals(1));
         assertEquals(1, NTEProspectingRules.revealedMinerals(2));

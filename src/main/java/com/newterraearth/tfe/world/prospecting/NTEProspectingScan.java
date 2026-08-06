@@ -18,13 +18,30 @@ import net.dries007.tfc.util.Helpers;
  *
  * <p>The public ore count uses TFC representative blocks, so poor, normal and
  * rich variants still count as one mineral type. The navigation target is the
- * nearest individual prospectable block to the player at scan time.</p>
+ * nearest individual prospectable block within the smaller navigation range
+ * to the player at scan time.</p>
  */
 public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos nearestPos)
 {
-    public static NTEProspectingScan scan(Level level, BlockPos center, Player player, int radius, TagKey<Block> tag)
+    public static NTEProspectingScan scan(
+        Level level,
+        BlockPos center,
+        Player player,
+        int scanRadius,
+        int navigationRadius,
+        TagKey<Block> tag
+    )
     {
-        return scan(level, center, player.getX(), player.getY() + player.getBbHeight() * 0.5D, player.getZ(), radius, tag);
+        return scan(
+            level,
+            center,
+            player.getX(),
+            player.getY() + player.getBbHeight() * 0.5D,
+            player.getZ(),
+            scanRadius,
+            navigationRadius,
+            tag
+        );
     }
 
     public static NTEProspectingScan scan(
@@ -33,21 +50,27 @@ public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos
         double playerX,
         double playerY,
         double playerZ,
-        int radius,
+        int scanRadius,
+        int navigationRadius,
         TagKey<Block> tag
     )
     {
+        if (navigationRadius < 0 || navigationRadius > scanRadius)
+        {
+            throw new IllegalArgumentException("Navigation radius must be between zero and the scan radius");
+        }
+
         final Object2IntMap<Block> counts = new Object2IntOpenHashMap<>();
         BlockPos nearest = null;
         double nearestDistanceSqr = Double.POSITIVE_INFINITY;
 
         for (BlockPos cursor : BlockPos.betweenClosed(
-            center.getX() - radius,
-            center.getY() - radius,
-            center.getZ() - radius,
-            center.getX() + radius,
-            center.getY() + radius,
-            center.getZ() + radius
+            center.getX() - scanRadius,
+            center.getY() - scanRadius,
+            center.getZ() - scanRadius,
+            center.getX() + scanRadius,
+            center.getY() + scanRadius,
+            center.getZ() + scanRadius
         ))
         {
             final Block rawBlock = level.getBlockState(cursor).getBlock();
@@ -58,6 +81,10 @@ public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos
             }
 
             counts.mergeInt(block, 1, Integer::sum);
+            if (!isWithinNavigationRange(center, cursor, navigationRadius))
+            {
+                continue;
+            }
             final double dx = cursor.getX() + 0.5D - playerX;
             final double dy = cursor.getY() + 0.5D - playerY;
             final double dz = cursor.getZ() + 0.5D - playerZ;
@@ -75,6 +102,13 @@ public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos
     public int mineralTypes()
     {
         return counts.size();
+    }
+
+    private static boolean isWithinNavigationRange(BlockPos center, BlockPos candidate, int radius)
+    {
+        return Math.abs(candidate.getX() - center.getX()) <= radius
+            && Math.abs(candidate.getY() - center.getY()) <= radius
+            && Math.abs(candidate.getZ() - center.getZ()) <= radius;
     }
 
     private static boolean isEarlier(BlockPos candidate, @Nullable BlockPos current)
