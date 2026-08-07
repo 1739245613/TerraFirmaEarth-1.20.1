@@ -1,6 +1,6 @@
 {
   "min_hydration": 11,
   "max_hydration": 90,
-  "min_temperature": -2.8,
-  "max_temperature": 18.8
+  "min_temperature": -10,
+  "max_temperature": 25
 }

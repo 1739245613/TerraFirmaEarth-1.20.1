@@ -1,6 +1,6 @@
 {
   "name": "群峦地球",
-  "description": "本模组当前已移植到 1.20 的气候、地形和作物说明。$(br2)$(br)$(bold)备注：$()悬浮到支持的作物种子时，可以按住 Ctrl 直接跳到这里。",
-  "icon": "tfe:seeds/canola",
+  "description": "TFE 手册分为专属内容，以及跳转到 TFC 原章节的修改导航。",
+  "icon": "tfe:canola",
   "sortnum": 3
 }
