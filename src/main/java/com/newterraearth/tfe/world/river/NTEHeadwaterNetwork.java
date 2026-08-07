@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.util.Mth;
@@ -613,7 +614,11 @@ final class NTEHeadwaterNetwork
     private final HeightSampler heights;
     private final RouteObstacleSampler routeObstacles;
     private final Map<RiverEdge, Headwater> headwaters = new IdentityHashMap<>();
-    private final Map<Long, List<Headwater>> plannedByChunk = new HashMap<>();
+    /** Immutable list snapshots allow the per-column read path to stay lock-free. */
+    private volatile Map<Long, List<Headwater>> plannedByChunk = new ConcurrentHashMap<>();
+    /** Even when stable, odd while one atomic multi-key index publication is in progress. */
+    private volatile long plannedIndexVersion;
+    private int plannedIndexWriteDepth;
 
     NTEHeadwaterNetwork(long seed, int seaLevel, HeightSampler heights)
     {
@@ -996,13 +1001,8 @@ final class NTEHeadwaterNetwork
 
     boolean suppressesRetainedAt(RiverEdge edge, int blockX, int blockZ)
     {
-        final List<Headwater> candidates;
         final long targetChunkKey = chunkKey(blockX >> 4, blockZ >> 4);
-        synchronized (headwaters)
-        {
-            final List<Headwater> indexed = plannedByChunk.get(targetChunkKey);
-            candidates = indexed == null ? new ArrayList<>() : new ArrayList<>(indexed);
-        }
+        final List<Headwater> candidates = plannedCandidates(targetChunkKey);
         for (Headwater headwater : candidates)
         {
             final Route route = headwater.plannedRoute();
@@ -1030,32 +1030,38 @@ final class NTEHeadwaterNetwork
     }
 
     @Nullable
-    Sample sampleIfPlanned(RiverEdge edge, int blockX, int blockZ)
-    {
-        return sampleIfPlanned(edge, blockX, blockZ, Double.POSITIVE_INFINITY);
-    }
-
-    @Nullable
-    Sample sampleIfPlanned(RiverEdge edge, int blockX, int blockZ, double ambientHeight)
+    Sample sampleUnindexedIfPlanned(RiverEdge edge, int blockX, int blockZ, double ambientHeight)
     {
         if (edge.sourceEdge())
         {
             return null;
         }
-        final Headwater headwater = existingHeadwater(edge);
-        return headwater == null ? null : headwater.sampleIfPlanned(blockX, blockZ, ambientHeight);
+        final Route planned;
+        synchronized (headwaters)
+        {
+            final Headwater headwater = headwaters.get(edge);
+            if (headwater == null || !headwater.attempted)
+            {
+                return null;
+            }
+            planned = headwater.route;
+            if (planned == null || headwater.indexedRoute == planned)
+            {
+                return null;
+            }
+        }
+        // Initial route planning publishes Headwater.route before it can take
+        // the network lock and publish plannedByChunk. Keep this bounded
+        // direct fallback only for that short window. Coordinated route
+        // replacement and index rebuilding both hold the same network lock.
+        return planned.sample(blockX, blockZ, ambientHeight);
     }
 
     @Nullable
     Sample samplePlannedAt(int blockX, int blockZ, double ambientHeight)
     {
-        final List<Headwater> candidates;
         final long targetChunkKey = chunkKey(blockX >> 4, blockZ >> 4);
-        synchronized (headwaters)
-        {
-            final List<Headwater> indexed = plannedByChunk.get(targetChunkKey);
-            candidates = indexed == null ? new ArrayList<>() : new ArrayList<>(indexed);
-        }
+        final List<Headwater> candidates = plannedCandidates(targetChunkKey);
 
         Sample nearest = null;
         Headwater nearestOwner = null;
@@ -1106,6 +1112,44 @@ final class NTEHeadwaterNetwork
         synchronized (headwaters)
         {
             return left.junctionPeers.contains(right) || right.junctionPeers.contains(left);
+        }
+    }
+
+    private List<Headwater> plannedCandidates(long chunkKey)
+    {
+        final long observedVersion = plannedIndexVersion;
+        if ((observedVersion & 1L) == 0L)
+        {
+            final List<Headwater> observed = plannedByChunk.get(chunkKey);
+            if (observedVersion == plannedIndexVersion)
+            {
+                return observed == null ? List.of() : observed;
+            }
+        }
+        // Index rebuilds are cold and bounded. A reader which overlaps one
+        // waits for the same publication lock rather than observing some old
+        // chunk keys and some new keys from one coordinated route update.
+        synchronized (headwaters)
+        {
+            return plannedByChunk.getOrDefault(chunkKey, List.of());
+        }
+    }
+
+    /** Must be called while holding the headwater publication lock. */
+    private void beginPlannedIndexWrite()
+    {
+        if (plannedIndexWriteDepth++ == 0)
+        {
+            plannedIndexVersion++;
+        }
+    }
+
+    /** Must be called while holding the headwater publication lock. */
+    private void endPlannedIndexWrite()
+    {
+        if (--plannedIndexWriteDepth == 0)
+        {
+            plannedIndexVersion++;
         }
     }
 
@@ -1164,8 +1208,7 @@ final class NTEHeadwaterNetwork
             {
                 if (headwaters.size() >= MAX_HEADWATER_CACHE_SIZE)
                 {
-                    headwaters.clear();
-                    plannedByChunk.clear();
+                    resetHeadwaterCache();
                 }
                 final int downstreamWidth = edge.drainEdge() == null ? edge.width : edge.drainEdge().width;
                 headwater = new Headwater(
@@ -1188,6 +1231,25 @@ final class NTEHeadwaterNetwork
         synchronized (headwaters)
         {
             return headwaters.get(edge);
+        }
+    }
+
+    /** Must be called while holding the headwater publication lock. */
+    private void resetHeadwaterCache()
+    {
+        beginPlannedIndexWrite();
+        try
+        {
+            // Preserve the original all-at-once cache reset semantics. The
+            // large spatial index is retired by reference swap instead of an
+            // O(number of covered chunks) clear; readers which already hold
+            // an immutable old list can still finish against that old graph.
+            headwaters.clear();
+            plannedByChunk = new ConcurrentHashMap<>();
+        }
+        finally
+        {
+            endPlannedIndexWrite();
         }
     }
 
@@ -1218,35 +1280,53 @@ final class NTEHeadwaterNetwork
                 return;
             }
 
-            for (long key : headwater.indexedChunks)
+            beginPlannedIndexWrite();
+            try
             {
-                final List<Headwater> indexed = plannedByChunk.get(key);
-                if (indexed != null)
-                {
-                    indexed.remove(headwater);
-                    if (indexed.isEmpty())
-                    {
-                        plannedByChunk.remove(key);
-                    }
-                }
-            }
-            headwater.indexedChunks.clear();
+                unindexPlanned(headwater);
 
-            for (long key : route.spatialChunks)
-            {
-                final List<Headwater> indexed = plannedByChunk.computeIfAbsent(
-                    key,
-                    ignored -> new ArrayList<>()
-                );
-                if (!indexed.contains(headwater))
+                for (long key : route.spatialChunks)
                 {
-                    indexed.add(headwater);
+                    final List<Headwater> current = plannedByChunk.getOrDefault(key, List.of());
+                    final List<Headwater> indexed = new ArrayList<>(current);
+                    if (!indexed.contains(headwater))
+                    {
+                        indexed.add(headwater);
+                    }
+                    indexed.sort(HEADWATER_ORDER);
+                    plannedByChunk.put(key, List.copyOf(indexed));
+                    headwater.indexedChunks.add(key);
                 }
-                indexed.sort(HEADWATER_ORDER);
-                headwater.indexedChunks.add(key);
+                headwater.indexedRoute = route;
             }
-            headwater.indexedRoute = route;
+            finally
+            {
+                endPlannedIndexWrite();
+            }
         }
+    }
+
+    /** Must be called while holding the headwater publication lock. */
+    private void unindexPlanned(Headwater headwater)
+    {
+        for (long key : headwater.indexedChunks)
+        {
+            final List<Headwater> current = plannedByChunk.get(key);
+            if (current == null || !current.contains(headwater))
+            {
+                continue;
+            }
+            if (current.size() == 1)
+            {
+                plannedByChunk.remove(key);
+                continue;
+            }
+            final List<Headwater> remaining = new ArrayList<>(current);
+            remaining.remove(headwater);
+            plannedByChunk.put(key, List.copyOf(remaining));
+        }
+        headwater.indexedChunks.clear();
+        headwater.indexedRoute = null;
     }
 
     private void coordinatePlannedIntersections(Headwater headwater)
@@ -1263,15 +1343,23 @@ final class NTEHeadwaterNetwork
             {
                 return;
             }
-            final List<Headwater> planned = nearbyPlannedHeadwaters(headwater);
-            planned.sort(HEADWATER_ORDER);
-            coordinateNetwork(planned, heights);
-            // Coordination replaces immutable Route instances. Rebuild every
-            // affected outer index now; otherwise a peer indexed before this
-            // junction can keep publishing coverage for its old geometry.
-            for (Headwater plannedHeadwater : planned)
+            beginPlannedIndexWrite();
+            try
             {
-                indexPlanned(plannedHeadwater);
+                final List<Headwater> planned = nearbyPlannedHeadwaters(headwater);
+                planned.sort(HEADWATER_ORDER);
+                coordinateNetwork(planned, heights);
+                // Coordination replaces immutable Route instances. Rebuild every
+                // affected outer index now; otherwise a peer indexed before this
+                // junction can keep publishing coverage for its old geometry.
+                for (Headwater plannedHeadwater : planned)
+                {
+                    indexPlanned(plannedHeadwater);
+                }
+            }
+            finally
+            {
+                endPlannedIndexWrite();
             }
         }
     }
@@ -1474,7 +1562,8 @@ final class NTEHeadwaterNetwork
         network.coordinatePlannedIntersections(left.headwater);
         return (left.headwater.plannedRoute() != leftBefore || right.headwater.plannedRoute() != rightBefore)
             && left.headwater.indexedRoute == left.headwater.plannedRoute()
-            && right.headwater.indexedRoute == right.headwater.plannedRoute();
+            && right.headwater.indexedRoute == right.headwater.plannedRoute()
+            && (network.plannedIndexVersion & 1L) == 0L;
     }
 
     @Nullable
@@ -1502,6 +1591,12 @@ final class NTEHeadwaterNetwork
     {
         final Route route = stream.headwater.route();
         return route == null ? null : route.sample(blockX, blockZ, Double.POSITIVE_INFINITY);
+    }
+
+    @Nullable
+    static Sample samplePlannedTestStream(TestStream stream, int blockX, int blockZ)
+    {
+        return stream.headwater.sampleIfPlanned(blockX, blockZ, Double.POSITIVE_INFINITY);
     }
 
     static TestStream testStreamFromRoute(List<Vec> points, double startWaterY, double endWaterY, HeightSampler heights)
@@ -2181,7 +2276,11 @@ final class NTEHeadwaterNetwork
         @Nullable
         private Sample sample(int blockX, int blockZ, double ambientHeight)
         {
-            if (blockX < minX || blockX > maxX || blockZ < minZ || blockZ > maxZ)
+            // These bounds describe the initial TFC edge search area, not the
+            // immutable route eventually published after smoothing and
+            // junction coordination. They may prevent an unrelated query from
+            // triggering planning, but must not clip an already planned route.
+            if (!attempted && outsideInitialPlanningBounds(blockX, blockZ))
             {
                 return null;
             }
@@ -2190,20 +2289,19 @@ final class NTEHeadwaterNetwork
         }
 
         @Nullable
-        private Sample sampleIfPlanned(int blockX, int blockZ)
-        {
-            return sampleIfPlanned(blockX, blockZ, Double.POSITIVE_INFINITY);
-        }
-
-        @Nullable
         private Sample sampleIfPlanned(int blockX, int blockZ, double ambientHeight)
         {
-            if (!attempted || blockX < minX || blockX > maxX || blockZ < minZ || blockZ > maxZ)
+            if (!attempted)
             {
                 return null;
             }
             final Route planned = route;
             return planned == null ? null : planned.sample(blockX, blockZ, ambientHeight);
+        }
+
+        private boolean outsideInitialPlanningBounds(int blockX, int blockZ)
+        {
+            return blockX < minX || blockX > maxX || blockZ < minZ || blockZ > maxZ;
         }
 
         @Nullable
@@ -3978,6 +4076,15 @@ final class NTEHeadwaterNetwork
         @Nullable
         private Sample sample(int blockX, int blockZ, double ambientHeight)
         {
+            // Once planning has completed, the route's own bounds replace the
+            // Headwater's coarse TFC-edge bounds. Keep this cheap rejection so
+            // direct edge lookups outside the route do not fall back to a
+            // full linear segment scan.
+            if (blockX < minX - SPATIAL_INDEX_MARGIN || blockX > maxX + SPATIAL_INDEX_MARGIN
+                || blockZ < minZ - SPATIAL_INDEX_MARGIN || blockZ > maxZ + SPATIAL_INDEX_MARGIN)
+            {
+                return null;
+            }
             final RouteProjection nearest = nearestIndexedProjection(new Vec(blockX, blockZ));
             if (nearest.segment() < 0)
             {
@@ -4044,13 +4151,11 @@ final class NTEHeadwaterNetwork
             final boolean waterAllowed = retainedReceiverJoin
                 || !receiverMouth
                 || distanceToOutlet > waterCutLength;
-            final double waterCoreRadiusSq = receiverAlignment == null || retainedReceiverJoin
-                ? NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ
-                // Keep the generated flowing-water corridor as wide as the
-                // creek cut. Static source water is retracted independently
-                // by mouthSourceWaterAllowed(); shrinking the dynamic core
-                // would leave a carved but dry annulus at real joins.
-                : NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ;
+            // Keep the generated flowing-water corridor as wide as the creek
+            // cut. Static source water is retracted independently by
+            // mouthSourceWaterAllowed(); shrinking the dynamic core would
+            // leave a carved but dry annulus at real joins.
+            final double waterCoreRadiusSq = NTERiverHydrology.SUPPLEMENTAL_WATER_CORE_RADIUS_SQ;
             final double mouthWaterDrop = receiverAlignment == null || retainedReceiverJoin
                 ? 0d
                 : mouthWaterDrop(distanceToOutlet, localWaterY, receiverWaterY);
@@ -4158,11 +4263,24 @@ final class NTEHeadwaterNetwork
             {
                 return waterY[waterY.length - 1];
             }
-            int upper = 1;
-            while (upper < distance.length && distance[upper] < targetAlong)
+            // Lower-bound search selects the same first distance >= target as
+            // the former linear walk. Keep the old interpolation expression
+            // below so exact route nodes retain bit-identical double results.
+            int lowerBound = 1;
+            int upperBound = distance.length - 1;
+            while (lowerBound < upperBound)
             {
-                upper++;
+                final int middle = (lowerBound + upperBound) >>> 1;
+                if (distance[middle] < targetAlong)
+                {
+                    lowerBound = middle + 1;
+                }
+                else
+                {
+                    upperBound = middle;
+                }
             }
+            final int upper = lowerBound;
             final int lower = upper - 1;
             final double segmentLength = distance[upper] - distance[lower];
             final double delta = segmentLength <= 1.0e-9d

@@ -32,6 +32,8 @@ public final class NTERiverHydrology
 {
     public static final double TFC_WATER_CORE_RADIUS_SQ = 0.28d;
     static final double SUPPLEMENTAL_WATER_CORE_RADIUS_SQ = 0.72d;
+    /** Native banked terrain finishes blending back to ambient by two river widths. */
+    private static final double TFC_TERRAIN_CORRIDOR_RADIUS_SCALE = 2d;
     private static final int MAX_HEIGHT_CACHE_SIZE = 131072;
     private static final Comparator<RiverEdge> STABLE_EDGE_ORDER = Comparator
         .comparingDouble((RiverEdge edge) -> edge.source().x())
@@ -604,8 +606,10 @@ public final class NTERiverHydrology
      * Planning-only mask for native downstream river edges. TFC marks an edge
      * as sourceEdge once another edge feeds it, so these are the main-stem
      * corridors that this addon always retains. The leaf being replaced and
-     * its designated receiver remain legal; every other retained wet core is
-     * a structural obstacle, not a low terrain valley for a new creek to use.
+     * its designated receiver remain legal; every other retained terrain
+     * corridor is a structural obstacle, not a low valley for a new creek to
+     * use. Protecting only the wet core lets a spring start on a TALUS or
+     * canyon outer bank which is much lower after native river shaping.
      * This query intentionally never asks headwaters for replacement state.
      */
     private boolean blocksUnrelatedRetainedRiver(
@@ -627,15 +631,22 @@ public final class NTERiverHydrology
             }
             final double distanceBlocks = Math.sqrt(edge.fractal().intersectDistance(exactGridX, exactGridZ))
                 * Units.GRID_WIDTH_IN_BLOCK;
-            final double wetRadius = Math.sqrt(
-                edge.widthSq(exactGridX, exactGridZ) * TFC_WATER_CORE_RADIUS_SQ
-            );
-            if (distanceBlocks <= wetRadius + clearance)
+            final double widthSq = edge.widthSq(exactGridX, exactGridZ);
+            if (withinRetainedRiverTerrainCorridor(distanceBlocks, widthSq, clearance))
             {
                 return true;
             }
         }
         return false;
+    }
+
+    static boolean withinRetainedRiverTerrainCorridor(
+        double distanceBlocks,
+        double widthSq,
+        double clearance
+    )
+    {
+        return distanceBlocks <= Math.sqrt(widthSq) * TFC_TERRAIN_CORRIDOR_RADIUS_SCALE + clearance;
     }
 
     /**
@@ -767,25 +778,7 @@ public final class NTERiverHydrology
     @Nullable
     private ColumnProfile findPlannedGraphProfile(int blockX, int blockZ)
     {
-        NTEHeadwaterNetwork.Sample nearest = null;
-        for (RiverEdge edge : candidateEdges(blockX, blockZ))
-        {
-            if (edge.sourceEdge() || !headwaters.mayInfluence(edge, blockX, blockZ))
-            {
-                continue;
-            }
-            final NTEHeadwaterNetwork.Sample sample = headwaters.sampleIfPlanned(edge, blockX, blockZ);
-            if (NTEHeadwaterNetwork.samplePreferred(sample, nearest))
-            {
-                nearest = sample;
-            }
-        }
-        final NTEHeadwaterNetwork.Sample spatial = headwaters.samplePlannedAt(blockX, blockZ, Double.POSITIVE_INFINITY);
-        if (NTEHeadwaterNetwork.samplePreferred(spatial, nearest))
-        {
-            nearest = spatial;
-        }
-        return nearest == null ? null : createProfile(nearest);
+        return findProfileFromPlannedCandidates(blockX, blockZ, Double.POSITIVE_INFINITY);
     }
 
     /** Read-only late-decoration query; never initiates a new drainage search. */
@@ -933,7 +926,7 @@ public final class NTERiverHydrology
             {
                 continue;
             }
-            final NTEHeadwaterNetwork.Sample sample = headwaters.sampleIfPlanned(
+            final NTEHeadwaterNetwork.Sample sample = headwaters.sampleUnindexedIfPlanned(
                 edge,
                 blockX,
                 blockZ,

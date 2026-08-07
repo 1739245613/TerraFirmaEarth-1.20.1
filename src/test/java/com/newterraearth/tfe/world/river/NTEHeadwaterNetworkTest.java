@@ -1,16 +1,24 @@
 package com.newterraearth.tfe.world.river;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import net.dries007.tfc.world.river.Flow;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NTEHeadwaterNetworkTest
@@ -706,6 +714,154 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void plannedRouteIsNotClippedByItsOriginalSearchBounds()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(
+                new NTEHeadwaterNetwork.Vec(0d, 0d),
+                new NTEHeadwaterNetwork.Vec(176d, 0d),
+                new NTEHeadwaterNetwork.Vec(0d, 32d)
+            ),
+            78d,
+            72d,
+            (x, z) -> 82d
+        );
+
+        // The synthetic bend lies beyond the endpoints' original +160-block
+        // planning padding, just like a real route moved by smoothing or
+        // junction coordination. Production reads through sampleIfPlanned,
+        // so it must still see the final published geometry there.
+        final NTEHeadwaterNetwork.Sample direct = NTEHeadwaterNetwork.sampleTestStream(stream, 176, 0);
+        final NTEHeadwaterNetwork.Sample planned = NTEHeadwaterNetwork.samplePlannedTestStream(stream, 176, 0);
+        assertNotNull(direct);
+        assertNotNull(planned, "the final route geometry must supersede its coarse planning bounds");
+        assertEquals(direct.normalizedDistanceSq(), planned.normalizedDistanceSq(), 1.0e-9d);
+        assertEquals(direct.waterSurfaceY(), planned.waterSurfaceY(), 1.0e-9d);
+    }
+
+    @Test
+    void binaryWaterLookupIsBitIdenticalToTheFormerLinearWalk() throws Exception
+    {
+        final List<NTEHeadwaterNetwork.Vec> points = new ArrayList<>();
+        for (int index = 0; index <= 256; index++)
+        {
+            points.add(new NTEHeadwaterNetwork.Vec(index * 1.25d, Math.sin(index * 0.17d) * 3d));
+        }
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
+            points,
+            91.75d,
+            62d,
+            (x, z) -> 96d
+        );
+        final Object route = routeObject(stream);
+        final double[] distance = doubleArrayField(route, "distance");
+        final double[] waterY = doubleArrayField(route, "waterY");
+        final Method sample = route.getClass().getDeclaredMethod("sampleWaterYAtAlong", double.class);
+        sample.setAccessible(true);
+
+        final List<Double> targets = new ArrayList<>();
+        targets.add(-1d);
+        targets.add(0d);
+        for (int index : new int[] { 1, 2, 31, 128, 255 })
+        {
+            targets.add(Math.nextDown(distance[index]));
+            targets.add(distance[index]);
+            targets.add(Math.nextUp(distance[index]));
+            targets.add((distance[index - 1] + distance[index]) * 0.5d);
+        }
+        targets.add(distance[distance.length - 1]);
+        targets.add(distance[distance.length - 1] + 1d);
+
+        for (double target : targets)
+        {
+            final double expected = formerLinearWaterSample(distance, waterY, target);
+            final double actual = (double) sample.invoke(route, target);
+            assertEquals(
+                Double.doubleToRawLongBits(expected),
+                Double.doubleToRawLongBits(actual),
+                "binary lookup changed the exact interpolation result at along=" + target
+            );
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void cacheResetRetiresWholeImmutableIndexWithoutChangingResetSemantics() throws Exception
+    {
+        final NTEHeadwaterNetwork.TestStream oldest = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(new NTEHeadwaterNetwork.Vec(0d, 0d), new NTEHeadwaterNetwork.Vec(48d, 0d)),
+            78d,
+            72d,
+            (x, z) -> 82d
+        );
+        final NTEHeadwaterNetwork.TestStream peer = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(new NTEHeadwaterNetwork.Vec(24d, -24d), new NTEHeadwaterNetwork.Vec(24d, 24d)),
+            76d,
+            70d,
+            (x, z) -> 82d
+        );
+        final NTEHeadwaterNetwork.TestStream survivor = NTEHeadwaterNetwork.testStreamFromRoute(
+            List.of(new NTEHeadwaterNetwork.Vec(512d, 0d), new NTEHeadwaterNetwork.Vec(560d, 0d)),
+            78d,
+            72d,
+            (x, z) -> 82d
+        );
+        final Object oldestHeadwater = headwaterObject(oldest);
+        final Object peerHeadwater = headwaterObject(peer);
+        final Object survivorHeadwater = headwaterObject(survivor);
+        final Field junctionPeers = oldestHeadwater.getClass().getDeclaredField("junctionPeers");
+        junctionPeers.setAccessible(true);
+        ((Set<Object>) junctionPeers.get(oldestHeadwater)).add(peerHeadwater);
+        ((Set<Object>) junctionPeers.get(peerHeadwater)).add(oldestHeadwater);
+
+        final NTEHeadwaterNetwork network = new NTEHeadwaterNetwork(1L, SEA_LEVEL, (x, z) -> 82d);
+        final Field headwatersField = NTEHeadwaterNetwork.class.getDeclaredField("headwaters");
+        headwatersField.setAccessible(true);
+        final Map<Object, Object> headwaters = (Map<Object, Object>) headwatersField.get(network);
+        final Field plannedIndexVersion = NTEHeadwaterNetwork.class.getDeclaredField("plannedIndexVersion");
+        plannedIndexVersion.setAccessible(true);
+        headwaters.put(new Object(), oldestHeadwater);
+        headwaters.put(new Object(), peerHeadwater);
+        headwaters.put(new Object(), survivorHeadwater);
+
+        final Method indexPlanned = NTEHeadwaterNetwork.class.getDeclaredMethod(
+            "indexPlanned",
+            oldestHeadwater.getClass()
+        );
+        indexPlanned.setAccessible(true);
+        indexPlanned.invoke(network, oldestHeadwater);
+        indexPlanned.invoke(network, peerHeadwater);
+        indexPlanned.invoke(network, survivorHeadwater);
+        assertEquals(0L, plannedIndexVersion.getLong(network) & 1L);
+
+        final Field plannedByChunkField = NTEHeadwaterNetwork.class.getDeclaredField("plannedByChunk");
+        plannedByChunkField.setAccessible(true);
+        final Map<Long, List<Object>> retiredIndex =
+            (Map<Long, List<Object>>) plannedByChunkField.get(network);
+        final List<Object> publishedSnapshot = retiredIndex.values().iterator().next();
+        assertThrows(UnsupportedOperationException.class, () -> publishedSnapshot.add(survivorHeadwater));
+
+        final Method reset = NTEHeadwaterNetwork.class.getDeclaredMethod("resetHeadwaterCache");
+        reset.setAccessible(true);
+        reset.invoke(network);
+
+        assertEquals(0L, plannedIndexVersion.getLong(network) & 1L);
+        final Map<Long, List<Object>> freshIndex =
+            (Map<Long, List<Object>>) plannedByChunkField.get(network);
+        assertNotSame(retiredIndex, freshIndex);
+        assertTrue(headwaters.isEmpty());
+        assertTrue(freshIndex.isEmpty());
+        assertTrue(retiredIndex.values().stream().flatMap(List::stream)
+            .anyMatch(candidate -> candidate == oldestHeadwater));
+        assertTrue(retiredIndex.values().stream().flatMap(List::stream)
+            .anyMatch(candidate -> candidate == peerHeadwater));
+        assertTrue(retiredIndex.values().stream().flatMap(List::stream)
+            .anyMatch(candidate -> candidate == survivorHeadwater));
+        assertTrue(((Set<Object>) junctionPeers.get(oldestHeadwater)).contains(peerHeadwater));
+        assertTrue(((Set<Object>) junctionPeers.get(peerHeadwater)).contains(oldestHeadwater));
+    }
+
+    @Test
     void routeSegmentIndexKeepsTheNearestNarrowSegmentWhenAWideSegmentReturnsNearby()
     {
         final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.testStreamFromRoute(
@@ -1330,6 +1486,24 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void retainedRiverObstacleCoversTheNativeTerrainCorridorBeyondItsWetCore()
+    {
+        final double widthSq = 22d * 22d;
+        final double reportedSourceDistance = Math.sqrt(2.868d * widthSq);
+
+        assertTrue(NTERiverHydrology.withinRetainedRiverTerrainCorridor(
+            reportedSourceDistance,
+            widthSq,
+            6d
+        ), "a spring may not start on a retained TALUS bank which is still deeply carved");
+        assertFalse(NTERiverHydrology.withinRetainedRiverTerrainCorridor(
+            50.01d,
+            widthSq,
+            6d
+        ), "the obstacle must remain bounded once the native bank has returned to ambient terrain");
+    }
+
+    @Test
     void receiverShapeTransferKeepsTheCreekBankUntilTheSharedWetCenter()
     {
         final net.dries007.tfc.world.river.RiverInfo receiver = riverAt(0.25d);
@@ -1603,6 +1777,51 @@ class NTEHeadwaterNetworkTest
             profile.mode(),
             profile.flow()
         );
+    }
+
+    private static Object routeObject(NTEHeadwaterNetwork.TestStream stream) throws Exception
+    {
+        final Object headwater = headwaterObject(stream);
+        final Method route = headwater.getClass().getDeclaredMethod("route");
+        route.setAccessible(true);
+        return route.invoke(headwater);
+    }
+
+    private static Object headwaterObject(NTEHeadwaterNetwork.TestStream stream) throws Exception
+    {
+        final Field headwaterField = NTEHeadwaterNetwork.TestStream.class.getDeclaredField("headwater");
+        headwaterField.setAccessible(true);
+        return headwaterField.get(stream);
+    }
+
+    private static double[] doubleArrayField(Object owner, String name) throws Exception
+    {
+        final Field field = owner.getClass().getDeclaredField(name);
+        field.setAccessible(true);
+        return (double[]) field.get(owner);
+    }
+
+    private static double formerLinearWaterSample(double[] distance, double[] waterY, double targetAlong)
+    {
+        if (targetAlong <= 0d)
+        {
+            return waterY[0];
+        }
+        if (targetAlong >= distance[distance.length - 1])
+        {
+            return waterY[waterY.length - 1];
+        }
+        int upper = 1;
+        while (upper < distance.length && distance[upper] < targetAlong)
+        {
+            upper++;
+        }
+        final int lower = upper - 1;
+        final double segmentLength = distance[upper] - distance[lower];
+        final double delta = segmentLength <= 1.0e-9d
+            ? 0d
+            : (targetAlong - distance[lower]) / segmentLength;
+        return Mth.lerp(delta, waterY[lower], waterY[upper]);
     }
 
 }
