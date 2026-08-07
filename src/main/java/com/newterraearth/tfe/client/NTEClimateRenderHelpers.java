@@ -30,7 +30,6 @@ public final class NTEClimateRenderHelpers
     private static final float DEFAULT_HEMISPHERE_SCALE = 20_000f;
 
     @Nullable private static Field temperatureScaleField;
-    @Nullable private static Field climateSeedField;
     private static boolean lookedUpClimateFields;
     @Nullable private static volatile Level cachedGeneratorLevel;
     @Nullable private static volatile ChunkGenerator cachedChunkGenerator;
@@ -74,37 +73,18 @@ public final class NTEClimateRenderHelpers
     {
         final float averageRainfall = Climate.getRainfall(level, pos);
         final float syncedRainVariance = NTEClientRainVarianceCache.getRainVariance(pos);
-        if (!Float.isNaN(syncedRainVariance))
-        {
-            return syncedRainVariance == 0f
-                ? averageRainfall
-                : Helpers.triangle(syncedRainVariance * averageRainfall, averageRainfall, 1f, Calendars.get(level).getCalendarFractionOfYear() + 0.75f);
-        }
-
-        final ChunkGenerator generator = getChunkGenerator(level);
-        if (generator == null)
+        if (Float.isNaN(syncedRainVariance))
         {
             return averageRainfall;
         }
-
-        final float rainVariance = NTE121ClimateHelpers.getRainVariance(getClimateSeed(level), generator, pos);
-        if (rainVariance == 0f)
-        {
-            return averageRainfall;
-        }
-        return Helpers.triangle(rainVariance * averageRainfall, averageRainfall, 1f, Calendars.get(level).getCalendarFractionOfYear() + 0.75f);
+        return syncedRainVariance == 0f
+            ? averageRainfall
+            : Helpers.triangle(syncedRainVariance * averageRainfall, averageRainfall, 1f, Calendars.get(level).getCalendarFractionOfYear() + 0.75f);
     }
 
     public static float getRainVarianceOrNaN(Level level, BlockPos pos)
     {
-        final float syncedRainVariance = NTEClientRainVarianceCache.getRainVariance(pos);
-        if (!Float.isNaN(syncedRainVariance))
-        {
-            return syncedRainVariance;
-        }
-
-        final ChunkGenerator generator = getChunkGenerator(level);
-        return generator != null ? NTE121ClimateHelpers.getRainVariance(getClimateSeed(level), generator, pos) : Float.NaN;
+        return NTEClientRainVarianceCache.getRainVariance(pos);
     }
 
     public static boolean isNorthernHemisphere(Level level, BlockPos pos)
@@ -161,28 +141,6 @@ public final class NTEClimateRenderHelpers
         return DEFAULT_HEMISPHERE_SCALE;
     }
 
-    private static long getClimateSeed(Level level)
-    {
-        final OverworldClimateModel model = getClimateModel(level);
-        if (model == null)
-        {
-            return 0L;
-        }
-
-        ensureClimateFields();
-        if (climateSeedField != null)
-        {
-            try
-            {
-                return climateSeedField.getLong(model);
-            }
-            catch (IllegalAccessException ignored)
-            {
-            }
-        }
-        return 0L;
-    }
-
     @Nullable
     private static ChunkGenerator getChunkGenerator(Level level)
     {
@@ -218,15 +176,6 @@ public final class NTEClimateRenderHelpers
             temperatureScaleField = null;
         }
 
-        try
-        {
-            climateSeedField = OverworldClimateModel.class.getDeclaredField("climateSeed");
-            climateSeedField.setAccessible(true);
-        }
-        catch (ReflectiveOperationException ignored)
-        {
-            climateSeedField = null;
-        }
     }
 
     @Nullable

@@ -5,10 +5,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.ModLoadingContext;
 
 import com.newterraearth.tfe.client.NTEClientEventHandler;
+import com.newterraearth.tfe.api.climate.NTEDailyTemperatureLifecycle;
 import com.newterraearth.tfe.common.NTEBlocks;
 import com.newterraearth.tfe.common.NTEFluids;
 import com.newterraearth.tfe.common.NTERockBlocks;
@@ -38,6 +40,7 @@ public final class NewTerraEarthMod
         final var modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, NTECommonConfig.SPEC);
         modBus.addListener(this::setup);
+        modBus.addListener(this::loadComplete);
         NTEBuiltinPackEvents.init(modBus);
         NTERuntimeTrace.init();
         NTECactusEvents.init();
@@ -67,5 +70,10 @@ public final class NewTerraEarthMod
             NTERockBlocks.registerProspectingRepresentatives();
             NTEFluids.registerCauldronInteractions();
         });
+    }
+
+    private void loadComplete(FMLLoadCompleteEvent event)
+    {
+        NTEDailyTemperatureLifecycle.freezeRegistration();
     }
 }

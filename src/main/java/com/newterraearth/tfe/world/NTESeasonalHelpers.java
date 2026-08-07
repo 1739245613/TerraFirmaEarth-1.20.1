@@ -11,7 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.LinearCongruentialGenerator;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
@@ -43,10 +42,8 @@ public final class NTESeasonalHelpers
 {
     private static final float DEFAULT_HEMISPHERE_SCALE = 20_000f;
     private static final int MAX_RAIN_HYDRATION = 60;
-    private static final long CLIMATE_SEED_SALT = 719_283_741_234L;
 
     @Nullable private static Field temperatureScaleField;
-    @Nullable private static Field climateSeedField;
     private static boolean lookedUpClimateFields;
 
     @Nullable private static volatile Level cachedGeneratorLevel;
@@ -94,6 +91,11 @@ public final class NTESeasonalHelpers
     public static float getInstantRainfall(Level level, BlockPos pos, long calendarTicks, int daysInMonth)
     {
         final float averageRainfall = Climate.getRainfall(level, pos);
+        return getInstantRainfall(level, pos, calendarTicks, daysInMonth, averageRainfall);
+    }
+
+    public static float getInstantRainfall(Level level, BlockPos pos, long calendarTicks, int daysInMonth, float averageRainfall)
+    {
         final float rainVariance = getRainVariance(level, pos);
         if (Float.isNaN(rainVariance) || rainVariance == 0f)
         {
@@ -412,46 +414,16 @@ public final class NTESeasonalHelpers
         return cursor.immutable();
     }
 
-    private static long getClimateSeed(Level level)
-    {
-        if (level instanceof ServerLevel serverLevel)
-        {
-            return LinearCongruentialGenerator.next(serverLevel.getSeed(), CLIMATE_SEED_SALT);
-        }
-
-        final OverworldClimateModel model = OverworldClimateModel.getIfPresent(level);
-        if (model == null)
-        {
-            return 0L;
-        }
-
-        ensureClimateFields();
-        if (climateSeedField != null)
-        {
-            try
-            {
-                return climateSeedField.getLong(model);
-            }
-            catch (IllegalAccessException ignored)
-            {
-            }
-        }
-        return 0L;
-    }
-
     private static float getRainVariance(Level level, BlockPos pos)
     {
         if (level.isClientSide)
         {
-            final float syncedRainVariance = NTEClientRainVarianceCache.getRainVariance(pos);
-            if (!Float.isNaN(syncedRainVariance))
-            {
-                return syncedRainVariance;
-            }
+            return NTEClientRainVarianceCache.getRainVariance(pos);
         }
 
-        final ChunkGenerator generator = getChunkGenerator(level);
-        return generator != null ? NTE121ClimateHelpers.getRainVariance(getClimateSeed(level), generator, pos) : Float.NaN;
+        return level instanceof ServerLevel serverLevel
+            ? NTEClimateDisplaySync.getRainVariance(serverLevel, pos)
+            : Float.NaN;
     }
 
     private static void ensureClimateFields()
@@ -472,15 +444,6 @@ public final class NTESeasonalHelpers
             temperatureScaleField = null;
         }
 
-        try
-        {
-            climateSeedField = OverworldClimateModel.class.getDeclaredField("climateSeed");
-            climateSeedField.setAccessible(true);
-        }
-        catch (ReflectiveOperationException ignored)
-        {
-            climateSeedField = null;
-        }
     }
 
     private static int findMinCostHydratingSource(LevelAccessor level, BlockPos pos)

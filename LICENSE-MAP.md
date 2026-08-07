@@ -43,6 +43,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/resources/data/minecraft/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加则作者保留权利 | Minecraft 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
 | `src/main/resources/data/forge/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加则作者保留权利 | Forge 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
 | 明确复制或结构性翻译 TFC 源码表达的 Java 文件 / 片段 | 对应复制 / 派生片段按 `EUPL v1.2` | Java 目录默认不整体归入此类；以具体文件 / 片段证据为准。 |
+| `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | 定向移植 TFC 1.21 `SolarCalculator` 与 `SkyPos` 的太阳位置、太阳时和角度数据表达。 |
 
 ### B. 作者保留权利的原创实现
 
@@ -52,6 +53,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | 路径 | 分类 | 依据 |
 |---|---|---|
 | `src/main/java/com/newterraearth/tfe/common/**` | `All Rights Reserved` | 本项目自有方块、物品、流体、实体注册与 block entity 实现。 |
+| `src/main/java/com/newterraearth/tfe/api/**`（上一节单列的 TFC 派生文件除外） | `All Rights Reserved` | 本项目公开扩展接口、注册调度与兼容 API。 |
 | `src/main/java/com/newterraearth/tfe/client/**` | `All Rights Reserved` | 本项目客户端缓存、气候显示、地图兼容与渲染辅助逻辑。 |
 | `src/main/java/com/newterraearth/tfe/client/model/**` | `All Rights Reserved` | 本项目客户端模型适配与动态模型加载逻辑。 |
 | `src/main/java/com/newterraearth/tfe/compat/**` | `All Rights Reserved` | 本项目对可选前置 / 兼容模组的反射与兼容逻辑。 |
@@ -130,6 +132,7 @@ under the corresponding upstream-compatible license.
 | `src/main/resources/data/minecraft/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise author-reserved for purely original tag additions | Minecraft namespace compatibility tags matching or extending TFC data-pack structure. |
 | `src/main/resources/data/forge/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise author-reserved for purely original tag additions | Forge namespace compatibility tags matching or extending TFC data-pack structure. |
 | Java files / portions clearly copied from or structurally translated from TFC source expression | `EUPL v1.2` for the copied/derived portions | No whole Java path is classified here by default; classification follows concrete file / portion evidence. |
+| `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | Targeted port of the solar-position, sun-based-time, and angle data expressions from TFC 1.21 `SolarCalculator` and `SkyPos`. |
 
 ### B. Author-Reserved Original Implementation
 
@@ -140,6 +143,7 @@ derived from TFC expression, only that portion follows section A.
 | Path | Classification | Basis |
 |---|---|---|
 | `src/main/java/com/newterraearth/tfe/common/**` | `All Rights Reserved` | Project-owned blocks, items, fluids, entity registration, and block entity implementation. |
+| `src/main/java/com/newterraearth/tfe/api/**` (except the TFC-derived file listed above) | `All Rights Reserved` | Project-owned public extension interfaces, dispatch registration, and compatibility APIs. |
 | `src/main/java/com/newterraearth/tfe/client/**` | `All Rights Reserved` | Project-owned client cache, climate display, map compatibility, and render helper logic. |
 | `src/main/java/com/newterraearth/tfe/client/model/**` | `All Rights Reserved` | Project-owned client model adaptation and dynamic model loading logic. |
 | `src/main/java/com/newterraearth/tfe/compat/**` | `All Rights Reserved` | Project-owned optional dependency and compatibility-mod integration logic. |
