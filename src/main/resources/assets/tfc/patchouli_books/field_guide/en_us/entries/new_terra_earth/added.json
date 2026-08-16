@@ -1,0 +1,166 @@
+{
+  "name": "New Features",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:canola",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "New Features",
+      "text": "This section collects systems and world content added by TFE. Select a topic to jump directly to it:$(br2)$(l:new_terra_earth/added#prospecting)Prospecting System$()$(br)$(l:new_terra_earth/added#streams)Headwater Streams$()$(br)$(l:new_terra_earth/added#boats)Boats and Flowing Water$()$(br)$(l:new_terra_earth/added#terrain)Added Terrain Systems$()"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Contents (Continued)",
+      "text": "$(l:new_terra_earth/added#rainfall)Rainfall and Crops$()$(br)$(l:new_terra_earth/added#underground_rivers)Underground River Transitions$()$(br)$(l:new_terra_earth/added#kaolin)Humus and Kaolin Clay$()$(br)$(l:new_terra_earth/added#peaks)Smoothed Mountain Peaks$()$(br)$(l:new_terra_earth/added#afc)AFC Compatibility$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "prospecting",
+      "item": "tfe:canola",
+      "title": "Prospecting System",
+      "link_recipes": false,
+      "text": "A Prospector's Pick scans prospectable minerals around the selected block, reports mineral types and sample sizes separately, and shows a three-second direction ring pointing to the nearest target in guidance range. $(l:mechanics/prospecting)Open the complete prospecting guide$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Material and Scan Power",
+      "text": "Detection radius / guidance radius / maximum revealed types:$(br)$(li)Copper: 12 / 6 / 1$(li)Copper Alloys: 13 / 8 / 1$(li)Wrought Iron: 14 / 10 / 2$(li)Steel: 15 / 12 / 3$(li)Black Steel: 15 / 14 / 4$(li)Red or Blue Steel: 16 / 16 / 4"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Results and Direction",
+      "text": "Sample sizes are Traces 1–9, Small 10–19, Medium 20–39, Large 40–79, and Very Large 80 or more. Each mineral beyond the material's reveal limit appears as one question mark. The ring continuously shows the locked target's direction, height, and distance relative to the player."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "streams",
+      "item": "tfe:canola",
+      "title": "Headwater Streams",
+      "link_recipes": false,
+      "text": "TFE adds terrain-aware headwater streams to river ends that would otherwise stop abruptly. A stream seeks a natural downhill route and gradually joins its existing main river. It remains part of TFC's river biome, so river water, flow, and river-related content continue to recognize it."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Flow and River Mouths",
+      "text": "The first central water block at the head is a stable source. Later sections can form bends, rapids, waterfalls, and spreading flow. Static river water uses 16 directions. Near the main river, bed height, water level, width, and flow gradually hand over to prevent blockages or sudden cliffs."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Generation Note",
+      "text": "Streams appear only in a new world or previously ungenerated chunks. They avoid the full banks of unrelated main rivers and protect the material immediately around a wet bed without filling entire natural caves."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "boats",
+      "item": "tfe:canola",
+      "title": "Boats and Flowing Water",
+      "link_recipes": false,
+      "text": "Boats now handle streams, rapids, and waterfalls correctly. A fully submerged boat regains normal buoyancy instead of continuing to sink or losing control for an extended time, while the push and pull of flowing water still applies."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Driven Ascent",
+      "text": "While a player is steering forward and the boat remains fully submerged, it gains 0.03 upward velocity each tick. This lets it climb rising currents or waterfall water. The extra lift stops near the surface, when forward is released, in an empty boat, or with a non-player driver."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Narrow Channels",
+      "text": "Vanilla boats and ordinary TFC boats or chest boats use a 0.9-block base collision width and can pass through a centered one-block channel. The model is not visually scaled, so it may appear close to the banks in very narrow water. Horizontal acceleration remains vanilla."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "terrain",
+      "item": "tfe:canola",
+      "title": "Added Terrain Systems",
+      "link_recipes": false,
+      "text": "TFE adds continuous mountain uplift, coastal transitions, volcanic terrain, and ocean depth design on top of the backported biomes. These are not isolated decorative structures; they blend with normal terrain, rivers, coasts, and rock layers to form complete landforms."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mountains and Coasts",
+      "text": "Configurable mountain uplift can form higher ranges, central plateaus, and summit cliffs. Terraces, marine scarps, coasts, and river mouths use smoother transitions to reduce sudden changes between fixed-height landforms. Terrain settings affect only new chunks and can leave seams against old ones."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oceans and Volcanoes",
+      "text": "Ordinary oceans, coral seas, deep oceans, and trenches deepen continuously, with trench cores descending farther. Volcanoes select different stages and terrain according to regional conditions. The unused extinct-volcano terrain was removed, and volcanic slopes connect more cleanly to mountains and river mouths."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "rainfall",
+      "item": "tfe:canola",
+      "title": "Rainfall and Crops",
+      "link_recipes": false,
+      "text": "TFE lets cultivated crops, fruit trees, and bushes read $(thing)current seasonal rainfall$(), so available hydration at one location can change between wet and dry seasons. Natural generation still uses long-term average climate and does not reconsider plant distribution every season."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Two Number Scales",
+      "text": "World rainfall and groundwater use a 0~500 scale, while cultivated plants read hydration from 0~100%. Current rainfall is first mapped from 0~500 to 0~60 hydration, then nearby water bonuses are added. A valid hydrating fluid directly above can raise it to 100%."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Average and Current",
+      "text": "Farmland tooltips separate average from current hydration. Average hydration reflects long-term rainfall; current hydration changes with the season and nearby water. Server settings can make crops and fruit trees use average hydration, while a controlled greenhouse supplies its stable climate."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "underground_rivers",
+      "item": "tfe:canola",
+      "title": "Underground River Transitions",
+      "link_recipes": false,
+      "text": "Where an ordinary river enters an underground river, it no longer vanishes at the surface or leaves a one-block vertical cut. As the valley approaches the cave mouth, its ordinary river height gradually blends toward the underground entrance, leaving a readable watercourse."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Current Behavior",
+      "text": "A surface opening appears only where an ordinary river truly meets an underground entrance. Mountains that merely run parallel to an underground river are not collapsed into a long V-shaped trench. Transition length follows the local river and cave blend rather than a fixed block count. Only new chunks are affected."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "kaolin",
+      "item": "tfe:canola",
+      "title": "Humus and Kaolin Clay",
+      "link_recipes": false,
+      "text": "Forest humus now participates more completely in planting, landslides, and map display. When a kaolin deposit generates inside humus terrain, a layer of kaolin clay grass is added at the surface so the deposit is not completely hidden beneath ordinary humus."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Generation Boundary",
+      "text": "This surface cover applies only to forest humus that already meets kaolin generation conditions; it does not create kaolin in deep oceans or unsuitable biomes. Humus keeps its forest-soil planting uses and natural transitions. The change appears only in newly generated chunks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "peaks",
+      "item": "tfe:canola",
+      "title": "Smoothed Mountain Peaks",
+      "link_recipes": false,
+      "text": "Summit cliff uplift has been made configurable and smoothed. Peaks no longer rise abruptly at a fixed boundary. Instead, stronger mountain terrain gradually enters the high summit region so shoulders, peaks, and surrounding land connect more naturally."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Configurable Range",
+      "text": "Peak height ranges and blend ratios are controlled by TFE's mountain heightmap settings. Overall mountain uplift, falloff distance, and central plateau use the terrain uplift settings. Changes affect only new chunks, and very large adjustments can create visible seams against old terrain."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "afc",
+      "item": "tfe:canola",
+      "title": "AFC Compatibility",
+      "link_recipes": false,
+      "text": "When $(thing)ArborFirmaCraft$() is installed, TFE integrates its additional tree species into TFE's newer forest generation. The compatibility content stays disabled without AFC and does not create a hard dependency."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Trees and Climate",
+      "text": "The compatibility pack contains 45 ordinary AFC forest tree entries and selects species using temperature, groundwater, rainfall variation, and elevation. Their current elevation range is -64~320. For example, cypress uses -7.2~8°C, groundwater 90~320, and rainfall variation -1~0.75."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Coordinated Forest Data",
+      "text": "When AFC is installed, TFE automatically coordinates both mods' tree lists, tree shapes, and large forest features. This reduces truncated giant trees, missing species, and misplaced humus. Without AFC, none of this additional forest content is loaded."
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 1
+}

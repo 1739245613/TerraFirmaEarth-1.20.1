@@ -1,37 +1,106 @@
 {
-  "name": "TFE Exclusive Content",
+  "name": "Backported Content",
   "category": "tfc:new_terra_earth",
   "icon": "tfe:canola",
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "This entry contains $(thing)TFE$() features that do not belong in an existing TFC chapter. Changes to existing TFC systems are no longer duplicated here; use $(l:new_terra_earth/ported_crops)Changes to TFC$() in this category to jump to their standard Field Guide pages."
+      "title": "Backported Content",
+      "text": "This section covers only content brought from newer TFC versions to 1.20.1 Forge:$(br2)$(l:new_terra_earth/new_terra_earth#overview)Backport Overview$()$(br)$(l:new_terra_earth/new_terra_earth#terrain)Terrain and Landforms$()$(br)$(l:new_terra_earth/new_terra_earth#climate)Climate and Seasons$()"
     },
     {
       "type": "patchouli:text",
-      "anchor": "climate",
-      "title": "Climate and Seasons",
-      "text": "The world still uses TFC's $(thing)Calendar$() and $(thing)Climate$() screens. TFE backports 1.21 semantics for average and current temperature, average and current rainfall, and seasonal variation to 1.20. These readings affect weather, world generation, and plant growth."
+      "title": "Contents (Continued)",
+      "text": "$(l:new_terra_earth/new_terra_earth#plants)Plants and Crops$()$(br)$(l:new_terra_earth/new_terra_earth#fauna)Fauna and Pests$()$(br)$(l:new_terra_earth/new_terra_earth#devices)Devices and Compatibility$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "overview",
+      "item": "tfe:canola",
+      "title": "Backport Overview",
+      "link_recipes": false,
+      "text": "$(thing)TerraFirmaEarth$() brings major world content from newer TFC versions back to Minecraft 1.20.1 Forge. This section covers only backported content; TFE-original features and redesigned systems are kept in New Features and Reworked Systems."
     },
     {
       "type": "patchouli:text",
-      "text": "$(l:the_world/climate#temperature)Temperature$() varies with latitude, elevation, season, and time of day. Groundwater and hydration also depend on average rainfall, nearby rivers, and surface conditions. Wild plants use elevation-adjusted average temperature for generation, while cultivated plants grow using runtime climate."
+      "title": "Backport Scope",
+      "text": "The backport includes 109 terrain biomes, 31 climate types, newer seasonal and snow behavior, seasonal plants, crops, weeds and flowers, new fauna and pests, and newer devices such as the stove."
     },
     {
-      "type": "patchouli:text",
+      "type": "patchouli:spotlight",
       "anchor": "terrain",
-      "title": "Terrain Families",
-      "text": "TFE adds terrain families for coasts and deep oceans, arid landforms, karst, volcanoes, glaciers, and ice sheets. They are selected together with temperature, rainfall, distance from the sea, hotspot age, and rock conditions rather than acting as isolated decorative biomes."
+      "item": "tfe:canola",
+      "title": "Backported Terrain",
+      "link_recipes": false,
+      "text": "TFE brings the full terrain biome and transition system from newer TFC versions to 1.20, for a current total of 109 landforms. Temperature, rainfall, distance from the coast, hotspot age, and rock conditions combine to select them."
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Coasts and Oceans$(): bays, tidal flats, rocky shores, sea stacks, reefs, deep oceans, and trenches.$(br2)$(bold)Landforms$(): badlands, canyons, mesas, dune seas, salt flats, karst lakes, and sinkholes.$(br2)$(bold)High-energy Terrain$(): multi-stage volcanoes, ice sheets, subglacial lakes, glacial mountains, and eroded glacial terrain."
+      "title": "Major Terrain Families",
+      "text": "Coasts and oceans include bays, tidal flats, rocky shores, sea stacks, reefs, deep oceans, and trenches. Land includes badlands, canyons, mesas, dune seas, salt flats, karst lakes, and sinkholes. Cold and high-energy terrain includes staged volcanoes, ice sheets, subglacial lakes, glacial mountains, and eroded glacial landforms."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Generation Note",
+      "text": "Terrain biomes appear only in newly generated chunks. Many similarly named biomes form continuous transitions rather than isolated attractions, so traveling in one direction may cross several stages of the same terrain family."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "climate",
+      "item": "tfe:canola",
+      "title": "Backported Climate and Seasons",
+      "link_recipes": false,
+      "text": "TFE brings 31 newer climate types, the newer Climate screen and Calendar display, and northern/southern seasonal behavior to 1.20. Players can see annual mean and current temperature plus average and current rainfall, while ecology and weather use the appropriate reading."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Hemispheres and Elevation",
+      "text": "The default temperature scale is 20,000 blocks, making the latitude distance from equator to pole about 20,000 blocks. Seasons are six months apart between hemispheres. Above Y=63, surface temperature falls by about 0.16225°C per block, up to roughly 17.822°C."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Snow and Seasonal Plants",
+      "text": "Snow accumulation and melting catch up promptly in the matching climate instead of requiring a long wait after entering an area. Leaves, flowers, lotus, sunflowers, and other plants change appearance with the season, while server ecology still uses the hemisphere of the plant's own position."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "plants",
+      "item": "tfe:canola",
+      "title": "Backported Plants and Crops",
+      "link_recipes": false,
+      "text": "TFE brings plants, wild flowers and grasses, weeds, farmland flowers, and crops from newer versions to 1.20, including working seasonal models. Normal, dead, wild, and aquatic plants also receive the appropriate tool, snow, ice, and plant classifications."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Six Crops",
+      "text": "The backported crops are cassava, lentil, peanut, alfalfa, canola, and radish. They include natural generation, seeds, mature harvests, food data, tool harvesting, and guide pages while retaining 1.20's single primary nutrient system. See New Crop Adjustments in Reworked Systems for their climate values."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "fauna",
+      "item": "tfe:canola",
+      "title": "Backported Fauna and Pests",
+      "link_recipes": false,
+      "text": "TFE brings newer climate fauna and spawning conditions to 1.20. New animals such as bison and leopard seals use newer biome and climate rules, while existing animals such as polar bears and dire wolves also use the newer temperature, groundwater, and biome ranges."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Pest System",
+      "text": "Lemmings, mongooses, and jerboas use climate-driven pest rules rather than ordinary animal spawning. When the environment is suitable, they can appear as the matching pests; not finding them in an ordinary spawn list does not mean they were omitted."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "devices",
+      "item": "tfe:canola",
+      "title": "Backported Devices and Compatibility",
+      "link_recipes": false,
+      "text": "Some newer content cannot be placed directly into 1.20. TFE adapts the items, blocks, visuals, and world content already present there so backported plants, climate, devices, and terrain work together in the same Forge environment."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "tfc:crafting/stove",
       "title": "Stove",
-      "text": "The $(thing)Stove$() is a variant of the $(thing)Firepit$() that will not ignite nearby blocks. It provides the firepit's main functions and accepts a pot, but it cannot accept a grill."
+      "text": "A $(thing)Stove$() is a variant of the $(thing)Firepit$() that can be used without the fear of it setting nearby blocks on fire. It has all the same functionality as a firepit, and a pot can be added as well. However, a grill cannot be added to the Stove."
     },
     {
       "type": "patchouli:multiblock",
@@ -54,5 +123,8 @@
     }
   ],
   "read_by_default": true,
-  "sortnum": 1
+  "extra_recipe_mappings": {
+    "tfc:stove": 15
+  },
+  "sortnum": 2
 }

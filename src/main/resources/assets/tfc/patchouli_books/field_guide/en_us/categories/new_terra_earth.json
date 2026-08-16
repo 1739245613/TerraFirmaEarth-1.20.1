@@ -1,6 +1,6 @@
 {
   "name": "New Terra Earth",
-  "description": "TFE's exclusive content, plus navigation to modified chapters in the standard TFC guide.",
+  "description": "The TFE guide is organized into Reworked Systems, New Features, and Backported Content. Open a section and use its line-by-line contents to jump directly to each topic.",
   "icon": "tfe:canola",
   "sortnum": 3
 }

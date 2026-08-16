@@ -1,7 +1,7 @@
 {
   "name": "勘探",
   "category": "tfc:mechanics",
-  "icon": "tfc:metal/propick/wrought_iron",
+  "icon": "tfe:canola",
   "pages": [
     {
       "type": "patchouli:text",

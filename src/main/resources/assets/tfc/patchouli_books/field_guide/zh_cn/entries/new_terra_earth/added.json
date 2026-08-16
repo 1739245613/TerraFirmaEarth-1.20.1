@@ -1,0 +1,166 @@
+{
+  "name": "新增篇",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:canola",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "新增篇",
+      "text": "本篇整理 TFE 新增的系统与世界内容。点击下列标题可直接跳转：$(br2)$(l:new_terra_earth/added#prospecting)勘探系统$()$(br)$(l:new_terra_earth/added#streams)源头溪流$()$(br)$(l:new_terra_earth/added#boats)船只与水流$()$(br)$(l:new_terra_earth/added#terrain)新增地势$()"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "新增目录（续）",
+      "text": "$(l:new_terra_earth/added#rainfall)降雨与作物$()$(br)$(l:new_terra_earth/added#underground_rivers)地下河过渡$()$(br)$(l:new_terra_earth/added#kaolin)腐殖层与高岭土$()$(br)$(l:new_terra_earth/added#peaks)平滑山峰$()$(br)$(l:new_terra_earth/added#afc)AFC 兼容$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "prospecting",
+      "item": "tfe:canola",
+      "title": "勘探系统",
+      "link_recipes": false,
+      "text": "勘矿镐会扫描点击位置附近的可勘探矿物，在动作栏分别报告矿种和矿量，并显示 3 秒方向轨道指向指引范围内离玩家最近的目标。$(l:mechanics/prospecting)点击这里打开完整勘探手册$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "材质与扫描能力",
+      "text": "检测半径 / 指引半径 / 最多公开矿种：$(br)$(li)铜：12 / 6 / 1$(li)铜合金：13 / 8 / 1$(li)锻铁：14 / 10 / 2$(li)钢：15 / 12 / 3$(li)黑钢：15 / 14 / 4$(li)红钢、蓝钢：16 / 16 / 4"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "结果与方向",
+      "text": "同种矿物按数量报告：微量 1–9、少量 10–19、中量 20–39、大量 40–79、巨量至少 80。超过材质公开上限的每种矿物显示为一个问号；轨道会实时显示已锁定目标相对玩家的方向、高低和距离。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "streams",
+      "item": "tfe:canola",
+      "title": "源头溪流",
+      "link_recipes": false,
+      "text": "TFE 为原本容易突然断头的河流叶端新增了地形感知的源头溪流。溪流会寻找较自然的下坡路线，并逐渐接入原有主河；它仍属于 TFC 河流群系，因此河流水、流向和相关群系内容可以继续识别。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "水流与汇入口",
+      "text": "每条溪流最上游保留 1 格稳定源水，其余河段可形成弯流、急流、瀑布和落地摊流。静态河水使用 16 个方向，临近主河时床高、水位、宽度和流向会逐渐交接，避免河口堵塞或突然断层。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "生成提示",
+      "text": "溪流只会出现在新世界或尚未生成的新区块。它们会避开无关主河的完整河岸，并保护湿润河床附近的必要材料；天然洞穴不会因此被整体填满。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "boats",
+      "item": "tfe:canola",
+      "title": "船只与水流",
+      "link_recipes": false,
+      "text": "船只现在可以正确适应溪流、急流和瀑布。完全沉水时会恢复正常浮力，不会因为被流动水覆盖而持续下沉或长时间失控；水流本身的推拉方向仍然有效。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "驾驶上浮",
+      "text": "当玩家驾驶、按住前进并且船体仍完全沉水时，船每刻额外获得 0.03 的向上速度，因此可以沿上升水流或瀑布水体逐步爬升。接近水面、松开前进、空船或非玩家驾驶时不会获得这项额外上浮。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "窄水道",
+      "text": "原版船与 TFC 普通船、箱船的基础碰撞宽度调整为 0.9 格，可以通过居中的一格宽水道。模型外观不会缩小，极窄水道中可能出现船体视觉上贴近岸边的情况。水平前进速度仍保持原版。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "terrain",
+      "item": "tfe:canola",
+      "title": "新增地势",
+      "link_recipes": false,
+      "text": "TFE 在移植的群系之上补充了连续的山区抬升、海岸衔接、火山地势与海洋深度设计。地势不是单独摆放的装饰结构，而会与原有地形、河流、海岸和岩层一起形成完整地貌。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "山地与海岸",
+      "text": "山区可按配置形成更高的山脉、中心平台和峰顶悬崖；高阶地、海退崖、海岸与河口使用平滑过渡，减少固定高度地形之间的突变。地势配置只影响新生成区块，修改后可能在新旧区块边界留下接缝。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海洋与火山",
+      "text": "普通海、珊瑚海、深海和海沟会连续加深，海沟核心逐渐降到更深处。火山会根据区域条件选择不同阶段与地势；已移除不再采用的死火山地势，并改善火山与周围山地、河口的连接。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "rainfall",
+      "item": "tfe:canola",
+      "title": "降雨与作物",
+      "link_recipes": false,
+      "text": "TFE 让栽培作物、果树和灌木可以读取$(thing)当前季节降雨$()，因此同一地点的可用水分会随雨季与旱季变化。自然生成仍使用长期平均气候，避免每个季节重新决定世界中的植物分布。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "两种数值范围",
+      "text": "世界气候中的降雨/地下水范围为 0~500；栽培植物看到的水分范围为 0~100%。当前降雨会先从 0~500 映射为 0~60 水分，再加入附近补水来源；正上方直接存在有效补水流体时可达到 100%。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "平均与当前",
+      "text": "耕地工具提示分别显示平均水分与当前水分：平均值只反映长期降雨，当前值可随季节和附近水源变化。服务器配置可以让作物与果树改用平均水分；受控温室则使用温室提供的稳定气候。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "underground_rivers",
+      "item": "tfe:canola",
+      "title": "地下河过渡",
+      "link_recipes": false,
+      "text": "普通河流接入地下河时，不再在地表突然消失或留下一格高的垂直切线。河谷会在接近洞口时逐渐把普通河型高度过渡到地下河入口，保留能看懂的河流去向。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "当前表现",
+      "text": "只有普通河流真正与地下河入口相接的区域才打开地表入口；平行经过地下河的山体不会整段塌成 V 字沟。过渡长度由当地河流和洞穴混合决定，不是固定几格。修改只会影响新生成区块。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "kaolin",
+      "item": "tfe:canola",
+      "title": "腐殖层与高岭土",
+      "link_recipes": false,
+      "text": "森林腐殖层现在更完整地参与植物种植、滑坡与地图显示。当高岭土矿床生成在腐殖土区域时，表面会补上一层高岭土草方块，避免矿床被普通腐殖层完全盖住而难以辨认。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "生成边界",
+      "text": "这项表面覆盖只作用于符合高岭土生成条件的森林腐殖层，不会让深海或不适宜群系凭空出现高岭土。腐殖层本身仍保留森林土壤的种植用途和自然过渡；变化只会出现在新生成区块。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "peaks",
+      "item": "tfe:canola",
+      "title": "平滑山峰",
+      "link_recipes": false,
+      "text": "山脉峰顶的悬崖抬高经过重新配置和平滑处理。峰顶不再在固定边界突然抬起，而会根据山脉强度逐渐进入高峰区域，让山肩、峰顶与周围地势衔接得更自然。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "可配置范围",
+      "text": "山峰高度范围与渐变比例可在 TFE 的山脉高度图配置中调整；山区整体抬升、衰减距离和中心平台则由地势抬升配置控制。提高数值只影响新生成区块，过大改动可能在旧区块边缘形成明显接缝。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "afc",
+      "item": "tfe:canola",
+      "title": "AFC 兼容",
+      "link_recipes": false,
+      "text": "安装 $(thing)ArborFirmaCraft / 林海传说$() 后，TFE 会把 AFC 的额外树种接入自己的新版森林生成。没有安装 AFC 时，这套兼容内容不会启用，也不会形成硬依赖。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "树种与气候",
+      "text": "兼容包包含 45 种 AFC 普通森林树配置，并按温度、地下水、降雨变化和海拔选择适合当地气候的树种。当前海拔范围统一为 -64~320；例如柏木使用 -7.2~8°C、地下水 90~320、降雨变化 -1~0.75。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "森林资源协调",
+      "text": "安装 AFC 后，TFE 会自动协调双方的树种清单、树形和大型森林地物，减少巨型树截断、树种缺失与腐殖层错位。没有安装 AFC 时不会加载这些额外森林内容。"
+    }
+  ],
+  "read_by_default": true,
+  "sortnum": 1
+}

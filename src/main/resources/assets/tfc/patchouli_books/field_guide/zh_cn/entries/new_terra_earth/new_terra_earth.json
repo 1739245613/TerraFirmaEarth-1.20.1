@@ -1,37 +1,106 @@
 {
-  "name": "TFE 专属内容",
+  "name": "移植篇",
   "category": "tfc:new_terra_earth",
   "icon": "tfe:canola",
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "这里集中记录 $(thing)TFE$() 新增、且不适合并入 TFC 原有章节的内容。对 TFC 原有系统的修改不再在这里重复说明，可从同分类的 $(l:new_terra_earth/ported_crops)对原版的修改$() 页面跳转到对应的 TFC 章节。"
+      "title": "移植篇",
+      "text": "本篇只介绍从高版本 TFC 带回 1.20.1 Forge 的内容：$(br2)$(l:new_terra_earth/new_terra_earth#overview)移植总览$()$(br)$(l:new_terra_earth/new_terra_earth#terrain)地形地貌$()$(br)$(l:new_terra_earth/new_terra_earth#climate)气候与季节$()"
     },
     {
       "type": "patchouli:text",
-      "anchor": "climate",
-      "title": "气候与季节",
-      "text": "世界仍使用 TFC 的$(thing)日历$()与$(thing)气候$()面板。TFE 将 1.21 的年均温度、当前温度、年均降雨、当前降雨和季节变化语义移植到 1.20；这些读数参与天气、世界生成与植物生长判定。"
+      "title": "移植目录（续）",
+      "text": "$(l:new_terra_earth/new_terra_earth#plants)植物与作物$()$(br)$(l:new_terra_earth/new_terra_earth#fauna)生物与害虫$()$(br)$(l:new_terra_earth/new_terra_earth#devices)设备与兼容层$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "overview",
+      "item": "tfe:canola",
+      "title": "移植总览",
+      "link_recipes": false,
+      "text": "$(thing)群峦地球$()将高版本 TFC 的主要世界内容反向移植到 Minecraft 1.20.1 Forge。移植篇只说明从高版本带回来的内容；TFE 自己新增或重新设计的功能分别放在新增篇和重做篇。"
     },
     {
       "type": "patchouli:text",
-      "text": "$(l:the_world/climate#temperature)温度$()主要随纬度、海拔、季节和昼夜变化；地下水与湿润度还会受到平均降雨、河流邻近和地表条件影响。野生植物生成读取按海拔修正后的年平均温度，栽培植物则按运行期气候生长。"
+      "title": "移植范围",
+      "text": "当前移植范围包括 109 种地形地貌、31 种气候类型、新版季节与降雪表现、植物季相、作物与杂草花朵、新生物与害虫，以及炉灶等高版本设备。"
     },
     {
-      "type": "patchouli:text",
+      "type": "patchouli:spotlight",
       "anchor": "terrain",
-      "title": "地形家族",
-      "text": "TFE 接入了海岸与深海、干旱地貌、喀斯特、火山、冰川与冰盖等地形家族。它们会结合温度、降雨、距海远近、热点年龄和岩层条件选择，而不是作为彼此孤立的装饰地形。"
+      "item": "tfe:canola",
+      "title": "地形地貌移植",
+      "link_recipes": false,
+      "text": "TFE 将高版本 TFC 的完整地形群系和过渡体系移植到 1.20，当前共有 109 种地形地貌。它们会根据温度、降雨、海岸距离、热点年龄和岩层条件组合选择。"
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)海岸与海洋$()：海湾、潮滩、岩岸、海蚀柱、暗礁、深海与海沟。$(br2)$(bold)陆地地貌$()：恶地、峡谷、平顶山、沙海、盐滩、喀斯特湖与溶斗。$(br2)$(bold)高能地貌$()：多阶段火山、冰盖、冰下湖、冰川山脉与冰蚀地形。"
+      "title": "主要地貌家族",
+      "text": "海岸与海洋包括海湾、潮滩、岩岸、海蚀柱、暗礁、深海与海沟；陆地包括恶地、峡谷、平顶山、沙海、盐滩、喀斯特湖与溶斗；寒冷与高能地貌包括多阶段火山、冰盖、冰下湖、冰川山脉和冰蚀地形。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "生成提示",
+      "text": "地形群系只会在新生成区块中出现。许多名称相近的群系承担的是连续过渡，而不是完全独立的小型景点；沿一个方向旅行时可能逐步经过同一家族的多个阶段。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "climate",
+      "item": "tfe:canola",
+      "title": "气候与季节移植",
+      "link_recipes": false,
+      "text": "TFE 将高版本的 31 种气候类型、气候面板、日历显示和南北半球季节语义移植到 1.20。玩家会同时看到年平均温度、当前温度、平均降雨与当前降雨，生态和天气按对应读数运行。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "半球与海拔",
+      "text": "默认温度尺度为 20000 格：赤道到极点的纬度距离约为 20000 格，南北半球季节相差半年。地表高于 Y=63 后按每格约 0.16225°C 降温，最大海拔降温约 17.822°C。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "降雪与季相",
+      "text": "积雪和融雪会在对应气候中及时追赶，不需要玩家在冬季长期等待积雪、夏季长期等待融化。树叶、花草、莲花和向日葵等植物会随季节改变外观；服务端生态仍按植物所在位置的半球计算。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "plants",
+      "item": "tfe:canola",
+      "title": "植物与作物移植",
+      "link_recipes": false,
+      "text": "TFE 移植了高版本的植物、野生花草、杂草、农田花朵和作物内容，并让动态季相模型在 1.20 正常显示。普通、枯死、野生与水生植物也补齐了对应工具、积雪、结冰与植物分类。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "六种作物",
+      "text": "移植作物包括木薯、扁豆、花生、苜蓿、油菜和小萝卜。它们拥有自然生成、种子、成熟收获、食物、工具采收与手册条目；仍沿用 1.20 的单一主要营养机制。具体气候参数见重做篇的新增作物调整。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "fauna",
+      "item": "tfe:canola",
+      "title": "生物与害虫移植",
+      "link_recipes": false,
+      "text": "TFE 将高版本的气候生物和刷新条件带到 1.20。野牛、豹海豹等新增生物按高版本群系与气候出现；北极熊、冰原狼等已有生物也使用新版温度、地下水和群系口径。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "害虫系统",
+      "text": "旅鼠、猫鼬和跳鼠使用气候驱动的害虫规则，而不是普通动物的自然刷新方式。环境满足条件时，它们会作为对应害虫出现；在普通生物列表中找不到它们并不表示没有移植。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "devices",
+      "item": "tfe:canola",
+      "title": "设备与兼容层移植",
+      "link_recipes": false,
+      "text": "部分高版本内容不能直接放进 1.20。TFE 为 1.20 已有的物品、方块、画面和世界内容补充适配，使移植后的植物、气候、设备与地形可以在同一个 Forge 环境中正常使用。"
     },
     {
       "type": "patchouli:crafting",
       "recipe": "tfc:crafting/stove",
       "title": "炉灶",
-      "text": "$(thing)炉灶$()是$(thing)篝火$()的一种变体，使用它不用担心点燃附近的方块。它拥有篝火的主要功能，也可以添加锅，但不能安装烤架。"
+      "text": "$(thing)炉灶$()是$(thing)篝火$()的一种变体，使用它不用担心点燃附近的方块。它拥有篝火的所有功能，也可以添加锅。但是，炉灶不能添加烤架。"
     },
     {
       "type": "patchouli:multiblock",
@@ -54,5 +123,8 @@
     }
   ],
   "read_by_default": true,
-  "sortnum": 1
+  "extra_recipe_mappings": {
+    "tfc:stove": 15
+  },
+  "sortnum": 2
 }

@@ -1,23 +1,133 @@
 {
-  "name": "Changes to TFC",
+  "name": "Reworked Systems",
   "category": "tfc:new_terra_earth",
   "icon": "tfe:canola",
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "TFE changes to existing TFC systems are documented directly in their standard TFC Field Guide chapters. This entry only provides navigation so that rules and values are not duplicated and allowed to drift apart."
+      "title": "Reworked Systems",
+      "text": "This section collects TFE's redesigns of existing systems. Select a topic to jump directly to it:$(br2)$(l:new_terra_earth/ported_crops#crops)Crop Rework$()$(br)$(l:new_terra_earth/ported_crops#fruit_trees)Fruit Tree Rework$()$(br)$(l:new_terra_earth/ported_crops#bushes)Bush Rework$()$(br)$(l:new_terra_earth/ported_crops#annual_temperature)Annual Temperature Range$()"
     },
     {
       "type": "patchouli:text",
-      "title": "Crops and Wild Plants",
-      "text": "$(l:mechanics/crops)Crops$(): cultivation mechanics plus temperature, hydration, and nutrient needs for all 29 crops.$(br2)$(l:the_world/wild_crops)Wild Crops$(): natural generation temperatures and rainfall, ordered from cold to warm.$(br2)$(l:the_world/wild_fruits#fruit_trees)Fruit Trees$(): natural generation, growth, and fruiting conditions.$(br2)$(l:the_world/wild_fruits#tall_bushes)Tall Bushes$() / $(l:the_world/wild_fruits#small_bushes)Small Bushes$(): generation and growth conditions for berry bushes."
+      "title": "Contents (Continued)",
+      "text": "$(l:new_terra_earth/ported_crops#daily_temperature)Daily Temperature Range$()$(br)$(l:new_terra_earth/ported_crops#new_crops)New Crop Adjustments$()$(br)$(l:new_terra_earth/ported_crops#growth_survival)Fruit Tree and Bush Survival$()$(br)$(l:new_terra_earth/ported_crops#saguaro)Giant Saguaro Rework$()"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "crops",
+      "item": "tfe:canola",
+      "title": "Crop Rework",
+      "link_recipes": false,
+      "text": "TFE reorganizes the climate requirements of all 29 crops. $(l:mechanics/crops)Open the main Crops chapter$() for each crop's growth temperature, hydration range, and primary nutrient."
     },
     {
       "type": "patchouli:text",
-      "title": "Prospecting",
-      "text": "$(l:mechanics/prospecting)Prospecting$(): propick material tiers, scan ranges, multiple mineral results, and HUD display rules."
+      "title": "Generation and Farming",
+      "text": "$(l:the_world/wild_crops)Open the Wild Crops table$(). Wild generation uses elevation-adjusted average temperature and long-term groundwater; crops on farmland use current temperature and current hydration. Both paths share the same species limits, but read climate over different time scales."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "fruit_trees",
+      "item": "tfe:canola",
+      "title": "Fruit Tree Rework",
+      "link_recipes": false,
+      "text": "$(l:the_world/wild_fruits#fruit_trees)Open the main Fruit Trees chapter$(). TFE gives all 9 fruit trees distinct natural generation and cultivated growth temperatures. Generation uses elevation-adjusted average temperature; planted trees read current temperature for growth and fruiting."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Climate No Longer Kills",
+      "text": "A fruit tree sapling stops growing while temperature or hydration is outside its range instead of dying from unsuitable climate. It can continue once conditions recover. This does not bypass climate: growth and fruiting still require that species' normal conditions."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "bushes",
+      "item": "tfe:canola",
+      "title": "Bush Rework",
+      "link_recipes": false,
+      "text": "$(l:the_world/wild_fruits#tall_bushes)Open Tall Bushes$(); $(l:the_world/wild_fruits#small_bushes)open Small Bushes$(). TFE gives all 11 bushes distinct natural generation and cultivated growth temperatures instead of clustering different species into the same climate band."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dormancy Instead of Death",
+      "text": "Berry bushes stop growing while current temperature or hydration is unsuitable instead of dying from short-term climate changes. They resume when conditions return to the species' range. Wild generation still selects locations using average climate."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "annual_temperature",
+      "item": "tfe:canola",
+      "title": "Annual Temperature Range",
+      "link_recipes": false,
+      "text": "TFE reworks seasonal temperature change. The $(thing)seasonal half-amplitude$() is how far a monthly mean can rise above or fall below the annual mean; the basic difference between the coldest and warmest months is about twice that value."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Latitude Values",
+      "text": "The half-amplitude is 0°C at the equator, 4.5 / 9 / 13.5°C at nominal latitudes 22.5° / 45° / 67.5°, and 18°C at the poles, with smooth transitions. Seasons are six months apart across the equator. Elevation, coasts, local variation, and daily change still apply afterward."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "daily_temperature",
+      "item": "tfe:canola",
+      "title": "Daily Temperature Range",
+      "link_recipes": false,
+      "text": "The daily temperature range now depends on latitude and current seasonal rainfall. The old daily random offset and fixed ±0.9°C swing are gone. Days and nights vary around the same climate baseline, with stronger swings in dry regions and gentler ones in wet regions."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Base Half-Amplitude",
+      "text": "The latitude baseline is 7°C at the equator, 9°C near 30° north or south, and 0°C at the poles, with smooth transitions. Half-amplitude is the greatest warming or cooling from the daily baseline, so the basic low-to-high range is about twice that value."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rainfall Adjustment",
+      "text": "Current seasonal rainfall is read on a 0~500 scale with 250 as neutral. Every 40 below 250 adds 1°C to the half-amplitude; every 40 above removes 1°C. Rainfall values 0 / 250 / 500 adjust it by +6.25 / 0 / -6.25°C, and the final value never falls below 0."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "new_crops",
+      "item": "tfe:canola",
+      "title": "New Crop Adjustments",
+      "link_recipes": false,
+      "text": "Six crops from newer versions have been adjusted for TFE's current climate. Temperatures below are growth limits, while hydration uses the 0~100% farmland scale. See the $(l:mechanics/crops)main Crops chapter$() for full uses and cultivation details."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Warm-Climate Crops",
+      "text": "$(li)Cassava: 8~35°C, 45~100% hydration, primarily potassium.$(li)Peanut: 7~33°C, 20~80% hydration, primarily nitrogen.$(li)Lentil: 1~27°C, 15~50% hydration, primarily nitrogen."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cold-Tolerant Crops",
+      "text": "$(li)Alfalfa: 1~28°C, 40~100% hydration, primarily nitrogen.$(li)Canola: -4~23°C, 20~75% hydration, primarily phosphorus.$(li)Radish: -1~25°C, 30~90% hydration, primarily potassium; mature cultivated harvests yield twice as much as before."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "growth_survival",
+      "item": "tfe:canola",
+      "title": "Fruit Tree and Bush Survival",
+      "link_recipes": false,
+      "text": "Fruit tree saplings and berry bushes no longer die when temperature or hydration briefly moves outside their limits. They stop growing under unsuitable conditions and resume after the climate returns to the species' range."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Climate Still Matters",
+      "text": "This change replaces climate death with dormancy; it does not remove species requirements. Growth, maturity, and fruiting still require the appropriate temperature and hydration, while wild locations continue to use long-term average climate."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "anchor": "saguaro",
+      "item": "tfe:canola",
+      "title": "Giant Saguaro Rework",
+      "link_recipes": false,
+      "text": "The giant saguaro now has a complete harvest and replanting loop. Breaking any connected stem handles the whole cactus and its attached fruit, preventing floating branches or partial drops."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Harvest and Uses",
+      "text": "Cutting it with an axe, hoe, knife, or another sharp tool drops 1 Cactus Wood from every stem and 1 Saguaro Fruit from every attached fruit block. The fruit can replant the cactus. Cactus Wood can be dried at 700°C and used in log piles or as fuel."
     }
   ],
   "read_by_default": true,
-  "sortnum": 2
+  "sortnum": 0
 }
