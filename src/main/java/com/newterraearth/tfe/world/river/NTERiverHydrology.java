@@ -43,6 +43,8 @@ public final class NTERiverHydrology
         .thenComparingInt(edge -> edge.width)
         .thenComparing(NTERiverHydrology::compareFractalSegments);
     private static final ThreadLocal<GenerationContext> ACTIVE_GENERATION = new ThreadLocal<>();
+    /** Height probes must not start a terrain-aware creek route search. */
+    private static final ThreadLocal<Integer> READ_ONLY_HEIGHT_QUERY_DEPTH = ThreadLocal.withInitial(() -> 0);
 
     @FunctionalInterface
     public interface TerrainHeightSampler
@@ -517,6 +519,31 @@ public final class NTERiverHydrology
         ACTIVE_GENERATION.remove();
     }
 
+    /** Enter a locate/pre-generation height query which may only read published routes. */
+    public static void beginReadOnlyHeightQuery()
+    {
+        READ_ONLY_HEIGHT_QUERY_DEPTH.set(READ_ONLY_HEIGHT_QUERY_DEPTH.get() + 1);
+    }
+
+    /** Leave a locate/pre-generation height query, restoring any outer scope. */
+    public static void endReadOnlyHeightQuery()
+    {
+        final int depth = READ_ONLY_HEIGHT_QUERY_DEPTH.get() - 1;
+        if (depth <= 0)
+        {
+            READ_ONLY_HEIGHT_QUERY_DEPTH.remove();
+        }
+        else
+        {
+            READ_ONLY_HEIGHT_QUERY_DEPTH.set(depth);
+        }
+    }
+
+    static boolean readOnlyHeightQueryActive()
+    {
+        return READ_ONLY_HEIGHT_QUERY_DEPTH.get() > 0;
+    }
+
     @Nullable
     public static ColumnProfile activeGenerationProfile(int blockX, int blockZ)
     {
@@ -657,24 +684,33 @@ public final class NTERiverHydrology
     @Nullable
     public RiverInfo retainedRiverInfo(@Nullable RiverInfo nearest, int blockX, int blockZ)
     {
+        if (readOnlyHeightQueryActive())
+        {
+            return retainedRiverInfoPrepared(nearest, blockX, blockZ);
+        }
         planCandidateLeaves(blockX, blockZ);
-        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ);
+        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ, true);
     }
 
     @Nullable
     public RiverInfo retainedRiverInfoPrepared(@Nullable RiverInfo nearest, int blockX, int blockZ)
     {
-        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ);
+        return retainedRiverInfoFromPlannedCandidates(nearest, blockX, blockZ, false);
     }
 
     @Nullable
-    private RiverInfo retainedRiverInfoFromPlannedCandidates(@Nullable RiverInfo nearest, int blockX, int blockZ)
+    private RiverInfo retainedRiverInfoFromPlannedCandidates(
+        @Nullable RiverInfo nearest,
+        int blockX,
+        int blockZ,
+        boolean allowPlanning
+    )
     {
-        if (nearest != null && retainsTfcEdge(nearest.edge()))
+        if (nearest != null && (allowPlanning ? retainsTfcEdge(nearest.edge()) : retainsTfcEdgeIfPlanned(nearest.edge())))
         {
             return headwaters.suppressesRetainedAt(nearest.edge(), blockX, blockZ)
                 ? null
-                : adaptRetainedLeafWidth(nearest, blockX, blockZ);
+                : adaptRetainedLeafWidth(nearest, blockX, blockZ, allowPlanning);
         }
 
         final RegionPartition.Point point = partitionLookup.find(blockX, blockZ);
@@ -686,7 +722,8 @@ public final class NTERiverHydrology
         RiverEdge minimumEdge = null;
         for (RiverEdge edge : point.rivers())
         {
-            if (!retainsTfcEdge(edge) || headwaters.suppressesRetainedAt(edge, blockX, blockZ))
+            if (!(allowPlanning ? retainsTfcEdge(edge) : retainsTfcEdgeIfPlanned(edge))
+                || headwaters.suppressesRetainedAt(edge, blockX, blockZ))
             {
                 continue;
             }
@@ -716,7 +753,7 @@ public final class NTERiverHydrology
             minimumEdge.fractal().calculateFlow(exactGridX, exactGridZ),
             distanceBlocksSq,
             widthSq
-        ), blockX, blockZ);
+        ), blockX, blockZ, allowPlanning);
     }
 
     /** Compatibility entry used by the height filler. RiverInfo is not needed for a new stream sample. */
@@ -792,6 +829,10 @@ public final class NTERiverHydrology
     @Nullable
     public ColumnProfile findGraphProfile(int blockX, int blockZ)
     {
+        if (readOnlyHeightQueryActive())
+        {
+            return findPlannedGraphProfile(blockX, blockZ);
+        }
         return findProfileFromCandidates(blockX, blockZ, Double.POSITIVE_INFINITY);
     }
 
@@ -898,6 +939,10 @@ public final class NTERiverHydrology
     @Nullable
     public ColumnProfile findProfile(int blockX, int blockZ, double ambientHeight)
     {
+        if (readOnlyHeightQueryActive())
+        {
+            return findProfileFromPlannedCandidates(blockX, blockZ, ambientHeight);
+        }
         return findProfileFromCandidates(blockX, blockZ, ambientHeight);
     }
 
@@ -1044,17 +1089,38 @@ public final class NTERiverHydrology
 
     public boolean retainsTfcEdge(RiverEdge edge)
     {
+        if (readOnlyHeightQueryActive())
+        {
+            return retainsTfcEdgeIfPlanned(edge);
+        }
         return edge.sourceEdge() || !headwaters.replaces(edge);
     }
 
-    private RiverInfo adaptRetainedLeafWidth(RiverInfo info, int blockX, int blockZ)
+    private boolean retainsTfcEdgeIfPlanned(RiverEdge edge)
+    {
+        if (edge.sourceEdge())
+        {
+            return true;
+        }
+        final Boolean replacement = headwaters.replacementIfPlanned(edge);
+        return replacement == null || !replacement;
+    }
+
+    private RiverInfo adaptRetainedLeafWidth(
+        RiverInfo info,
+        int blockX,
+        int blockZ,
+        boolean allowPlanning
+    )
     {
         final RiverEdge edge = info.edge();
         if (edge == null || edge.sourceEdge())
         {
             return info;
         }
-        final double widthScale = headwaters.retainedLeafWidthScale(edge, blockX, blockZ);
+        final double widthScale = allowPlanning
+            ? headwaters.retainedLeafWidthScale(edge, blockX, blockZ)
+            : headwaters.retainedLeafWidthScaleIfPlanned(edge, blockX, blockZ);
         if (widthScale >= 0.999999d)
         {
             return info;

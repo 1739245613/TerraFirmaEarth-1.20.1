@@ -177,6 +177,32 @@ public abstract class TFCChunkGeneratorMixin
         tfe$getOrCreateRiverHydrology();
     }
 
+    /**
+     * Structure location, map previews and LOD/pre-generation mods use this
+     * method as a read-only terrain probe. Scope only the actual height sample
+     * so an exception cannot leak the query mode into the next server task.
+     */
+    @Redirect(
+        method = "getBaseHeight",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/dries007/tfc/world/ChunkHeightFiller;sampleHeight(II)D",
+            remap = false
+        )
+    )
+    private double tfe$sampleReadOnlyBaseHeight(ChunkHeightFiller filler, int x, int z)
+    {
+        NTERiverHydrology.beginReadOnlyHeightQuery();
+        try
+        {
+            return filler.sampleHeight(x, z);
+        }
+        finally
+        {
+            NTERiverHydrology.endReadOnlyHeightQuery();
+        }
+    }
+
     @Redirect(
         method = "applyBiomeDecoration",
         at = @At(
