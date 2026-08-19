@@ -75,7 +75,8 @@
     "TFCLayersMixin",
     "VolcanoPlacementMixin",
     "WildCropBlockMixin",
-    "WorldTrackerAccessor"
+    "WorldTrackerAccessor",
+    "WorldTrackerMixin"
   ],
   "client": [
     "client.ClientForgeEventHandlerMixin",
