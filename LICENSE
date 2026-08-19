@@ -22,14 +22,8 @@ LICENSE-MAP.md：
         协议全文：https://creativecommons.org/licenses/by-sa/4.0/legalcode
 
   - 本项目作者原创的代码、兼容实现、运行时桥接、配置、自有数据与自有资源，
-    以及 LICENSE-MAP.md 中列为 author-reserved 的部分：
+    以及 LICENSE-MAP.md 中列为 ARR 的部分：
         All Rights Reserved.
-        未经作者另行书面许可，第三方不得复制、镜像、二次上传、预装、捆绑、
-        售卖、改名发布、冒充官方版本，或用于 AI 训练。不得将这些
-        author-reserved 部分或包含这些部分的完整源码 / 构建产物纳入整合包、
-        服务器预装包、镜像站、会员资源、广告 / 赞助变现内容等打包分发场景。
-        第三方若只希望使用 EUPL / CC BY-SA 部分，必须剔除 author-reserved
-        部分并自行遵守对应上游许可。
 
   - 第三方上游组件按其自身原始协议继续受约束（详见随附 NOTICE 文件），本声明
     不替代、不撤销、不收紧任何上游许可。
@@ -47,16 +41,7 @@ parts are copied from, adapted from, or structurally derived from TFC 1.20.x /
     under CC BY-SA 4.0.
 
   - Author-original code, compatibility implementation, runtime logic,
-    configuration, own data, and own resources are All Rights Reserved unless
-    separately licensed in writing. Without separate written permission,
-    redistributors may not copy, mirror, re-upload, preinstall, bundle, sell,
-    rebrand, impersonate an official release, or use the author-reserved
-    portions for AI training. They may not include the author-reserved portions
-    or source/builds containing them in modpacks, server bundles, mirror sites,
-    membership resources, ad/sponsor-monetized releases, or similar packaged
-    distribution scenarios. Redistributors who only want to use the EUPL /
-    CC BY-SA portions must remove the author-reserved portions and comply with
-    the applicable upstream licenses.
+    configuration, own data, and own resources are All Rights Reserved.
 
   - Third-party upstream components remain governed by their original licenses;
     see NOTICE for attribution.
@@ -371,7 +356,7 @@ mixin 目标、植物 / 作物 / 群系定义等参考自或派生自上游 Terr
 对上游作者的署名。
 
 仅调用 / 注入 / 兼容 TFC API 或行为，或独立实现兼容效果的作者原创代码，按
-LICENSE-MAP.md 的路径分类归作者保留权利。
+LICENSE-MAP.md 的路径分类归 ARR 处理。
 
 2. 资源与数据
 
@@ -408,7 +393,7 @@ licensed under EUPL v1.2, or a later version where permitted, with upstream
 attribution preserved in NOTICE.
 
 Author-original code that uses, injects into, or targets TFC APIs or behavior,
-or independently implements compatibility behavior, is author-reserved according
+or independently implements compatibility behavior, is classified as ARR according
 to the path-based classification in LICENSE-MAP.md.
 
 2. Resources and data

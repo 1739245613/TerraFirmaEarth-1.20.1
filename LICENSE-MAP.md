@@ -6,7 +6,7 @@ Copyright (c) 2026 交错次元 and contributors.
 
 本文件只记录本项目随源码 / 构建产物分发的主要代码、数据与资源的协议分类。它的
 目的很窄：区分哪些内容必须继续遵守 TFC 上游协议，哪些属于本项目作者原创实现并
-保留权利。
+按 ARR 处理。
 
 ### 分类原则
 
@@ -21,13 +21,7 @@ Copyright (c) 2026 交错次元 and contributors.
 - TFC 派生代码：`EUPL v1.2`，或上游许可允许的更高版本。
 - TFC 派生资源与数据：`CC BY-SA 4.0`。
 - 本项目作者原创代码、原创兼容层、自有运行时逻辑、自有注册 / 配置 / 桥接实现：
-  `All Rights Reserved`，除非作者另行书面授权。
-
-第三方可以按 `EUPL / CC BY-SA` 使用对应开放部分，但未经作者另行书面许可，不得
-复制、镜像、二次上传、预装、捆绑、售卖、改名发布、冒充官方版本，或用于 AI
-训练。不得将作者保留权利部分或包含这些部分的完整源码 / 构建产物纳入整合包、
-服务器预装包、镜像站、会员资源、广告 / 赞助变现内容等打包分发场景。第三方若只
-希望使用开放部分，必须剔除作者保留权利部分并自行遵守对应上游许可。
+  `All Rights Reserved`。
 
 ### A. 必须遵守上游协议的 TFC 派生部分
 
@@ -40,14 +34,14 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/resources/assets/tfc/**` | `CC BY-SA 4.0` | TFC 命名空间资源、模型、blockstate、贴图、语言文件、手册资源，来源于或改写自 TFC 资源。 |
 | `src/main/resources/tfe_server_data_overrides/data/tfc/**` | `CC BY-SA 4.0` | 内置服务端数据包中的 TFC worldgen 同路径覆盖，来源于 TFC 数据与 AFC 兼容需求。 |
 | `src/main/resources/tfe_server_data_overrides/data/tfe/worldgen/configured_feature/tree/afc/**` 与同包内 `data/tfe/tags/worldgen/configured_feature/forest_121_trees.json` | `CC BY-SA 4.0` | 内置服务端数据包中的 AFC 树 entry 适配数据，结构性派生自 TFC / AFC worldgen entry 并用于 AFC 兼容。 |
-| `src/main/resources/data/minecraft/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加则作者保留权利 | Minecraft 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
-| `src/main/resources/data/forge/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加则作者保留权利 | Forge 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
+| `src/main/resources/data/minecraft/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加按 `All Rights Reserved` | Minecraft 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
+| `src/main/resources/data/forge/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加按 `All Rights Reserved` | Forge 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
 | 明确复制或结构性翻译 TFC 源码表达的 Java 文件 / 片段 | 对应复制 / 派生片段按 `EUPL v1.2` | Java 目录默认不整体归入此类；以具体文件 / 片段证据为准。 |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | 定向移植 TFC 1.21 `SolarCalculator` 与 `SkyPos` 的太阳位置、太阳时和角度数据表达。 |
 
-### B. 作者保留权利的原创实现
+### B. 作者原创 ARR 实现
 
-这些路径是本项目作者原创实现，按作者保留权利处理；其中若有明确复制 / 结构性
+这些路径是本项目作者原创实现，按 ARR 处理；其中若有明确复制 / 结构性
 派生自 TFC 表达的片段，则仅该片段按 A 类处理。
 
 | 路径 | 分类 | 依据 |
@@ -86,7 +80,7 @@ Copyright (c) 2026 交错次元 and contributors.
 This file only records the license classification of the main code, data, and
 resources distributed with this project. Its purpose is narrow: to separate the
 parts that must remain under upstream TFC-compatible licenses from the
-author-original implementation that is author-reserved.
+author-original implementation classified as ARR.
 
 ### Classification Rule
 
@@ -104,18 +98,7 @@ In short:
   permits.
 - TFC-derived assets and data: `CC BY-SA 4.0`.
 - Author-original code, compatibility layers, runtime logic, registration /
-  configuration / bridge implementations: `All Rights Reserved`, unless
-  separately licensed in writing.
-
-Redistributors may use the EUPL / CC BY-SA portions under those licenses, but
-they are not granted permission to copy, mirror, re-upload, preinstall, bundle,
-sell, rebrand, impersonate an official release, or use the author-reserved
-portions for AI training without separate written permission. They may not
-include the author-reserved portions or source/builds containing them in
-modpacks, server bundles, mirror sites, membership resources,
-ad/sponsor-monetized releases, or similar packaged distribution scenarios.
-Redistributors who only want to use the open portions must remove the
-author-reserved portions and comply with the applicable upstream licenses.
+  configuration / bridge implementations: `All Rights Reserved`.
 
 ### A. TFC-Derived Portions That Must Follow Upstream Licenses
 
@@ -129,15 +112,15 @@ under the corresponding upstream-compatible license.
 | `src/main/resources/assets/tfc/**` | `CC BY-SA 4.0` | TFC namespace assets, models, blockstates, textures, language entries, and field guide resources copied or adapted from TFC resources. |
 | `src/main/resources/tfe_server_data_overrides/data/tfc/**` | `CC BY-SA 4.0` | Built-in server-data overrides of TFC worldgen paths, derived from TFC data and AFC compatibility needs. |
 | `src/main/resources/tfe_server_data_overrides/data/tfe/worldgen/configured_feature/tree/afc/**` and the same pack's `data/tfe/tags/worldgen/configured_feature/forest_121_trees.json` | `CC BY-SA 4.0` | Built-in server-data AFC tree-entry adapter data, structurally derived from TFC / AFC worldgen entries for AFC compatibility. |
-| `src/main/resources/data/minecraft/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise author-reserved for purely original tag additions | Minecraft namespace compatibility tags matching or extending TFC data-pack structure. |
-| `src/main/resources/data/forge/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise author-reserved for purely original tag additions | Forge namespace compatibility tags matching or extending TFC data-pack structure. |
+| `src/main/resources/data/minecraft/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise `All Rights Reserved` for purely original tag additions | Minecraft namespace compatibility tags matching or extending TFC data-pack structure. |
+| `src/main/resources/data/forge/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise `All Rights Reserved` for purely original tag additions | Forge namespace compatibility tags matching or extending TFC data-pack structure. |
 | Java files / portions clearly copied from or structurally translated from TFC source expression | `EUPL v1.2` for the copied/derived portions | No whole Java path is classified here by default; classification follows concrete file / portion evidence. |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | Targeted port of the solar-position, sun-based-time, and angle data expressions from TFC 1.21 `SolarCalculator` and `SkyPos`. |
 
-### B. Author-Reserved Original Implementation
+### B. Author-Original ARR Implementation
 
 These paths are author-original implementation for this project and are
-author-reserved. If a specific portion is clearly copied from or structurally
+classified as ARR. If a specific portion is clearly copied from or structurally
 derived from TFC expression, only that portion follows section A.
 
 | Path | Classification | Basis |

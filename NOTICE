@@ -4,13 +4,13 @@ TerraFirmaEarth / 群峦地形移植 — NOTICE
 Copyright (c) 2026 交错次元 and contributors.
 
 本项目采用分区许可：TFC 派生代码按 EUPL v1.2，TFC 派生美术 / 数据资源按
-CC BY-SA 4.0，作者原创代码、兼容实现、自有数据与自有资源按作者保留权利处理。
+CC BY-SA 4.0，作者原创代码、兼容实现、自有数据与自有资源按 ARR 处理。
 完整条款与路径分类见仓库根目录的 LICENSE 与 LICENSE-MAP.md 文件。
 
 This project uses path-based mixed licensing: TFC-derived code is licensed under
 the EUPL v1.2, TFC-derived art / data assets under CC BY-SA 4.0, and
 author-original code, compatibility implementation, own data, and own resources
-are author-reserved. See LICENSE and LICENSE-MAP.md for full terms.
+are ARR. See LICENSE and LICENSE-MAP.md for full terms.
 
 本文件依 EUPL v1.2 第 5 条 "Attribution right" 列示对上游作品的署名义务，及
 本项目使用的第三方组件 / 资源的原始版权与许可信息。
