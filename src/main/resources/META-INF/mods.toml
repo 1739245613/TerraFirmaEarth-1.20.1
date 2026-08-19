@@ -33,7 +33,7 @@ TerraFirmaEarth / 群峦地球
 - TFCModernLife群峦现代化生活兼容：温室范围是以当前温度为基准进行控温。且建议使用此模组作为本模组温室、地窖和电力厨房相关拓展，勿重复启用.
 - 数据包接入说明：随附 GitHub 上的《数据包兼容写法教程》，方便个人使用者或整合包作者添加生物刷新、追加 fauna、协调 AFC 兼容。
 
-1.2.1 更新概括
+2.0.1 更新概括
 - 新增全新的河流群系溪流。
 - 减少河流群系高岸上的砂砾。
 - 修复死亡不掉落时，手持锤子和凿子对准石块死亡可能导致的崩溃。
@@ -110,7 +110,7 @@ Extras
 - TFCModernLife (群峦现代化生活) compatibility: greenhouse control is based on current temperature. It is recommended as the greenhouse, cellar and electric kitchen expansion for this mod; do not enable duplicate greenhouse expansions at the same time.
 - Datapack integration: a separate "Datapack Compatibility Guide" is provided on GitHub for personal users or modpack authors who want to add fauna spawning, extend fauna entries, or coordinate AFC compatibility.
 
-1.2.1 Update Summary
+2.0.1 Update Summary
 - Added brand-new streams to river biomes.
 - Reduced gravel on high river-biome banks.
 - Fixed a crash that could occur when dying with no item drops while holding a hammer and chisel and aiming at a stone block.
