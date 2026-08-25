@@ -24,6 +24,7 @@
     "ChunkBaseBlockSourceMixin",
     "ChunkHeightFillerMixin",
     "ChunkNoiseFillerMixin",
+    "CropBlockEntityMixin",
     "CaveColumnFeatureMixin",
     "CaveSpikesFeatureMixin",
     "CarverHelpersMixin",

@@ -1,0 +1,11 @@
+{
+  "__comment__": "TFE banana nutrition override",
+  "ingredient": {
+    "item": "tfc:food/banana"
+  },
+  "hunger": 4,
+  "saturation": 0.2,
+  "decay_modifier": 2,
+  "fruit": 1.5,
+  "dairy": 0.5
+}

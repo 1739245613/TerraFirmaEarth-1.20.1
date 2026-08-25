@@ -16,16 +16,94 @@ import net.dries007.tfc.common.blockentities.CropBlockEntity;
 import net.dries007.tfc.common.blockentities.FarmlandBlockEntity;
 import net.dries007.tfc.common.blockentities.IFarmland;
 import net.dries007.tfc.common.blocks.crop.CropHelpers;
+import net.dries007.tfc.common.blocks.crop.ICropBlock;
 import net.dries007.tfc.util.calendar.Calendars;
 import net.dries007.tfc.util.calendar.ICalendar;
 import net.dries007.tfc.util.Fertilizer;
+import net.dries007.tfc.util.climate.ClimateRange;
+import net.dries007.tfc.util.climate.ClimateRange.Result;
 
 import com.newterraearth.tfe.world.NTESoilFertility;
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
+import com.newterraearth.tfe.world.crop.NTECropTemperatureAccess;
+import com.newterraearth.tfe.world.crop.NTECropTemperatureModel;
 
 @Mixin(value = CropHelpers.class, remap = false, priority = 900)
 public abstract class CropHelpersMixin
 {
+    @Redirect(
+        method = "growthTickStep",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/dries007/tfc/common/blocks/crop/ICropBlock;die(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)V"
+        ),
+        remap = false,
+        require = 1
+    )
+    private static void tfe$setHealthToZeroOnDeath(
+        ICropBlock cropBlock,
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        boolean mature
+    )
+    {
+        if (level.getBlockEntity(pos) instanceof NTECropTemperatureAccess stress)
+        {
+            stress.tfe$setTemperatureStress(NTECropTemperatureModel.STRESS_LIMIT);
+        }
+        cropBlock.die(level, pos, state, mature);
+    }
+
+    @Redirect(
+        method = "growthTickStep",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/dries007/tfc/common/blocks/crop/CropHelpers;checkClimate(Lnet/dries007/tfc/util/climate/ClimateRange;IFFZ)Z"
+        ),
+        remap = false,
+        require = 2
+    )
+    private static boolean tfe$trackCropHealth(
+        ClimateRange range,
+        int hydration,
+        float fromTemperature,
+        float toTemperature,
+        boolean allowWiggle,
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        RandomSource random,
+        long fromTick,
+        long toTick,
+        CropBlockEntity crop
+    )
+    {
+        final NTECropTemperatureAccess stress = (NTECropTemperatureAccess) (Object) crop;
+        if (!allowWiggle)
+        {
+            final boolean climateValid = range.checkBoth(hydration, fromTemperature, false)
+                && range.checkTemperature(toTemperature, false) == Result.VALID;
+            final int updatedStress = NTECropTemperatureModel.updateStress(stress.tfe$getTemperatureStress(), climateValid);
+            stress.tfe$setTemperatureStress(updatedStress);
+            return climateValid && !NTECropTemperatureModel.hasFatalStress(updatedStress);
+        }
+
+        final boolean temperatureSafe = withinDeathRange(range, fromTemperature)
+            && withinDeathRange(range, toTemperature);
+        return temperatureSafe
+            && !NTECropTemperatureModel.hasFatalStress(stress.tfe$getTemperatureStress());
+    }
+
+    private static boolean withinDeathRange(ClimateRange range, float temperature)
+    {
+        return NTECropTemperatureModel.withinDeathRange(
+            range.getMinTemperature(false),
+            range.getMaxTemperature(false),
+            temperature
+        );
+    }
+
     @Redirect(
         method = "growthTickStep",
         at = @At(

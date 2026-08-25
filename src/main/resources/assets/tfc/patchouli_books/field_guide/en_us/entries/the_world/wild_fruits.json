@@ -1836,7 +1836,7 @@
     {
       "type": "patchouli:text",
       "anchor": "banana",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 280 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 25 - 100%$(br2)Bananas are a special kind of fruit tree. They grow only vertically, lack leaves, and only fruit at the topmost block. Saplings are dropped from the flowering part of the plant. Once a banana plant is harvested, it dies, and will not produce any more fruit. It must be replanted in the spring.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 280 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 25 - 100%$(br2)Bananas are a special kind of fruit tree. They grow only vertically, lack leaves, and only fruit at the topmost block. Saplings are dropped from the flowering part of the plant. Once a banana plant is harvested, it dies, and will not produce any more fruit. It must be replanted in the spring. Each harvest yields 8 - 16 bananas; each banana provides 1.5 fruit nutrition and 0.5 dairy nutrition.",
       "title": "Banana Tree"
     },
     {

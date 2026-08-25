@@ -314,6 +314,7 @@
     "item.tfe.jar.peanut_unsealed":  "花生酱"
 ,
     "tfe.tooltip.climate_average_temperature":  "§c平均温度：§r%s°C",
+    "tfe.jade.crop_health":  "健康：%s%%",
     "tfe.tooltip.propick.and_hidden":  "和%s",
     "tfe.tooltip.propick.separator":  "，",
     "tfe.tooltip.propick.unknown":  "？",

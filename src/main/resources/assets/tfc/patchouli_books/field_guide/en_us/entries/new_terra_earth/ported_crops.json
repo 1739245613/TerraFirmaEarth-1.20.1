@@ -27,6 +27,11 @@
       "text": "$(l:the_world/wild_crops)Open the Wild Crops table$(). Wild generation uses elevation-adjusted average temperature and long-term groundwater; crops on farmland use current temperature and current hydration. Both paths share the same species limits, but read climate over different time scales."
     },
     {
+      "type": "patchouli:text",
+      "title": "Crop Health",
+      "text": "Crop health starts at 100%. When both temperature and hydration are within the growth range, the crop grows normally and recovers 5% health per check. When temperature or hydration is unsuitable but the temperature remains within 10°C of its limits, the crop stops growing and loses 5% health per check. Temperatures more than 10°C below the minimum or above the maximum kill the crop immediately. Jade displays the crop's current health."
+    },
+    {
       "type": "patchouli:spotlight",
       "anchor": "fruit_trees",
       "item": "tfe:canola",

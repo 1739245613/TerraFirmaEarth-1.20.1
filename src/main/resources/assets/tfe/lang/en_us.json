@@ -310,6 +310,7 @@
     "block.tfe.cauldron.canola_oil":  "Canola Oil Cauldron",
     "block.tfe.cauldron.canola_oil_water":  "Canola Oil Water Cauldron",
     "tfe.tooltip.climate_average_temperature":  "§cAvg. Temp: §r%s°C",
+    "tfe.jade.crop_health":  "Health: %s%%",
     "tfe.tooltip.propick.and_hidden":  " and %s",
     "tfe.tooltip.propick.separator":  ", ",
     "tfe.tooltip.propick.unknown":  "?",

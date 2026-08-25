@@ -1836,7 +1836,7 @@
     {
       "type": "patchouli:text",
       "anchor": "banana",
-      "text": "可在以下区域找到：$(br)$(bold)$(l:the_world/climate#temperature)温度$(): 7 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)降雨量$(): 280 - 500mm$(br2)生长所需条件：$(br)$(bold)$(l:the_world/climate#temperature)温度$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 25 - 100%$(br2)香蕉是一种特殊的果树。它们仅垂直生长，没有叶子，只在最顶端的方块结果。树苗从植物的开花部分掉落。香蕉植株一旦被收获，就会死亡，不会再结果。必须在春季重新种植。",
+      "text": "可在以下区域找到：$(br)$(bold)$(l:the_world/climate#temperature)温度$(): 7 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)降雨量$(): 280 - 500mm$(br2)生长所需条件：$(br)$(bold)$(l:the_world/climate#temperature)温度$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)湿度$(): 25 - 100%$(br2)香蕉是一种特殊的果树。它们仅垂直生长，没有叶子，只在最顶端的方块结果。树苗从植物的开花部分掉落。香蕉植株一旦被收获，就会死亡，不会再结果。必须在春季重新种植。每次收获产出 8 - 16 个香蕉；每个香蕉包含 1.5 点水果营养和 0.5 点乳制品营养。",
       "title": "香蕉树"
     },
     {

@@ -4,9 +4,15 @@ import java.util.List;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -24,6 +30,12 @@ import com.newterraearth.tfe.world.NTESeasonalHelpers;
 @Mixin(value = BananaPlantBlock.class, remap = false)
 public abstract class BananaPlantBlockMixin
 {
+    @Inject(method = "getProductItem", at = @At("RETURN"), remap = false)
+    private void tfe$increaseBananaYield(RandomSource random, CallbackInfoReturnable<ItemStack> callback)
+    {
+        callback.getReturnValue().setCount(Mth.nextInt(random, 8, 16));
+    }
+
     /**
      * @author Codex
      * @reason Banana plant overlays should read hydration and temperature from the stalk base.
