@@ -44,7 +44,7 @@
     {
       "type": "patchouli:text",
       "anchor": "cherry",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -10 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 100 - 350mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -10 - 30 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 7 - 80%$(br2)Cherry trees grow in the months of January through March, start flowering in April and May, and bear fruit in June.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 2 - 22 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 100 - 350mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 2 - 27 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 7 - 80%$(br2)Cherry trees grow in the months of January through March, start flowering in April and May, and bear fruit in June.",
       "title": "Cherry Tree"
     },
     {
@@ -268,7 +268,7 @@
     {
       "type": "patchouli:text",
       "anchor": "green_apple",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -15 - 29 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 130 - 280mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -15 - 29 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 10 - 75%$(br2)Green apple trees grow from March to July, start flowering in August and September, and bear fruit in October.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 1 - 21 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 130 - 280mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 1 - 26 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 10 - 75%$(br2)Green apple trees grow from March to July, start flowering in August and September, and bear fruit in October.",
       "title": "Green Apple Tree"
     },
     {
@@ -492,7 +492,7 @@
     {
       "type": "patchouli:text",
       "anchor": "lemon",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -4 - 34 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 220 - 440mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -4 - 34 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 19 - 95%$(br2)Lemon trees grow from February to May, start flowering in June and July, and bear fruit in August.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 9 - 29 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 220 - 440mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 9 - 34 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 19 - 95%$(br2)Lemon trees grow from February to May, start flowering in June and July, and bear fruit in August.",
       "title": "Lemon Tree"
     },
     {
@@ -716,7 +716,7 @@
     {
       "type": "patchouli:text",
       "anchor": "olive",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -8 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 250 - 450mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -8 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 22 - 95%$(br2)Olive trees grow from March to July, start flowering in August and September, and bear fruit in October.$(br2)Olives can be used to produce $(l:mechanics/lamps#olives)Olive Oil$(), which can be used as a fuel for lamps.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 9 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 250 - 450mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 9 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 22 - 95%$(br2)Olive trees grow from March to July, start flowering in August and September, and bear fruit in October.$(br2)Olives can be used to produce $(l:mechanics/lamps#olives)Olive Oil$(), which can be used as a fuel for lamps.",
       "title": "Olive Tree"
     },
     {
@@ -940,7 +940,7 @@
     {
       "type": "patchouli:text",
       "anchor": "orange",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -5 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 300 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -5 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 27 - 100%$(br2)Orange trees grow from March to June, start flowering in July and August, and bear fruit in September.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 10 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 300 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 10 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 27 - 100%$(br2)Orange trees grow from March to June, start flowering in July and August, and bear fruit in September.",
       "title": "Orange Tree"
     },
     {
@@ -1164,7 +1164,7 @@
     {
       "type": "patchouli:text",
       "anchor": "peach",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -9 - 34 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 180 - 470mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -9 - 34 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 15 - 95%$(br2)Peach trees grow from December to March, start flowering in April and May, and bear fruit in June.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 29 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 180 - 470mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 34 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 15 - 95%$(br2)Peach trees grow from December to March, start flowering in April and May, and bear fruit in June.",
       "title": "Peach Tree"
     },
     {
@@ -1388,7 +1388,7 @@
     {
       "type": "patchouli:text",
       "anchor": "plum",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -10 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 120 - 300mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -10 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 9 - 75%$(br2)Plum trees grow from January to April, start flowering in May and June, and bear fruit in July.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 120 - 300mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 9 - 75%$(br2)Plum trees grow from January to April, start flowering in May and June, and bear fruit in July.",
       "title": "Plum Tree"
     },
     {
@@ -1612,7 +1612,7 @@
     {
       "type": "patchouli:text",
       "anchor": "red_apple",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -14 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 190 - 310mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): -14 - 30 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 16 - 75%$(br2)Red Apple trees grow from March to July, start flowering in August and September, and bear fruit in October.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 2 - 22 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 190 - 310mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 2 - 27 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 16 - 75%$(br2)Red Apple trees grow from March to July, start flowering in August and September, and bear fruit in October.",
       "title": "Red Apple Tree"
     },
     {
@@ -1836,7 +1836,7 @@
     {
       "type": "patchouli:text",
       "anchor": "banana",
-      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 280 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 7 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 25 - 100%$(br2)Bananas are a special kind of fruit tree. They grow only vertically, lack leaves, and only fruit at the topmost block. Saplings are dropped from the flowering part of the plant. Once a banana plant is harvested, it dies, and will not produce any more fruit. It must be replanted in the spring. Each harvest yields 8 - 16 bananas; each banana provides 1.5 fruit nutrition and 0.5 dairy nutrition.",
+      "text": "Can be found in regions with: $(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 20 - 30 °C$(br)$(bold)$(l:the_world/climate#rainfall)Rainfall$(): 280 - 500mm$(br2)Conditions required for growth:$(br)$(bold)$(l:the_world/climate#temperature)Temperature$(): 20 - 35 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 25 - 100%$(br2)Bananas are a special kind of fruit tree. They grow only vertically, lack leaves, and only fruit at the topmost block. Saplings are dropped from the flowering part of the plant. Once a banana plant is harvested, it dies, and will not produce any more fruit. It must be replanted in the spring. Each harvest yields 8 - 16 bananas; each banana provides 1.5 fruit nutrition and 0.5 dairy nutrition.",
       "title": "Banana Tree"
     },
     {
