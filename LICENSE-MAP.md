@@ -38,6 +38,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/resources/data/forge/**` | 若派生自 TFC tag 组合则按 `CC BY-SA 4.0`；纯原创 tag 追加按 `All Rights Reserved` | Forge 命名空间兼容 tag，匹配或扩展 TFC 数据包结构。 |
 | 明确复制或结构性翻译 TFC 源码表达的 Java 文件 / 片段 | 对应复制 / 派生片段按 `EUPL v1.2` | Java 目录默认不整体归入此类；以具体文件 / 片段证据为准。 |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | 定向移植 TFC 1.21 `SolarCalculator` 与 `SkyPos` 的太阳位置、太阳时和角度数据表达。 |
+| `src/main/java/com/newterraearth/tfe/common/entity/ai/NTERammingPreyAi.java`、`NTEPrepareRamNearestTarget.java`、`NTERamTarget.java` | `EUPL v1.2` | 结构性移植 TFC 1.21 `RammingPrey` 冲撞脑、冲撞准备和命中行为到 1.20 Forge；保留上游 EUPL 许可声明。 |
 
 ### B. 作者原创 ARR 实现
 
@@ -116,6 +117,7 @@ under the corresponding upstream-compatible license.
 | `src/main/resources/data/forge/**` | `CC BY-SA 4.0` where derived from TFC tag composition; otherwise `All Rights Reserved` for purely original tag additions | Forge namespace compatibility tags matching or extending TFC data-pack structure. |
 | Java files / portions clearly copied from or structurally translated from TFC source expression | `EUPL v1.2` for the copied/derived portions | No whole Java path is classified here by default; classification follows concrete file / portion evidence. |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | Targeted port of the solar-position, sun-based-time, and angle data expressions from TFC 1.21 `SolarCalculator` and `SkyPos`. |
+| `src/main/java/com/newterraearth/tfe/common/entity/ai/NTERammingPreyAi.java`, `NTEPrepareRamNearestTarget.java`, `NTERamTarget.java` | `EUPL v1.2` | Structural port of the TFC 1.21 `RammingPrey` brain, ram preparation, and impact behaviors to the 1.20 Forge runtime; upstream EUPL notices are retained. |
 
 ### B. Author-Original ARR Implementation
 
