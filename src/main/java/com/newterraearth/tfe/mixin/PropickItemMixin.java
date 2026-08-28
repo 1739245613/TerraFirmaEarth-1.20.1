@@ -88,16 +88,25 @@ public abstract class PropickItemMixin
         {
             return PropickItem.scanAreaFor(level, center, radius, tag);
         }
-        final NTEProspectingScan scan = NTEProspectingScan.scan(
-            level,
-            center,
-            player,
-            tfe$scanRadius(),
-            tfe$navigationRadius(),
-            tag
-        );
-        TFE_SCAN.set(scan);
-        return scan.counts();
+        try
+        {
+            final NTEProspectingScan scan = NTEProspectingScan.scan(
+                level,
+                center,
+                player,
+                tfe$scanRadius(),
+                tfe$navigationRadius(),
+                tag
+            );
+            TFE_SCAN.set(scan);
+            return scan.counts();
+        }
+        catch (RuntimeException | Error exception)
+        {
+            TFE_SCAN.remove();
+            TFE_USE_CONTEXT.remove();
+            throw exception;
+        }
     }
 
     @Redirect(
@@ -113,59 +122,63 @@ public abstract class PropickItemMixin
         Object message
     )
     {
-        final UseOnContext context = TFE_USE_CONTEXT.get();
-        if (!(message instanceof ProspectedPacket prospected) || context == null || !(context.getPlayer() instanceof ServerPlayer player))
+        try
         {
-            PacketHandler.send(target, message);
+            final UseOnContext context = TFE_USE_CONTEXT.get();
+            if (!(message instanceof ProspectedPacket prospected) || context == null || !(context.getPlayer() instanceof ServerPlayer player))
+            {
+                PacketHandler.send(target, message);
+                return;
+            }
+
+            final ProspectResult result = prospected.result();
+            NTEProspectingScan scan = TFE_SCAN.get();
+            if (scan == null)
+            {
+                scan = NTEProspectingScan.scan(
+                    context.getLevel(),
+                    context.getClickedPos(),
+                    player,
+                    tfe$scanRadius(),
+                    tfe$navigationRadius(),
+                    TFCTags.Blocks.PROSPECTABLE
+                );
+            }
+            final List<MineralResult> minerals;
+            final int hiddenMinerals;
+            final BlockPos nearestPos;
+            if (!scan.counts().isEmpty())
+            {
+                minerals = NTEProspectingRules.selectResults(scan.counts(), prospected.block(), tfe$toolLevel());
+                hiddenMinerals = scan.mineralTypes() - minerals.size();
+                nearestPos = scan.nearestPos();
+            }
+            else if (result == ProspectResult.FOUND)
+            {
+                minerals = List.of(new MineralResult(PropickItem.getRepresentative(prospected.block()), ProspectResult.FOUND));
+                hiddenMinerals = 0;
+                nearestPos = context.getClickedPos().immutable();
+            }
+            else
+            {
+                minerals = List.of();
+                hiddenMinerals = 0;
+                nearestPos = null;
+            }
+
+            NTEPacketHandler.send(target, new NTEProspectingResultPacket(
+                prospected.block(),
+                result,
+                minerals,
+                hiddenMinerals,
+                nearestPos
+            ));
+        }
+        finally
+        {
             TFE_SCAN.remove();
             TFE_USE_CONTEXT.remove();
-            return;
         }
-
-        final ProspectResult result = prospected.result();
-        NTEProspectingScan scan = TFE_SCAN.get();
-        if (scan == null)
-        {
-            scan = NTEProspectingScan.scan(
-                context.getLevel(),
-                context.getClickedPos(),
-                player,
-                tfe$scanRadius(),
-                tfe$navigationRadius(),
-                TFCTags.Blocks.PROSPECTABLE
-            );
-        }
-        final List<MineralResult> minerals;
-        final int hiddenMinerals;
-        final BlockPos nearestPos;
-        if (!scan.counts().isEmpty())
-        {
-            minerals = NTEProspectingRules.selectResults(scan.counts(), prospected.block(), tfe$toolLevel());
-            hiddenMinerals = scan.mineralTypes() - minerals.size();
-            nearestPos = scan.nearestPos();
-        }
-        else if (result == ProspectResult.FOUND)
-        {
-            minerals = List.of(new MineralResult(PropickItem.getRepresentative(prospected.block()), ProspectResult.FOUND));
-            hiddenMinerals = 0;
-            nearestPos = context.getClickedPos().immutable();
-        }
-        else
-        {
-            minerals = List.of();
-            hiddenMinerals = 0;
-            nearestPos = null;
-        }
-
-        NTEPacketHandler.send(target, new NTEProspectingResultPacket(
-            prospected.block(),
-            result,
-            minerals,
-            hiddenMinerals,
-            nearestPos
-        ));
-        TFE_SCAN.remove();
-        TFE_USE_CONTEXT.remove();
     }
 
     @Unique

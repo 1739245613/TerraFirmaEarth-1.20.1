@@ -6,9 +6,12 @@ import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -19,6 +22,8 @@ import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
+
+import org.joml.Matrix4f;
 
 import net.dries007.tfc.common.items.ProspectResult;
 import net.dries007.tfc.config.TFCConfig;
@@ -54,7 +59,6 @@ public final class NTEProspectingHud
     private static final int[] MARKER_RGB = {0, 0xFFFFFF, 0x9AE6B0, 0xF7DB88, 0xF28A90};
     private static final int INACTIVE_MARKER_BORDER_RGB = 0x4A5058;
     private static final int ACTIVE_MARKER_BORDER_RGB = 0xAEB5BD;
-
     enum MarkerShape
     {
         UP,
@@ -386,12 +390,15 @@ public final class NTEProspectingHud
         graphics.pose().scale(1F / SUBPIXEL_SCALE, 1F / SUBPIXEL_SCALE, 1F);
         try
         {
-            drawTaperedArc(graphics, scaledCenterX, scaledCenterY, direction, fraction, halfSpan, arcSegments, lifetimeAlpha, arcRgb);
+            final Matrix4f pose = graphics.pose().last().pose();
+            final VertexConsumer buffer = graphics.bufferSource().getBuffer(RenderType.gui());
+            drawTaperedArc(buffer, pose, scaledCenterX, scaledCenterY, direction, fraction, halfSpan, arcSegments, lifetimeAlpha, arcRgb);
 
             final int arrowX = scaledCenterX + (int) Math.round(Math.sin(direction) * RING_RADIUS);
             final int arrowY = scaledCenterY - (int) Math.round(Math.cos(direction) * RING_RADIUS);
             drawTransitioningMarker(
-                graphics,
+                buffer,
+                pose,
                 arrowX,
                 arrowY,
                 markerShape(fromVerticalOffset),
@@ -401,6 +408,7 @@ public final class NTEProspectingHud
                 lifetimeAlpha,
                 markerRgb
             );
+            graphics.flush();
         }
         finally
         {
@@ -583,7 +591,8 @@ public final class NTEProspectingHud
     }
 
     private static void drawTaperedArc(
-        GuiGraphics graphics,
+        VertexConsumer buffer,
+        Matrix4f pose,
         int centerX,
         int centerY,
         double direction,
@@ -605,6 +614,8 @@ public final class NTEProspectingHud
             final double bell = 0.5D + 0.5D * Math.cos(Math.PI * normalizedOffset);
             final double intensity = fullRing ? 0.2D + 0.8D * bell : bell;
             final double angle = direction + offset;
+            final double sinAngle = Math.sin(angle);
+            final double cosAngle = Math.cos(angle);
             final double halfCoreWidth = ringThickness(fraction, normalizedOffset) * SUBPIXEL_SCALE * 0.5D;
             final int radialExtent = Math.min(
                 MAX_RING_RADIAL_OFFSET,
@@ -623,8 +634,8 @@ public final class NTEProspectingHud
                 }
 
                 final int radius = RING_RADIUS + radialOffset;
-                final int x = (int) Math.round(Math.sin(angle) * radius);
-                final int y = (int) Math.round(-Math.cos(angle) * radius);
+                final int x = (int) Math.round(sinAngle * radius);
+                final int y = (int) Math.round(-cosAngle * radius);
                 if (Math.abs(x) > RING_BUFFER_RADIUS || Math.abs(y) > RING_BUFFER_RADIUS)
                 {
                     continue;
@@ -645,15 +656,30 @@ public final class NTEProspectingHud
                 final int alpha = RING_ALPHA_BUFFER[rowOffset + x];
                 if (alpha >= MIN_VISIBLE_ARC_ALPHA)
                 {
-                    drawRingPixel(graphics, centerX + x, centerY + y, color(alpha, rgb));
+                    drawQuad(buffer, pose, centerX + x, centerY + y, centerX + x + 1, centerY + y + 1, color(alpha, rgb));
                 }
             }
         }
     }
 
-    private static void drawRingPixel(GuiGraphics graphics, int x, int y, int color)
+    private static void drawQuad(
+        VertexConsumer buffer,
+        Matrix4f pose,
+        int x1,
+        int y1,
+        int x2,
+        int y2,
+        int color
+    )
     {
-        graphics.fill(x, y, x + 1, y + 1, color);
+        final int alpha = color >>> 24;
+        final int red = color >> 16 & 0xFF;
+        final int green = color >> 8 & 0xFF;
+        final int blue = color & 0xFF;
+        buffer.vertex(pose, x1, y1, 0F).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(pose, x1, y2, 0F).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(pose, x2, y2, 0F).color(red, green, blue, alpha).endVertex();
+        buffer.vertex(pose, x2, y1, 0F).color(red, green, blue, alpha).endVertex();
     }
 
     static MarkerShape markerShape(double verticalOffset)
@@ -662,7 +688,8 @@ public final class NTEProspectingHud
     }
 
     private static void drawTransitioningMarker(
-        GuiGraphics graphics,
+        VertexConsumer buffer,
+        Matrix4f pose,
         int x,
         int y,
         MarkerShape fromShape,
@@ -676,20 +703,21 @@ public final class NTEProspectingHud
         final float progress = (float) Mth.clamp(transitionProgress, 0D, 1D);
         if (fromShape == toShape || progress >= 1F)
         {
-            drawMarker(graphics, x, y, toShape, animation, lifetimeAlpha, fillRgb);
+            drawMarker(buffer, pose, x, y, toShape, animation, lifetimeAlpha, fillRgb);
             return;
         }
         if (progress <= 0F)
         {
-            drawMarker(graphics, x, y, fromShape, animation, lifetimeAlpha, fillRgb);
+            drawMarker(buffer, pose, x, y, fromShape, animation, lifetimeAlpha, fillRgb);
             return;
         }
-        drawMarker(graphics, x, y, fromShape, animation, lifetimeAlpha * (1F - progress), fillRgb);
-        drawMarker(graphics, x, y, toShape, animation, lifetimeAlpha * progress, fillRgb);
+        drawMarker(buffer, pose, x, y, fromShape, animation, lifetimeAlpha * (1F - progress), fillRgb);
+        drawMarker(buffer, pose, x, y, toShape, animation, lifetimeAlpha * progress, fillRgb);
     }
 
     private static void drawMarker(
-        GuiGraphics graphics,
+        VertexConsumer buffer,
+        Matrix4f pose,
         int centerX,
         int centerY,
         MarkerShape shape,
@@ -712,7 +740,15 @@ public final class NTEProspectingHud
                 final boolean active = markerBorderActive(shape, markerY, animation);
                 final int alpha = (int) ((active ? 255F : 210F) * lifetimeAlpha);
                 final int rgb = active ? ACTIVE_MARKER_BORDER_RGB : INACTIVE_MARKER_BORDER_RGB;
-                graphics.fill(centerX + markerX, centerY + markerY, centerX + markerX + 1, centerY + markerY + 1, color(alpha, rgb));
+                drawQuad(
+                    buffer,
+                    pose,
+                    centerX + markerX,
+                    centerY + markerY,
+                    centerX + markerX + 1,
+                    centerY + markerY + 1,
+                    color(alpha, rgb)
+                );
             }
         }
 
@@ -720,13 +756,7 @@ public final class NTEProspectingHud
         for (int markerY = minY; markerY <= maxY; markerY++)
         {
             final int halfWidth = markerHalfWidth(shape, markerY);
-            graphics.fill(
-                centerX - halfWidth,
-                centerY + markerY,
-                centerX + halfWidth + 1,
-                centerY + markerY + 1,
-                fillColor
-            );
+            drawQuad(buffer, pose, centerX - halfWidth, centerY + markerY, centerX + halfWidth + 1, centerY + markerY + 1, fillColor);
         }
     }
 
