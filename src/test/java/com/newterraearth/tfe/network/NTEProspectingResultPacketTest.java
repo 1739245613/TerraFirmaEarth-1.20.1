@@ -35,8 +35,8 @@ class NTEProspectingResultPacketTest
             ProspectResult.LARGE,
             List.of(
                 new MineralResult(Blocks.IRON_ORE, ProspectResult.LARGE),
-                new MineralResult(Blocks.GOLD_ORE, ProspectResult.SMALL),
-                new MineralResult(Blocks.COAL_ORE, ProspectResult.VERY_LARGE)
+                new MineralResult(Blocks.GOLD_ORE, ProspectResult.SMALL, 10),
+                new MineralResult(Blocks.COAL_ORE, ProspectResult.VERY_LARGE, 201)
             ),
             2,
             new BlockPos(17, -22, 31)

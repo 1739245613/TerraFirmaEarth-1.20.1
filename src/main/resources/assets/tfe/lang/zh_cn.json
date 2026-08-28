@@ -318,6 +318,7 @@
     "tfe.tooltip.propick.and_hidden":  "和%s",
     "tfe.tooltip.propick.separator":  "，",
     "tfe.tooltip.propick.unknown":  "？",
+    "tfe.tooltip.propick.result.over_amount":  "超量%s",
     "tfe.tooltip.propick.result.very_large":  "巨量%s",
     "tfe.tooltip.propick.result.large":  "大量%s",
     "tfe.tooltip.propick.result.medium":  "中量%s",

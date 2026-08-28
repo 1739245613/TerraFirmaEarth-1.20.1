@@ -58,6 +58,7 @@ public record NTEProspectingResultPacket(
         {
             buffer.writeVarInt(BuiltInRegistries.BLOCK.getId(mineral.block()));
             buffer.writeByte(mineral.result().ordinal());
+            buffer.writeVarInt(mineral.count());
         }
         buffer.writeVarInt(hiddenMinerals);
         buffer.writeBoolean(nearestPos != null);
@@ -86,7 +87,8 @@ public record NTEProspectingResultPacket(
         {
             minerals.add(new MineralResult(
                 BuiltInRegistries.BLOCK.byId(buffer.readVarInt()),
-                ProspectResult.valueOf(buffer.readByte())
+                ProspectResult.valueOf(buffer.readByte()),
+                buffer.readVarInt()
             ));
         }
         return minerals;

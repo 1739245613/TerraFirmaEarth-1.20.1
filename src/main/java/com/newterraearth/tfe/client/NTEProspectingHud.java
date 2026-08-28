@@ -248,7 +248,7 @@ public final class NTEProspectingHud
         final Component blockName = Component.translatable(
             Util.makeDescriptionId("block", BuiltInRegistries.BLOCK.getKey(mineral.block())) + ".prospected"
         );
-        final String amount = switch (mineral.result())
+        final String amount = mineral.isOverAmount() ? "over_amount" : switch (mineral.result())
         {
             case VERY_LARGE -> "very_large";
             case LARGE -> "large";

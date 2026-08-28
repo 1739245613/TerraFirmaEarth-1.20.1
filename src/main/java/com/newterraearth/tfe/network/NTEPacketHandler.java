@@ -17,7 +17,7 @@ import com.newterraearth.tfe.NewTerraEarthMod;
 
 public final class NTEPacketHandler
 {
-    private static final String VERSION = "2";
+    private static final String VERSION = "3";
     private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
         new ResourceLocation(NewTerraEarthMod.MOD_ID, "network"),
         () -> VERSION,

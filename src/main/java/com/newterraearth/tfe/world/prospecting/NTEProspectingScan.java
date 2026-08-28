@@ -1,8 +1,12 @@
 package com.newterraearth.tfe.world.prospecting;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -16,10 +20,11 @@ import net.dries007.tfc.util.Helpers;
 /**
  * The extra information TFE derives from one bounded TFC propick scan.
  *
- * <p>The public ore count uses TFC representative blocks, so poor, normal and
- * rich variants still count as one mineral type. The navigation target is the
- * nearest individual prospectable block within the smaller navigation range
- * to the player at scan time.</p>
+ * <p>The public ore count first uses TFC representative blocks for tag
+ * compatibility, then merges the same mineral across grade prefixes and
+ * host-rock suffixes. The navigation target is still the nearest individual
+ * prospectable block within the smaller navigation range to the player at
+ * scan time.</p>
  */
 public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos nearestPos)
 {
@@ -61,6 +66,7 @@ public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos
         }
 
         final Object2IntMap<Block> counts = new Object2IntOpenHashMap<>();
+        final Map<ResourceLocation, Block> displayBlocks = new HashMap<>();
         BlockPos nearest = null;
         double nearestDistanceSqr = Double.POSITIVE_INFINITY;
 
@@ -80,7 +86,9 @@ public record NTEProspectingScan(Object2IntMap<Block> counts, @Nullable BlockPos
                 continue;
             }
 
-            counts.mergeInt(block, 1, Integer::sum);
+            final ResourceLocation mineralKey = NTEProspectingRules.mineralKey(rawBlock);
+            final Block displayBlock = displayBlocks.computeIfAbsent(mineralKey, ignored -> block);
+            counts.mergeInt(displayBlock, 1, Integer::sum);
             if (!isWithinNavigationRange(center, cursor, navigationRadius))
             {
                 continue;

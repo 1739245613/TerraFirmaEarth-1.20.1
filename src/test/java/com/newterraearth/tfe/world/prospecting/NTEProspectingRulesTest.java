@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import net.minecraft.SharedConstants;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -75,6 +76,31 @@ class NTEProspectingRulesTest
         assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(40));
         assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(79));
         assertEquals(ProspectResult.VERY_LARGE, NTEProspectingRules.resultForCount(80));
+        assertEquals(ProspectResult.VERY_LARGE, NTEProspectingRules.resultForCount(200));
+        assertEquals(false, new MineralResult(Blocks.IRON_ORE, ProspectResult.VERY_LARGE, 200).isOverAmount());
+        assertEquals(true, new MineralResult(Blocks.IRON_ORE, ProspectResult.VERY_LARGE, 201).isOverAmount());
+    }
+
+    @Test
+    void orePathsIgnoreGradePrefixAndHostRocks()
+    {
+        assertEquals(
+            new ResourceLocation("tfc", "ore/native_copper"),
+            NTEProspectingRules.mineralKey(new ResourceLocation("tfc", "ore/normal_native_copper/granite"))
+        );
+        assertEquals(
+            new ResourceLocation("tfc", "ore/native_copper"),
+            NTEProspectingRules.mineralKey(new ResourceLocation("tfe", "ore/rich_native_copper/tuff"))
+        );
+        assertEquals(
+            new ResourceLocation("example", "ore/copper"),
+            NTEProspectingRules.mineralKey(new ResourceLocation("example", "ore/copper/basalt"))
+        );
+        assertEquals(
+            new ResourceLocation("example", "ore/normal_copper"),
+            NTEProspectingRules.mineralKey(new ResourceLocation("example", "ore/normal_copper"))
+        );
+        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(10 + 10));
     }
 
     @Test
@@ -93,6 +119,7 @@ class NTEProspectingRulesTest
         assertEquals(ProspectResult.TRACES, tierFour.get(0).result());
         assertEquals(Blocks.GOLD_ORE, tierFour.get(1).block());
         assertEquals(ProspectResult.VERY_LARGE, tierFour.get(1).result());
+        assertEquals(100, tierFour.get(1).count());
         assertEquals(Blocks.COPPER_ORE, tierFour.get(2).block());
         assertEquals(2, counts.size() - tierFour.size());
 

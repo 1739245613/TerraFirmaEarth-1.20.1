@@ -47,12 +47,12 @@
     {
       "type": "patchouli:text",
       "title": "Direction Guidance",
-      "text": "After a successful scan, a direction ring appears for six seconds and points toward the nearest prospectable mineral block within the tool's guidance range. The guidance range may be smaller than its detection range.$(br2)The top of the ring is forward relative to the player; the bottom is behind. An up or down arrow shows whether the target is above or below, while a diamond means similar height. The lit arc grows with proximity and fills the ring within two blocks. Its color progresses from white to green, yellow, and red as the total number of detected mineral types increases."
+      "text": "After a successful scan, a direction ring appears for six seconds and points toward the nearest prospectable mineral block within the tool's guidance range. The guidance range may be smaller than its detection range.$(br2)The ring's top, bottom, left, and right represent the player's front, back, left, and right. Up and down arrows show a target above the player's head or below their feet; a diamond means the same height. The arc grows with proximity. Its color progresses from white to green, yellow, and red as the total number of detected mineral types increases."
     },
     {
       "type": "patchouli:text",
       "title": "Sample Sizes",
-      "text": "Reports are based on the number of scanned blocks of each mineral:$(br)$(li)Traces: 1–9$(li)Small: 10–19$(li)Medium: 20–39$(li)Large: 40–79$(li)Very Large: 80 or more$(br2)Moving or turning does not change the locked target block, but its player-relative direction and distance arc update continuously during the six-second display."
+      "text": "The same mineral is merged across host rock types and poor, normal, or rich grades; each matching ore block counts as one block. The sample sizes are:$(li)Traces: 1–9$(li)Small: 10–19$(li)Medium: 20–39$(li)Large: 40–79$(li)Very Large: 80–200$(li)Overwhelming: More than 200"
     }
   ],
   "read_by_default": true,

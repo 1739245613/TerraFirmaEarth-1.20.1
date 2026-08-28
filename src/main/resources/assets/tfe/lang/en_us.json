@@ -314,6 +314,7 @@
     "tfe.tooltip.propick.and_hidden":  " and %s",
     "tfe.tooltip.propick.separator":  ", ",
     "tfe.tooltip.propick.unknown":  "?",
+    "tfe.tooltip.propick.result.over_amount":  "Overwhelming amount of %s",
     "tfe.tooltip.propick.result.very_large":  "Very large sample of %s",
     "tfe.tooltip.propick.result.large":  "Large sample of %s",
     "tfe.tooltip.propick.result.medium":  "Medium sample of %s",

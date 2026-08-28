@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -13,6 +14,8 @@ import net.dries007.tfc.common.items.ProspectResult;
 /** Tier, range and result-selection rules for the enhanced TFC propick. */
 public final class NTEProspectingRules
 {
+    public static final int OVER_AMOUNT_THRESHOLD = 200;
+
     private NTEProspectingRules()
     {
     }
@@ -69,6 +72,55 @@ public final class NTEProspectingRules
     }
 
     /**
+     * Returns the stable mineral identity used by the enhanced scan.
+     *
+     * <p>TFC ore blocks encode grade and host rock in the registry path, for
+     * example {@code ore/normal_native_copper/granite}. Prospecting identity
+     * intentionally ignores both the grade prefix and host-rock suffix;
+     * quantity is calculated only after all matching blocks are accumulated.
+     * TFE's backported rock blocks use the same format in its own namespace and
+     * intentionally share the TFC family.</p>
+     */
+    public static ResourceLocation mineralKey(Block block)
+    {
+        return mineralKey(BuiltInRegistries.BLOCK.getKey(block));
+    }
+
+    static ResourceLocation mineralKey(ResourceLocation blockId)
+    {
+        final String path = blockId.getPath();
+        if (!path.startsWith("ore/"))
+        {
+            return blockId;
+        }
+
+        final String encodedMineral = path.substring("ore/".length());
+        final int rockSeparator = encodedMineral.indexOf('/');
+        if (rockSeparator <= 0 || rockSeparator == encodedMineral.length() - 1
+            || encodedMineral.indexOf('/', rockSeparator + 1) >= 0)
+        {
+            return blockId;
+        }
+
+        String mineralName = encodedMineral.substring(0, rockSeparator);
+        for (String gradePrefix : List.of("poor_", "normal_", "rich_"))
+        {
+            if (mineralName.startsWith(gradePrefix) && mineralName.length() > gradePrefix.length())
+            {
+                mineralName = mineralName.substring(gradePrefix.length());
+                break;
+            }
+        }
+        final String namespace = isTfcMineralNamespace(blockId.getNamespace()) ? "tfc" : blockId.getNamespace();
+        return new ResourceLocation(namespace, "ore/" + mineralName);
+    }
+
+    private static boolean isTfcMineralNamespace(String namespace)
+    {
+        return namespace.equals("tfc") || namespace.equals("tfe");
+    }
+
+    /**
      * Keeps TFC's selected mineral first, then orders additional minerals by
      * decreasing amount and registry id so the extra results are deterministic.
      */
@@ -79,11 +131,13 @@ public final class NTEProspectingRules
             return List.of();
         }
 
-        final Block representative = PropickItem.getRepresentative(selected);
+        final ResourceLocation selectedKey = mineralKey(PropickItem.getRepresentative(selected));
         final List<Block> blocks = new ArrayList<>(counts.keySet());
         blocks.sort((left, right) -> {
-            if (left == representative && right != representative) return -1;
-            if (right == representative && left != representative) return 1;
+            final boolean leftSelected = mineralKey(left).equals(selectedKey);
+            final boolean rightSelected = mineralKey(right).equals(selectedKey);
+            if (leftSelected && !rightSelected) return -1;
+            if (rightSelected && !leftSelected) return 1;
             final int amountOrder = Integer.compare(counts.getInt(right), counts.getInt(left));
             if (amountOrder != 0) return amountOrder;
             return String.valueOf(BuiltInRegistries.BLOCK.getKey(left))
@@ -95,12 +149,23 @@ public final class NTEProspectingRules
         for (int i = 0; i < visible; i++)
         {
             final Block block = blocks.get(i);
-            results.add(new MineralResult(block, resultForCount(counts.getInt(block))));
+            final int count = counts.getInt(block);
+            results.add(new MineralResult(block, resultForCount(count), count));
         }
         return List.copyOf(results);
     }
 
-    public record MineralResult(Block block, ProspectResult result)
+    public record MineralResult(Block block, ProspectResult result, int count)
     {
+        /** Compatibility constructor for results that do not carry an exact scan count. */
+        public MineralResult(Block block, ProspectResult result)
+        {
+            this(block, result, -1);
+        }
+
+        public boolean isOverAmount()
+        {
+            return count > OVER_AMOUNT_THRESHOLD;
+        }
     }
 }
