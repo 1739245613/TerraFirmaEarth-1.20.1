@@ -29,7 +29,7 @@
     {
       "type": "patchouli:text",
       "title": "Results and Direction",
-      "text": "The same mineral is merged across host rocks and poor, normal, or rich grades; each matching ore block counts as one. Sample sizes are Traces 1–9, Small 10–19, Medium 20–39, Large 40–79, Very Large 80–200, and Overwhelming more than 200. Each mineral beyond the material's reveal limit appears as one question mark. The ring continuously shows the locked target's direction, height, and distance relative to the player."
+      "text": "The same mineral is merged across host rocks and poor, normal, or rich grades; each matching ore block counts as one. Sample sizes are Traces 1–9, Small 10–29, Medium 30–79, Large 80–199, and Very Large 200+. Each mineral beyond the material's reveal limit appears as one question mark. The ring continuously shows the locked target's direction, height, and distance relative to the player."
     },
     {
       "type": "patchouli:spotlight",

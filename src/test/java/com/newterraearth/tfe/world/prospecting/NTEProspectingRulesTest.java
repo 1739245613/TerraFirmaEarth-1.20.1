@@ -66,19 +66,16 @@ class NTEProspectingRulesTest
     }
 
     @Test
-    void amountThresholdsRemainIdenticalToTfc()
+    void amountThresholdsUseFiveRequestedBands()
     {
         assertEquals(ProspectResult.TRACES, NTEProspectingRules.resultForCount(9));
         assertEquals(ProspectResult.SMALL, NTEProspectingRules.resultForCount(10));
-        assertEquals(ProspectResult.SMALL, NTEProspectingRules.resultForCount(19));
-        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(20));
-        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(39));
-        assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(40));
-        assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(79));
-        assertEquals(ProspectResult.VERY_LARGE, NTEProspectingRules.resultForCount(80));
+        assertEquals(ProspectResult.SMALL, NTEProspectingRules.resultForCount(29));
+        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(30));
+        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(79));
+        assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(80));
+        assertEquals(ProspectResult.LARGE, NTEProspectingRules.resultForCount(199));
         assertEquals(ProspectResult.VERY_LARGE, NTEProspectingRules.resultForCount(200));
-        assertEquals(false, new MineralResult(Blocks.IRON_ORE, ProspectResult.VERY_LARGE, 200).isOverAmount());
-        assertEquals(true, new MineralResult(Blocks.IRON_ORE, ProspectResult.VERY_LARGE, 201).isOverAmount());
     }
 
     @Test
@@ -100,7 +97,7 @@ class NTEProspectingRulesTest
             new ResourceLocation("example", "ore/normal_copper"),
             NTEProspectingRules.mineralKey(new ResourceLocation("example", "ore/normal_copper"))
         );
-        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(10 + 10));
+        assertEquals(ProspectResult.MEDIUM, NTEProspectingRules.resultForCount(10 + 20));
     }
 
     @Test
@@ -118,7 +115,7 @@ class NTEProspectingRulesTest
         assertEquals(Blocks.IRON_ORE, tierFour.get(0).block());
         assertEquals(ProspectResult.TRACES, tierFour.get(0).result());
         assertEquals(Blocks.GOLD_ORE, tierFour.get(1).block());
-        assertEquals(ProspectResult.VERY_LARGE, tierFour.get(1).result());
+        assertEquals(ProspectResult.LARGE, tierFour.get(1).result());
         assertEquals(100, tierFour.get(1).count());
         assertEquals(Blocks.COPPER_ORE, tierFour.get(2).block());
         assertEquals(2, counts.size() - tierFour.size());

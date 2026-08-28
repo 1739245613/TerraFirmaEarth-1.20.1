@@ -52,7 +52,7 @@
     {
       "type": "patchouli:text",
       "title": "Sample Sizes",
-      "text": "The same mineral is merged across host rock types and poor, normal, or rich grades; each matching ore block counts as one block. The sample sizes are:$(li)Traces: 1–9$(li)Small: 10–19$(li)Medium: 20–39$(li)Large: 40–79$(li)Very Large: 80–200$(li)Overwhelming: More than 200"
+      "text": "The same mineral is merged across host rock types and poor, normal, or rich grades; each matching ore block counts as one block. The sample sizes are:$(li)Traces: 1–9$(li)Small: 10–29$(li)Medium: 30–79$(li)Large: 80–199$(li)Very Large: 200+"
     }
   ],
   "read_by_default": true,

@@ -14,8 +14,6 @@ import net.dries007.tfc.common.items.ProspectResult;
 /** Tier, range and result-selection rules for the enhanced TFC propick. */
 public final class NTEProspectingRules
 {
-    public static final int OVER_AMOUNT_THRESHOLD = 200;
-
     private NTEProspectingRules()
     {
     }
@@ -65,9 +63,9 @@ public final class NTEProspectingRules
     public static ProspectResult resultForCount(int count)
     {
         if (count < 10) return ProspectResult.TRACES;
-        if (count < 20) return ProspectResult.SMALL;
-        if (count < 40) return ProspectResult.MEDIUM;
-        if (count < 80) return ProspectResult.LARGE;
+        if (count < 30) return ProspectResult.SMALL;
+        if (count < 80) return ProspectResult.MEDIUM;
+        if (count < 200) return ProspectResult.LARGE;
         return ProspectResult.VERY_LARGE;
     }
 
@@ -163,9 +161,5 @@ public final class NTEProspectingRules
             this(block, result, -1);
         }
 
-        public boolean isOverAmount()
-        {
-            return count > OVER_AMOUNT_THRESHOLD;
-        }
     }
 }
