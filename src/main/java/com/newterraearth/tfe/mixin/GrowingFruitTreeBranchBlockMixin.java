@@ -15,7 +15,7 @@ import com.newterraearth.tfe.world.NTESeasonalHelpers;
 public abstract class GrowingFruitTreeBranchBlockMixin
 {
     @Redirect(
-        method = "randomTick",
+        method = {"randomTick", "m_213898_"},
         at = @At(
             value = "INVOKE",
             target = "Lnet/dries007/tfc/common/blocks/plant/fruit/FruitTreeLeavesBlock;getHydration(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)I"
@@ -30,7 +30,7 @@ public abstract class GrowingFruitTreeBranchBlockMixin
     }
 
     @Redirect(
-        method = "randomTick",
+        method = {"randomTick", "m_213898_"},
         at = @At(
             value = "INVOKE",
             target = "Lnet/dries007/tfc/util/climate/Climate;getAverageTemperature(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)F"

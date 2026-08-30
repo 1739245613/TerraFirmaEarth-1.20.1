@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeBranchBlock;
 import net.dries007.tfc.common.blocks.plant.fruit.FruitTreeSaplingBlock;
+import net.dries007.tfc.common.blocks.plant.fruit.GrowingFruitTreeBranchBlock;
 import net.dries007.tfc.util.climate.ClimateRange;
 
 import com.newterraearth.tfe.world.NTESeasonalHelpers;
@@ -23,8 +24,6 @@ import com.newterraearth.tfe.world.NTESeasonalHelpers;
 public abstract class FruitTreeBranchBlockMixin
 {
     @Shadow @Final private Supplier<ClimateRange> climateRange;
-
-    @Shadow public abstract void addExtraInfo(List<Component> text);
 
     /**
      * @author Codex
@@ -42,6 +41,31 @@ public abstract class FruitTreeBranchBlockMixin
         {
             text.add(Component.translatable("tfc.tooltip.fruit_tree.sapling_splice"));
         }
-        addExtraInfo(text);
+        if ((Object) this instanceof GrowingFruitTreeBranchBlock)
+        {
+            if (state.getValue(FruitTreeBranchBlock.STAGE) >= 3)
+            {
+                text.add(tfe$plantStatus("tfe.jade.plant.growth_complete"));
+            }
+            else
+            {
+                final boolean climateValid = state.getValue(GrowingFruitTreeBranchBlock.NATURAL)
+                    || range.checkBoth(
+                        NTESeasonalHelpers.getFruitBushHydrationFromRootPos(level, rootPos),
+                        NTESeasonalHelpers.getPlantTemperature(level, stemPos),
+                        false
+                    );
+                text.add(tfe$plantStatus(climateValid ? "tfe.jade.plant.growing" : "tfe.jade.plant.waiting_climate"));
+            }
+        }
+        else
+        {
+            text.add(tfe$plantStatus("tfe.jade.plant.growth_complete"));
+        }
+    }
+
+    private static Component tfe$plantStatus(String translationKey)
+    {
+        return Component.translatable("tfe.jade.plant_status", Component.translatable(translationKey));
     }
 }

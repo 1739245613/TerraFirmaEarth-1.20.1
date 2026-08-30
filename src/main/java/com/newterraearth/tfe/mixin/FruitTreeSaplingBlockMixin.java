@@ -50,16 +50,25 @@ public abstract class FruitTreeSaplingBlockMixin
 
         if (!stages[NTESeasonalHelpers.getHemispheralCalendarMonthOfYear(level, pos).ordinal()].active())
         {
-            text.add(Component.translatable("tfc.tooltip.fruit_tree.sapling_wrong_month"));
+            text.add(tfe$plantStatus("tfe.jade.plant.waiting_season"));
+        }
+        else if (!range.checkBoth(hydration, NTESeasonalHelpers.getPlantTemperature(level, stemPos), false))
+        {
+            text.add(tfe$plantStatus("tfe.jade.plant.waiting_climate"));
         }
         else
         {
-            text.add(Component.translatable("tfc.tooltip.fruit_tree.growing"));
+            text.add(tfe$plantStatus("tfe.jade.plant.growing"));
         }
         if (FruitTreeSaplingBlock.maySplice(level, pos, state))
         {
             text.add(Component.translatable("tfc.tooltip.fruit_tree.sapling_splice"));
         }
+    }
+
+    private static Component tfe$plantStatus(String translationKey)
+    {
+        return Component.translatable("tfe.jade.plant_status", Component.translatable(translationKey));
     }
 
     /**
