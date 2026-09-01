@@ -19,15 +19,19 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 
 public class IceSheetSurfaceBuilder implements SurfaceBuilder
 {
-    public static final SurfaceBuilderFactory NORMAL = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialBase(seed), NTEBiomeNoise.iceSheetSurfaceHeight(seed), true, false, false);
-    public static final SurfaceBuilderFactory EDGE = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialBase(seed), 1.6), NTEBiomeNoise.iceSheetSurfaceHeight(seed), true, false, false);
-    public static final SurfaceBuilderFactory EDGE_LAKE = seed -> new IceSheetSurfaceBuilder(seed, BiomeNoise.lake(seed), NTEBiomeNoise.iceSheetSurfaceHeight(seed), false, false, false);
-    public static final SurfaceBuilderFactory HIDDEN_LAKE = seed -> new IceSheetSurfaceBuilder(seed, glacialOceanicBase(), NTEBiomeNoise.iceSheetSurfaceHeight(seed), false, false, false);
-    public static final SurfaceBuilderFactory ICE_SHEET_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), max(NTEBiomeNoise.montaneIceSheetSurfaceHeight(seed), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39)), false, true, false);
-    public static final SurfaceBuilderFactory GLACIATED_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39), false, true, false);
-    public static final SurfaceBuilderFactory OCEANIC = seed -> new IceSheetSurfaceBuilder(seed, glacialOceanicBase(), NTEBiomeNoise.oceanicIceSheetSurfaceHeight(seed), false, false, true);
-    public static final SurfaceBuilderFactory ICE_SHEET_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), max(NTEBiomeNoise.oceanicIceSheetSurfaceHeight(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed)), false, true, true);
-    public static final SurfaceBuilderFactory GLACIATED_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), false, true, true);
+    public static final SurfaceBuilderFactory NORMAL = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialBase(seed), NTEBiomeNoise.iceSheetSurfaceHeight(seed), true, false, false, false);
+    public static final SurfaceBuilderFactory EDGE = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialBase(seed), 1.6), NTEBiomeNoise.iceSheetSurfaceHeight(seed), true, false, false, false);
+    public static final SurfaceBuilderFactory EDGE_LAKE = seed -> new IceSheetSurfaceBuilder(seed, BiomeNoise.lake(seed), NTEBiomeNoise.iceSheetSurfaceHeight(seed), false, false, false, false);
+    public static final SurfaceBuilderFactory HIDDEN_LAKE = seed -> new IceSheetSurfaceBuilder(seed, glacialOceanicBase(), NTEBiomeNoise.iceSheetSurfaceHeight(seed), false, false, false, false);
+    public static final SurfaceBuilderFactory ICE_SHEET_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), max(NTEBiomeNoise.montaneIceSheetSurfaceHeight(seed), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39)), false, true, false, false);
+    public static final SurfaceBuilderFactory GLACIATED_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39), false, true, false, false);
+    public static final SurfaceBuilderFactory ICE_SHEET_VOLCANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), max(NTEBiomeNoise.montaneIceSheetSurfaceHeight(seed), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39)), false, true, false, true);
+    public static final SurfaceBuilderFactory GLACIATED_VOLCANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, addConstant(NTEBiomeNoise.glacialCirques(seed), 39), addConstant(NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), 39), false, true, false, true);
+    public static final SurfaceBuilderFactory OCEANIC = seed -> new IceSheetSurfaceBuilder(seed, glacialOceanicBase(), NTEBiomeNoise.oceanicIceSheetSurfaceHeight(seed), false, false, true, false);
+    public static final SurfaceBuilderFactory ICE_SHEET_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), max(NTEBiomeNoise.oceanicIceSheetSurfaceHeight(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed)), false, true, true, false);
+    public static final SurfaceBuilderFactory GLACIATED_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), false, true, true, false);
+    public static final SurfaceBuilderFactory ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), max(NTEBiomeNoise.oceanicIceSheetSurfaceHeight(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed)), false, true, true, true);
+    public static final SurfaceBuilderFactory GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS = seed -> new IceSheetSurfaceBuilder(seed, NTEBiomeNoise.glacialCirques(seed), NTEBiomeNoise.glacialCirquesIceSurfaceHeight(seed), false, true, true, true);
 
     public static final SurfaceBuilderFactory FLAT = NORMAL;
     public static final SurfaceBuilderFactory MOUNTAINS = ICE_SHEET_MOUNTAINS;
@@ -39,15 +43,17 @@ public class IceSheetSurfaceBuilder implements SurfaceBuilder
     private final boolean hasMoraines;
     private final boolean hasStonyPeaks;
     private final boolean isShoreBiome;
+    private final boolean isVolcanic;
     private final SurfaceBuilder shoreSurfaceBuilder;
 
-    public IceSheetSurfaceBuilder(long seed, Noise2D baseNoise, Noise2D iceSurfaceNoise, boolean hasMoraines, boolean hasStonyPeaks, boolean isShoreBiome)
+    public IceSheetSurfaceBuilder(long seed, Noise2D baseNoise, Noise2D iceSurfaceNoise, boolean hasMoraines, boolean hasStonyPeaks, boolean isShoreBiome, boolean isVolcanic)
     {
         this.baseNoise = baseNoise;
         this.iceSurfaceNoise = iceSurfaceNoise;
         this.hasMoraines = hasMoraines;
         this.hasStonyPeaks = hasStonyPeaks;
         this.isShoreBiome = isShoreBiome;
+        this.isVolcanic = isVolcanic;
         this.shoreSurfaceBuilder = isShoreBiome ? ShorelineSurfaceBuilder.MOUNTAINS.apply(seed) : null;
     }
 
@@ -74,11 +80,11 @@ public class IceSheetSurfaceBuilder implements SurfaceBuilder
 
         if (hasStonyPeaks && startY > glacierSurfaceHeight + 2.5)
         {
-            NormalSurfaceBuilder.ROCKY.buildSurface(context, startY, endY);
+            buildRockySurface(context, startY, endY);
         }
         else if (startY < glacierBaseHeight - 1.5)
         {
-            NormalSurfaceBuilder.INSTANCE.buildSurface(context, startY, endY);
+            buildNormalSurface(context, startY, endY);
         }
         else if (isShoreBiome && startY <= seaLevel)
         {
@@ -87,6 +93,36 @@ public class IceSheetSurfaceBuilder implements SurfaceBuilder
         else
         {
             placeIceSurface(context, startY, endY, glacierBaseHeight, glacierSurfaceHeight, seaLevel, iceDepth, NTESurfaceStates.SNOW, NTESurfaceStates.PACKED_ICE, NTESurfaceStates.BLUE_ICE, NTESurfaceStates.SNOWY_MORAINE, NTESurfaceStates.MORAINE, null);
+        }
+    }
+
+    private void buildRockySurface(SurfaceBuilderContext context, int startY, int endY)
+    {
+        if (isVolcanic)
+        {
+            NormalSurfaceBuilder.ROCKY.buildSurface(context, startY, endY,
+                NTESurfaceStates.VOLCANIC_TOP_GRASS_TO_LOCAL_GRAVEL,
+                NTESurfaceStates.VOLCANIC_MID_DIRT_TO_LOCAL_GRAVEL,
+                NTESurfaceStates.GRAVEL);
+        }
+        else
+        {
+            NormalSurfaceBuilder.ROCKY.buildSurface(context, startY, endY);
+        }
+    }
+
+    private void buildNormalSurface(SurfaceBuilderContext context, int startY, int endY)
+    {
+        if (isVolcanic)
+        {
+            NormalSurfaceBuilder.INSTANCE.buildSurface(context, startY, endY,
+                NTESurfaceStates.VOLCANIC_TOP_GRASS_TO_LOCAL_GRAVEL,
+                NTESurfaceStates.VOLCANIC_MID_DIRT_TO_LOCAL_GRAVEL,
+                NTESurfaceStates.GRAVEL);
+        }
+        else
+        {
+            NormalSurfaceBuilder.INSTANCE.buildSurface(context, startY, endY);
         }
     }
 

@@ -55,6 +55,17 @@ public interface NTECenteredFeatureNoiseSampler
         return ((NTEBiomeExtensionAccess) (Object) biome).tfe$getCenteredFeatureRarity();
     }
 
+    default float getFrequency(BiomeExtension biome)
+    {
+        final float frequency = ((NTEBiomeExtensionAccess) (Object) biome).tfe$getCenteredFeatureFrequency();
+        return frequency > 0 ? frequency : (getRarity(biome) == 0 ? 0 : 1f / getRarity(biome));
+    }
+
+    default boolean checkCellFrequency(NTECellular2D.Cell cell, float frequency)
+    {
+        return frequency > 0 && Math.abs(cell.noise()) <= frequency;
+    }
+
     default float calculateEasing(BlockPos pos, BiomeExtension biome)
     {
         return calculateEasing(pos.getX(), pos.getZ(), getRarity(biome));
@@ -70,6 +81,26 @@ public interface NTECenteredFeatureNoiseSampler
 
     @Nullable
     BlockPos calculateCenter(int x, int y, int z, int rarity);
+
+    /**
+     * Cellular field used by the centered feature.  Only stratovolcanoes use
+     * the value directly; the default keeps older feature samplers source
+     * compatible.
+     */
+    @Nullable
+    default NTECellular2D getCellularNoise()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the selected stratovolcano shape for a cell, when applicable.
+     */
+    @Nullable
+    default NTEVolcanoVariant getVolcanoVariant(NTECellular2D.Cell cell)
+    {
+        return null;
+    }
 
     default boolean checkCellRarity(NTECellular2D.Cell cell, int rarity)
     {

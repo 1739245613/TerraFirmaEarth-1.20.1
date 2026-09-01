@@ -38,6 +38,12 @@ public final class NTESurfaceStates
     public static final SurfaceState BASALT_GRAVEL = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.BASALT).get(Rock.BlockType.GRAVEL).get().defaultBlockState();
     public static final SurfaceState TUFF = context -> NTERock.TUFF.getBlock(Rock.BlockType.RAW).get().defaultBlockState();
     public static final SurfaceState TUFF_GRAVEL = context -> NTERock.TUFF.getBlock(Rock.BlockType.GRAVEL).get().defaultBlockState();
+    public static final SurfaceState GRANITE = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.GRANITE).get(Rock.BlockType.RAW).get().defaultBlockState();
+    public static final SurfaceState GRANITE_GRAVEL = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.GRANITE).get(Rock.BlockType.GRAVEL).get().defaultBlockState();
+    public static final SurfaceState DIORITE = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.DIORITE).get(Rock.BlockType.RAW).get().defaultBlockState();
+    public static final SurfaceState DIORITE_GRAVEL = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.DIORITE).get(Rock.BlockType.GRAVEL).get().defaultBlockState();
+    public static final SurfaceState LIMESTONE = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.LIMESTONE).get(Rock.BlockType.RAW).get().defaultBlockState();
+    public static final SurfaceState DOLOMITE = context -> TFCBlocks.ROCK_BLOCKS.get(Rock.DOLOMITE).get(Rock.BlockType.RAW).get().defaultBlockState();
     public static final SurfaceState BASALT_MORAINE = context -> (Helpers.hash(729375982L, context.pos()) & 127) > 96 ?
         BASALT_COBBLE.getState(context) :
         BASALT_GRAVEL.getState(context);
@@ -195,6 +201,15 @@ public final class NTESurfaceStates
     public static final SurfaceState MID_DIRT_TO_SAND = NTESoilSurfaceState.buildMidType(NTESoilBlockType.DIRT, SAND);
     public static final SurfaceState VOLCANIC_TOP_GRASS_TO_GRAVEL = NTESoilSurfaceState.buildVolcanicSurfaceType(NTESoilBlockType.GRASS, BASALT_GRAVEL);
     public static final SurfaceState VOLCANIC_MID_DIRT_TO_GRAVEL = NTESoilSurfaceState.buildVolcanicMidType(NTESoilBlockType.DIRT, BASALT_GRAVEL);
+    public static final SurfaceState VOLCANIC_TOP_GRASS_TO_TUFF_GRAVEL = NTESoilSurfaceState.buildVolcanicSurfaceType(NTESoilBlockType.GRASS, TUFF_GRAVEL);
+    public static final SurfaceState VOLCANIC_MID_DIRT_TO_TUFF_GRAVEL = NTESoilSurfaceState.buildVolcanicMidType(NTESoilBlockType.DIRT, TUFF_GRAVEL);
+    public static final SurfaceState VOLCANIC_TOP_GRASS_TO_GRANITE_GRAVEL = NTESoilSurfaceState.buildVolcanicSurfaceType(NTESoilBlockType.GRASS, GRANITE_GRAVEL);
+    public static final SurfaceState VOLCANIC_MID_DIRT_TO_GRANITE_GRAVEL = NTESoilSurfaceState.buildVolcanicMidType(NTESoilBlockType.DIRT, GRANITE_GRAVEL);
+    public static final SurfaceState VOLCANIC_TOP_GRASS_TO_DIORITE_GRAVEL = NTESoilSurfaceState.buildVolcanicSurfaceType(NTESoilBlockType.GRASS, DIORITE_GRAVEL);
+    public static final SurfaceState VOLCANIC_MID_DIRT_TO_DIORITE_GRAVEL = NTESoilSurfaceState.buildVolcanicMidType(NTESoilBlockType.DIRT, DIORITE_GRAVEL);
+    public static final SurfaceState ATOLL_GRASS_TO_WHITE_SAND = NTESoilSurfaceState.buildSurfaceType(NTESoilBlockType.GRASS, WHITE_SAND);
+    public static final SurfaceState ATOLL_GRASS_TO_YELLOW_SAND = NTESoilSurfaceState.buildSurfaceType(NTESoilBlockType.GRASS, YELLOW_SAND);
+    public static final SurfaceState ATOLL_GRASS_TO_PINK_SAND = NTESoilSurfaceState.buildSurfaceType(NTESoilBlockType.GRASS, PINK_SAND);
     public static final SurfaceState VOLCANIC_TOP_GRASS_TO_LOCAL_GRAVEL = NTESoilSurfaceState.buildVolcanicSurfaceType(NTESoilBlockType.GRASS, GRAVEL);
     public static final SurfaceState VOLCANIC_MID_DIRT_TO_LOCAL_GRAVEL = NTESoilSurfaceState.buildVolcanicMidType(NTESoilBlockType.DIRT, GRAVEL);
     public static final SurfaceState UNDER_GRAVEL = NTESoilSurfaceState.buildUnderType();

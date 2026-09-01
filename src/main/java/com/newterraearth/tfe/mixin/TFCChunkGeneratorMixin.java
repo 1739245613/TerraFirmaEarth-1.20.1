@@ -728,6 +728,8 @@ public abstract class TFCChunkGeneratorMixin
         final BiomeExtension[] cinderConeBiomeHolder = new BiomeExtension[1];
         final BiomeExtension[] tuffRingBiomeHolder = new BiomeExtension[1];
         final BiomeExtension[] tuyaBiomeHolder = new BiomeExtension[1];
+        final BiomeExtension[] atollBiomeHolder = new BiomeExtension[1];
+        final BiomeExtension[] stratovolcanoBiomeHolder = new BiomeExtension[1];
 
         return CompletableFuture.supplyAsync(() -> {
             final ChunkBaseBlockSource baseBlockSource = tfe$createBaseBlockSourceForChunk(chunk, chunkData);
@@ -759,6 +761,8 @@ public abstract class TFCChunkGeneratorMixin
             cinderConeBiomeHolder[0] = tfe$getCenteredFeatureBiome(centeredFeatureSamplers.get(NTECenteredFeatureBlendType.CINDER_CONE), chunkPos);
             tuffRingBiomeHolder[0] = tfe$getCenteredFeatureBiome(centeredFeatureSamplers.get(NTECenteredFeatureBlendType.TUFF_RING), chunkPos);
             tuyaBiomeHolder[0] = tfe$getCenteredFeatureBiome(centeredFeatureSamplers.get(NTECenteredFeatureBlendType.TUYA), chunkPos);
+            atollBiomeHolder[0] = tfe$getCenteredFeatureBiome(centeredFeatureSamplers.get(NTECenteredFeatureBlendType.ATOLL), chunkPos);
+            stratovolcanoBiomeHolder[0] = tfe$getCenteredFeatureBiome(centeredFeatureSamplers.get(NTECenteredFeatureBlendType.STRATOVOLCANO), chunkPos);
 
             filler.sampleAquiferSurfaceHeight(this::tfe$sampleBiomeNoRiver);
             chunkData.generateFull(filler.surfaceHeight(), filler.aquifer().surfaceHeights());
@@ -802,10 +806,13 @@ public abstract class TFCChunkGeneratorMixin
                 (TFCChunkGenerator) (Object) this,
                 chunkData,
                 filler.surfaceHeight(),
+                ((NTEChunkHeightFillerAccess) filler).tfe$getPreVolcanicHeights(),
                 chunkPos,
                 cinderConeBiomeHolder[0],
                 tuffRingBiomeHolder[0],
                 tuyaBiomeHolder[0],
+                atollBiomeHolder[0],
+                stratovolcanoBiomeHolder[0],
                 tfe$copyRiverProfiles(filler),
                 ((NTEChunkHeightFillerAccess) filler).tfe$getNativeDryRiverBanks()
             ))

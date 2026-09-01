@@ -79,6 +79,8 @@ final class NTEHeadwaterNetwork
     private static final double FLOW_DIRECTION_SAMPLE_RADIUS = 4d;
     private static final double MOUTH_BANK_TRANSITION_LENGTH = 24d;
     private static final double MOUTH_FAN_LENGTH = 8d;
+    /** Allow a global leaf to descend through the final coastal water shelf. */
+    private static final double SEA_MOUTH_WATER_TRANSITION_LENGTH = 16d;
     private static final double OUTLET_ADAPTER_LENGTH = SOURCE_ALIGNMENT_LENGTH + 40d;
     private static final double MAX_OUTLET_ADAPTER_INCISION = 8d;
     private static final int MAX_HEADWATER_CACHE_SIZE = 512;
@@ -410,6 +412,7 @@ final class NTEHeadwaterNetwork
         private final int[] neighborOffsets;
         private final double[] steps;
         private final SearchHeap open;
+        private final boolean allowSeaMouthTransition;
         private int generation;
 
         private RouteSearchWorkspace(
@@ -419,7 +422,8 @@ final class NTEHeadwaterNetwork
             int seaLevel,
             double[] terrain,
             DrainageField drainage,
-            boolean[] blocked
+            boolean[] blocked,
+            boolean allowSeaMouthTransition
         )
         {
             final int size = width * depth;
@@ -434,6 +438,7 @@ final class NTEHeadwaterNetwork
             neighborOffsets = new int[directionCount];
             steps = new double[directionCount];
             open = new SearchHeap(size);
+            this.allowSeaMouthTransition = allowSeaMouthTransition;
 
             final int goalX = goal % width;
             final int goalZ = goal / width;
@@ -468,7 +473,8 @@ final class NTEHeadwaterNetwork
                         {
                             continue;
                         }
-                        if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                        if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET
+                            && !(allowSeaMouthTransition && nearGoal(nextX, nextZ, goalX, goalZ)))
                         {
                             continue;
                         }
@@ -537,6 +543,11 @@ final class NTEHeadwaterNetwork
         private int parent(int cell)
         {
             return reachedGenerations[cell] == generation ? parents[cell] : -1;
+        }
+
+        private static boolean nearGoal(int x, int z, int goalX, int goalZ)
+        {
+            return Math.hypot(x - goalX, z - goalZ) * SAMPLE_STEP <= SEA_MOUTH_WATER_TRANSITION_LENGTH;
         }
     }
 
@@ -1819,6 +1830,12 @@ final class NTEHeadwaterNetwork
             return headwater.availableDrainageCandidates;
         }
 
+        String failureReason()
+        {
+            headwater.route();
+            return headwater.failureReason == null ? "none" : headwater.failureReason;
+        }
+
         @Nullable
         Sample sample(int blockX, int blockZ, double ambientHeight)
         {
@@ -2447,7 +2464,8 @@ final class NTEHeadwaterNetwork
                 seaLevel,
                 terrain,
                 drainage,
-                blocked
+                blocked,
+                edge == null
             );
             Route bestRoute = null;
             IncisionRisk bestRisk = null;
@@ -2620,6 +2638,19 @@ final class NTEHeadwaterNetwork
                 );
                 if (capacity[i] + 1.0e-6d < outletWater)
                 {
+                    // A leaf with no TFC receiver terminates at the shore. The
+                    // final sampled cells may already be below the global sea
+                    // level, where the ocean is the receiving basin rather
+                    // than an excavated river bank. Keep that short water
+                    // transition wet; all inland cells remain subject to the
+                    // normal bank-capacity invariant.
+                    final boolean submergedSeaMouth = receiver == null
+                        && totalLength - distance[i] <= SEA_MOUTH_WATER_TRANSITION_LENGTH;
+                    if (submergedSeaMouth)
+                    {
+                        capacity[i] = outletWater;
+                        continue;
+                    }
                     return failAt(String.format(
                         "route_below_outlet_water index=%d capacity=%.2f outletWater=%.2f",
                         i,
@@ -3311,6 +3342,8 @@ final class NTEHeadwaterNetwork
             spill[goal] = terrain[goal];
             travel[goal] = 0d;
             open.add(goal, spill[goal], 0d);
+            final int goalX = goal % width;
+            final int goalZ = goal / width;
 
             while (!open.isEmpty())
             {
@@ -3340,7 +3373,8 @@ final class NTEHeadwaterNetwork
                     {
                         continue;
                     }
-                    if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET)
+                    if (next != goal && terrain[next] < seaLevel - 1d + CENTER_SURFACE_INSET
+                        && !(edge == null && RouteSearchWorkspace.nearGoal(nextX, nextZ, goalX, goalZ)))
                     {
                         continue;
                     }

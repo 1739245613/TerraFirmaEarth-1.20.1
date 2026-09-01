@@ -26,6 +26,9 @@ public final class NTESurfaceContext
         private final BiomeExtension cinderConeBiome;
         private final BiomeExtension tuffRingBiome;
         private final BiomeExtension tuyaBiome;
+        private final BiomeExtension atollBiome;
+        private final BiomeExtension stratovolcanoBiome;
+        private final int[] preVolcanicHeights;
         private final LerpFloatLayer baseGroundwaterLayer;
         private final Long2FloatOpenHashMap baseGroundwaterCache;
         private final Long2FloatOpenHashMap averageGroundwaterCache;
@@ -33,13 +36,16 @@ public final class NTESurfaceContext
         private final NTERiverHydrology.ColumnProfile[] riverProfiles;
         private final boolean[] nativeDryRiverBanks;
 
-        private Context(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, NTERiverHydrology.ColumnProfile[] riverProfiles, boolean[] nativeDryRiverBanks)
+        private Context(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, int[] preVolcanicHeights, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, BiomeExtension atollBiome, BiomeExtension stratovolcanoBiome, NTERiverHydrology.ColumnProfile[] riverProfiles, boolean[] nativeDryRiverBanks)
         {
             this.generator = generator;
             this.chunkData = chunkData;
             this.cinderConeBiome = cinderConeBiome;
             this.tuffRingBiome = tuffRingBiome;
             this.tuyaBiome = tuyaBiome;
+            this.atollBiome = atollBiome;
+            this.stratovolcanoBiome = stratovolcanoBiome;
+            this.preVolcanicHeights = preVolcanicHeights;
             this.baseGroundwaterLayer = createModifiedBaseGroundwaterLayer(generator, surfaceHeight, chunkPos);
             this.baseGroundwaterCache = new Long2FloatOpenHashMap();
             this.averageGroundwaterCache = new Long2FloatOpenHashMap();
@@ -69,6 +75,21 @@ public final class NTESurfaceContext
         public BiomeExtension tuyaBiome()
         {
             return tuyaBiome;
+        }
+
+        public BiomeExtension atollBiome()
+        {
+            return atollBiome;
+        }
+
+        public BiomeExtension stratovolcanoBiome()
+        {
+            return stratovolcanoBiome;
+        }
+
+        public int preVolcanicHeight(BlockPos pos)
+        {
+            return preVolcanicHeights[(pos.getX() & 15) + 16 * (pos.getZ() & 15)];
         }
 
         public NTERiverHydrology.ColumnProfile riverProfile(BlockPos pos)
@@ -140,9 +161,9 @@ public final class NTESurfaceContext
     {
     }
 
-    public static Scope open(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, NTERiverHydrology.ColumnProfile[] riverProfiles, boolean[] nativeDryRiverBanks)
+    public static Scope open(ChunkGenerator generator, ChunkData chunkData, int[] surfaceHeight, int[] preVolcanicHeights, ChunkPos chunkPos, BiomeExtension cinderConeBiome, BiomeExtension tuffRingBiome, BiomeExtension tuyaBiome, BiomeExtension atollBiome, BiomeExtension stratovolcanoBiome, NTERiverHydrology.ColumnProfile[] riverProfiles, boolean[] nativeDryRiverBanks)
     {
-        CURRENT.set(new Context(generator, chunkData, surfaceHeight, chunkPos, cinderConeBiome, tuffRingBiome, tuyaBiome, riverProfiles, nativeDryRiverBanks));
+        CURRENT.set(new Context(generator, chunkData, surfaceHeight, preVolcanicHeights, chunkPos, cinderConeBiome, tuffRingBiome, tuyaBiome, atollBiome, stratovolcanoBiome, riverProfiles, nativeDryRiverBanks));
         return CURRENT::remove;
     }
 

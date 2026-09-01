@@ -22,9 +22,9 @@ public abstract class MoreShoresLayerMixin
     @Overwrite(remap = false)
     public int apply(AreaContext context, int north, int east, int south, int west, int center)
     {
-        if (center != TFCLayers.OCEAN)
+        final Predicate<IntPredicate> matcher = p -> p.test(north) || p.test(east) || p.test(south) || p.test(west);
+        if (matcher.test(TFCLayers::isOcean))
         {
-            final Predicate<IntPredicate> matcher = p -> p.test(north) || p.test(east) || p.test(south) || p.test(west);
             if (matcher.test(layer -> layer == NTELayerIds.TERRACE_LOWER))
             {
                 return NTELayerIds.TERRACE_UPPER;
@@ -33,7 +33,7 @@ public abstract class MoreShoresLayerMixin
             {
                 return NTELayerIds.SEA_STACKS;
             }
-            if (matcher.test(layer -> layer == TFCLayers.TIDAL_FLATS && layer == TFCLayers.SHORE))
+            if (matcher.test(layer -> layer == TFCLayers.TIDAL_FLATS))
             {
                 return TFCLayers.SHORE;
             }

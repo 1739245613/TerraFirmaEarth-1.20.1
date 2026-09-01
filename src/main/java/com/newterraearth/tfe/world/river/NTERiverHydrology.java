@@ -1,14 +1,10 @@
 package com.newterraearth.tfe.world.river;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.IntPredicate;
 
 import net.minecraft.util.Mth;
@@ -35,13 +31,6 @@ public final class NTERiverHydrology
     /** Native banked terrain finishes blending back to ambient by two river widths. */
     private static final double TFC_TERRAIN_CORRIDOR_RADIUS_SCALE = 2d;
     private static final int MAX_HEIGHT_CACHE_SIZE = 131072;
-    private static final Comparator<RiverEdge> STABLE_EDGE_ORDER = Comparator
-        .comparingDouble((RiverEdge edge) -> edge.source().x())
-        .thenComparingDouble(edge -> edge.source().y())
-        .thenComparingDouble(edge -> edge.drain().x())
-        .thenComparingDouble(edge -> edge.drain().y())
-        .thenComparingInt(edge -> edge.width)
-        .thenComparing(NTERiverHydrology::compareFractalSegments);
     private static final ThreadLocal<GenerationContext> ACTIVE_GENERATION = new ThreadLocal<>();
     /** Height probes must not start a terrain-aware creek route search. */
     private static final ThreadLocal<Integer> READ_ONLY_HEIGHT_QUERY_DEPTH = ThreadLocal.withInitial(() -> 0);
@@ -834,106 +823,6 @@ public final class NTERiverHydrology
             return findPlannedGraphProfile(blockX, blockZ);
         }
         return findProfileFromCandidates(blockX, blockZ, Double.POSITIVE_INFINITY);
-    }
-
-    /**
-     * Plan every local leaf which can affect a bounded consumer area once.
-     * Subsequent per-column work can then use findGraphProfileIfPlanned()
-     * without repeatedly mixing discovery and route planning.
-     */
-    public void prepareGraphProfiles(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ)
-    {
-        final Set<RiverEdge> candidates = Collections.newSetFromMap(new IdentityHashMap<>());
-        final int minPartitionX = Math.floorDiv(minBlockX, Units.GRID_WIDTH_IN_BLOCK)
-            * Units.GRID_WIDTH_IN_BLOCK;
-        final int minPartitionZ = Math.floorDiv(minBlockZ, Units.GRID_WIDTH_IN_BLOCK)
-            * Units.GRID_WIDTH_IN_BLOCK;
-        for (int blockZ = minPartitionZ; blockZ <= maxBlockZ; blockZ += Units.GRID_WIDTH_IN_BLOCK)
-        {
-            for (int blockX = minPartitionX; blockX <= maxBlockX; blockX += Units.GRID_WIDTH_IN_BLOCK)
-            {
-                collectCandidateLeaves(
-                    candidates,
-                    Math.max(minBlockX, blockX),
-                    Math.max(minBlockZ, blockZ),
-                    minBlockX,
-                    minBlockZ,
-                    maxBlockX,
-                    maxBlockZ
-                );
-            }
-        }
-        collectCandidateLeaves(candidates, maxBlockX, maxBlockZ, minBlockX, minBlockZ, maxBlockX, maxBlockZ);
-        final List<RiverEdge> orderedCandidates = new ArrayList<>(candidates);
-        orderedCandidates.sort(STABLE_EDGE_ORDER);
-        for (RiverEdge edge : orderedCandidates)
-        {
-            headwaters.ensurePlanned(edge);
-        }
-    }
-
-    private void collectCandidateLeaves(
-        Set<RiverEdge> candidates,
-        int blockX,
-        int blockZ,
-        int minBlockX,
-        int minBlockZ,
-        int maxBlockX,
-        int maxBlockZ
-    )
-    {
-        for (RiverEdge edge : candidateEdges(blockX, blockZ))
-        {
-            if (!edge.sourceEdge() && mayInfluenceBounds(edge, minBlockX, minBlockZ, maxBlockX, maxBlockZ))
-            {
-                candidates.add(edge);
-            }
-        }
-    }
-
-    private boolean mayInfluenceBounds(
-        RiverEdge edge,
-        int minBlockX,
-        int minBlockZ,
-        int maxBlockX,
-        int maxBlockZ
-    )
-    {
-        final int centerX = (minBlockX + maxBlockX) >> 1;
-        final int centerZ = (minBlockZ + maxBlockZ) >> 1;
-        final double probePadding = Math.hypot(
-            (maxBlockX - minBlockX) * 0.25d,
-            (maxBlockZ - minBlockZ) * 0.25d
-        ) + 1d;
-        final int[] probeX = { minBlockX, centerX, maxBlockX };
-        final int[] probeZ = { minBlockZ, centerZ, maxBlockZ };
-        for (int blockZ : probeZ)
-        {
-            for (int blockX : probeX)
-            {
-                if (headwaters.mayInfluence(edge, blockX, blockZ, probePadding))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static int compareFractalSegments(RiverEdge left, RiverEdge right)
-    {
-        final double[] leftSegments = left.fractal().segments;
-        final double[] rightSegments = right.fractal().segments;
-        final int sharedLength = Math.min(leftSegments.length, rightSegments.length);
-        for (int index = 0; index < sharedLength; index++)
-        {
-            final int compared = Double.compare(leftSegments[index], rightSegments[index]);
-            if (compared != 0)
-            {
-                return compared;
-            }
-        }
-        return Integer.compare(leftSegments.length, rightSegments.length);
     }
 
     @Nullable

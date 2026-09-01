@@ -11,13 +11,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.dries007.tfc.world.noise.Cellular2D;
+import net.dries007.tfc.world.region.AnnotateDistanceToCellEdge;
 import net.dries007.tfc.world.region.ChooseRocks;
 import net.dries007.tfc.world.region.Region;
 import net.dries007.tfc.world.region.RegionGenerator;
 import net.dries007.tfc.world.region.Units;
 
+import com.newterraearth.tfe.world.NTELayerIds;
 import com.newterraearth.tfe.world.region.NTEAddHotspots;
 import com.newterraearth.tfe.world.region.NTEKarstSurfaceRocks;
+import com.newterraearth.tfe.world.region.NTERegionFeatureAnnotations;
 
 @Mixin(value = RegionGenerator.Context.class, remap = false)
 public abstract class RegionGeneratorContextMixin
@@ -171,12 +174,41 @@ public abstract class RegionGeneratorContextMixin
             NTEAddHotspots.INSTANCE.apply(context);
         }
 
+        if (task == RegionGenerator.Task.ADD_MOUNTAINS)
+        {
+            final RegionGenerator.Context context = (RegionGenerator.Context) (Object) this;
+            NTERegionFeatureAnnotations.INSTANCE.prepareForMountainPlacement(context);
+        }
+
         if (task == RegionGenerator.Task.CHOOSE_BIOMES)
         {
             final RegionGenerator.Context context = (RegionGenerator.Context) (Object) this;
+            NTERegionFeatureAnnotations.INSTANCE.apply(context);
             ChooseRocks.INSTANCE.apply(context);
             NTEKarstSurfaceRocks.INSTANCE.apply(context);
         }
+    }
+
+    @Inject(method = "run", at = @At("TAIL"))
+    private void tfe$recomputeFinalCellEdgeDistance(RegionGenerator.Task task, CallbackInfo ci)
+    {
+        if (task != RegionGenerator.Task.SHRINK_TO_CELL)
+        {
+            return;
+        }
+
+        final RegionGenerator.Context context = (RegionGenerator.Context) (Object) this;
+        // AddContinents runs before ShrinkToCell in 1.20, so its local
+        // edge-distance pass used the expanded working area. Recompute
+        // the distance on the final cell area before biome selection.
+        for (Region.Point point : context.region.data())
+        {
+            if (point != null)
+            {
+                point.distanceToEdge = 0;
+            }
+        }
+        AnnotateDistanceToCellEdge.INSTANCE.apply(context);
     }
 
     @Unique

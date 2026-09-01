@@ -7,7 +7,7 @@
   ],
   "key": {
     "X": {
-      "item": "tfc:brick/granite"
+      "item": "tfe:brick/tuff"
     },
     "M": {
       "tag": "tfc:mortar"

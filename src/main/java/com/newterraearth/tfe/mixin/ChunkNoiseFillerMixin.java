@@ -18,6 +18,7 @@ import net.dries007.tfc.world.ChunkBaseBlockSource;
 import net.dries007.tfc.world.ChunkNoiseFiller;
 import net.dries007.tfc.world.MutableDensityFunctionContext;
 import net.dries007.tfc.world.TFCAquifer;
+import net.dries007.tfc.world.biome.BiomeBlendType;
 import net.dries007.tfc.world.biome.BiomeExtension;
 import net.dries007.tfc.world.biome.TFCBiomes;
 import net.dries007.tfc.world.noise.ChunkNoiseSamplingSettings;
@@ -143,6 +144,14 @@ public abstract class ChunkNoiseFillerMixin
                     }
                 }
             }
+        }
+        // TFE river density intentionally runs through the raised terrain; keep its
+        // cut / bed-shell result authoritative while protecting non-river volcano columns.
+        final int surfaceIntegrityDepth = access.tfe$getSurfaceIntegrityDepth()[access.tfe$getLocalX() + 16 * access.tfe$getLocalZ()];
+        if (surfaceIntegrityDepth > 0 && !tfe$hasExactRiverDensity(access))
+        {
+            final int carveBelowHeight = (int) heightNoiseValue - surfaceIntegrityDepth;
+            noise = Mth.clampedMap(y, carveBelowHeight - 10, carveBelowHeight, noise, 0d);
         }
         noise = tfe$protectTerrainUpliftLayerAfterShore(y, noise, access);
 
@@ -445,7 +454,26 @@ public abstract class ChunkNoiseFillerMixin
             ? Math.max((int) height, riverProfile.waterBlockY())
             : (int) height;
 
-        ((NTEChunkBaseBlockSourceAccess) baseBlockSource).tfe$useAccurateBiome(localX, localZ, biomeAt, biomeWeightAt, couldBeSalty);
+        double oceanWeight = 0d;
+        for (Object2DoubleMap.Entry<BiomeExtension> entry : biomeWeights.object2DoubleEntrySet())
+        {
+            if (entry.getKey().biomeBlendType() == BiomeBlendType.OCEAN)
+            {
+                oceanWeight += entry.getDoubleValue();
+            }
+        }
+        final boolean forceCoastalSaltWater = biomeAt != TFCBiomes.RIVER
+            && height <= SEA_LEVEL_Y
+            && oceanWeight >= 0.05d;
+
+        ((NTEChunkBaseBlockSourceAccess) baseBlockSource).tfe$useAccurateBiome(
+            localX,
+            localZ,
+            biomeAt,
+            biomeWeightAt,
+            couldBeSalty,
+            forceCoastalSaltWater
+        );
     }
 
     @Unique

@@ -87,6 +87,8 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
     @Unique private boolean[] tfe$nativeDryRiverBanks = new boolean[16 * 16];
     @Unique private double tfe$currentRiverTerrainHeight;
     @Unique private double[] tfe$riverTerrainHeights = new double[16 * 16];
+    @Unique private int[] tfe$preVolcanicHeights = new int[16 * 16];
+    @Unique private int[] tfe$surfaceIntegrityDepth = new int[16 * 16];
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void tfe$init(Object2DoubleMap<BiomeExtension>[] sampledBiomeWeights, BiomeSourceExtension biomeSource, Map<BiomeExtension, BiomeNoiseSampler> biomeNoiseSamplers, Map<RiverBlendType, RiverNoiseSampler> riverNoiseSamplers, Noise2D shoreSampler, int seaLevel, CallbackInfo ci)
@@ -409,8 +411,6 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
 
         assert biomeAt != null;
 
-        height = tfe$adjustHeightForCenteredFeatures(height);
-        final double centeredFeatureHeight = height;
         RiverInfo info = tfe$suppressRiver ? null : sampleRiverInfo(false);
         final boolean preparedHydrologyColumn = tfe$riverHydrology != null
             && NTERiverHydrology.hasActiveGenerationColumn(tfe$riverHydrology, blockX, blockZ);
@@ -424,6 +424,11 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         final double terrainUplift = tfe$sampleTerrainUplift(biomeAt, biomeWeights, info);
         final double terrainUpliftBaseHeight = height;
         height += terrainUplift;
+        tfe$recordTerrainUpliftLayer(
+            terrainUpliftBaseHeight,
+            terrainUpliftBaseHeight + terrainUplift,
+            terrainUplift
+        );
         final double preSupplementalRiverHeight = height;
         tfe$usesConfluenceCarvingUnion = false;
         Arrays.fill(tfe$supplementalRiverBlendWeights, 0d);
@@ -431,8 +436,8 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         if (tfe$suppressRiver)
         {
             tfe$currentRiverHydrologyProfile = null;
+            height = tfe$adjustHeightForCenteredFeatures(height);
             tfe$currentRiverTerrainHeight = height;
-            tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, terrainUpliftBaseHeight + terrainUplift, terrainUplift);
             return height;
         }
         final NTERiverHydrology.ColumnProfile supplementalRiverProfile = tfe$riverHydrology == null
@@ -511,15 +516,24 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             tfe$currentRiverHydrologyProfile,
             height
         );
+        final double terrainHeightBeforeCenteredFeature = height;
+        final int preVolcanicHeight = (int) height;
+        height = tfe$adjustHeightForCenteredFeatures(height);
+        final int surfaceIntegrityDepth = tfe$computeSurfaceIntegrityDepth(
+            terrainHeightBeforeCenteredFeature,
+            height
+        );
+        final double centeredFeatureHeight = height;
         tfe$currentRiverTerrainHeight = height;
         if (trace)
         {
             tfe$traceFinal(biomeWeights, baseHeight, shoreAdjustedHeight, centeredFeatureHeight, terrainUpliftBaseHeight, terrainUplift, initialCaveWeight, caveTransitionTerrainUplift, info, height);
         }
-        tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
 
         if (useCache)
         {
+            tfe$preVolcanicHeights[localX + 16 * localZ] = preVolcanicHeight;
+            tfe$surfaceIntegrityDepth[localX + 16 * localZ] = surfaceIntegrityDepth;
             updateLocalCaches(biomeWeights, biomeAt, info, height);
         }
 
@@ -628,7 +642,12 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
 
         assert biomeAt != null;
 
+        final double terrainHeightBeforeCenteredFeature = height;
         height = tfe$adjustHeightForCenteredFeatures(height);
+        final int surfaceIntegrityDepth = tfe$computeSurfaceIntegrityDepth(
+            terrainHeightBeforeCenteredFeature,
+            height
+        );
         final double centeredFeatureHeight = height;
         RiverInfo info = tfe$suppressRiver ? null : sampleRiverInfo(false);
         final boolean preparedHydrologyColumn = tfe$riverHydrology != null
@@ -726,9 +745,9 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
         );
         tfe$currentRiverTerrainHeight = height;
         tfe$recordTerrainUpliftLayer(terrainUpliftBaseHeight, height, terrainUplift);
-
         if (useCache)
         {
+            tfe$surfaceIntegrityDepth[localX + 16 * localZ] = surfaceIntegrityDepth;
             updateLocalCaches(biomeWeights, biomeAt, info, height);
         }
         return height;
@@ -1157,6 +1176,25 @@ public abstract class ChunkHeightFillerMixin implements NTEChunkHeightFillerAcce
             tfe$exactRiverBlendWeights.length
         );
         return retainedReceiverHeight;
+    }
+
+    @Override
+    public int[] tfe$getPreVolcanicHeights()
+    {
+        return tfe$preVolcanicHeights;
+    }
+
+    @Override
+    public int[] tfe$getSurfaceIntegrityDepth()
+    {
+        return tfe$surfaceIntegrityDepth;
+    }
+
+    @Unique
+    private static int tfe$computeSurfaceIntegrityDepth(double preCenteredFeatureHeight, double centeredFeatureHeight)
+    {
+        final double heightDelta = centeredFeatureHeight - preCenteredFeatureHeight;
+        return heightDelta > 0d ? (int) heightDelta * 3 : 0;
     }
 
     @Unique

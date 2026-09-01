@@ -1,7 +1,6 @@
 package com.newterraearth.tfe.mixin;
 
 import java.util.Arrays;
-import java.util.Random;
 import java.util.function.Supplier;
 
 import net.dries007.tfc.world.biome.BiomeExtension;
@@ -9,7 +8,6 @@ import net.dries007.tfc.world.layer.MoreShoresLayer;
 import net.dries007.tfc.world.layer.RegionBiomeLayer;
 import net.dries007.tfc.world.layer.RegionEdgeBiomeLayer;
 import net.dries007.tfc.world.layer.RegionLayer;
-import net.dries007.tfc.world.layer.ShoreLayer;
 import net.dries007.tfc.world.layer.SmoothLayer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,7 +28,9 @@ import net.dries007.tfc.world.region.RegionGenerator;
 import com.newterraearth.tfe.world.NTEBiomeCache;
 import com.newterraearth.tfe.world.NTEBiomeExtensions;
 import com.newterraearth.tfe.world.NTELayerIds;
+import com.newterraearth.tfe.world.NTESeed;
 import com.newterraearth.tfe.world.layer.NTEIceSheetEdgeLayer;
+import com.newterraearth.tfe.world.layer.NTERiverShoreLayer;
 
 @Mixin(value = TFCLayers.class, remap = false)
 public abstract class TFCLayersMixin
@@ -51,6 +51,16 @@ public abstract class TFCLayersMixin
             BIOME_LAYERS = Arrays.copyOf(BIOME_LAYERS, 128);
         }
 
+        NTELayerIds.COLLISIONAL_MOUNTAINS = registerCached("collisional_mountains", NTEBiomeExtensions::collisionalMountains);
+        NTELayerIds.OCEANIC_VOLCANIC_ARC = registerCached("oceanic_volcanic_arc", NTEBiomeExtensions::oceanicVolcanicArc);
+        NTELayerIds.OCEAN_ATOLLS = registerCached("ocean_atolls", NTEBiomeExtensions::oceanAtolls);
+        NTELayerIds.DEEP_OCEAN_ATOLLS = registerCached("deep_ocean_atolls", NTEBiomeExtensions::deepOceanAtolls);
+        NTELayerIds.OCEAN_RIDGE = registerCached("ocean_ridge", NTEBiomeExtensions::oceanRidge);
+        NTELayerIds.RIFT_VALLEY = registerCached("rift_valley", NTEBiomeExtensions::riftValley);
+        NTELayerIds.RIFT_LAKE = registerCached("rift_lake", NTEBiomeExtensions::riftLake);
+        NTELayerIds.RIVER_VALLEY = registerCached("river_valley", NTEBiomeExtensions::riverValley);
+        NTELayerIds.VOLCANIC_MOUNTAIN_ISLANDS = registerCached("volcanic_mountain_islands", NTEBiomeExtensions::volcanicMountainIslands);
+        NTELayerIds.VOLCANIC_ISLAND = registerCached("volcanic_island", NTEBiomeExtensions::volcanicIsland);
         NTELayerIds.PLATEAU_WIDE = registerCached("plateau_wide", NTEBiomeExtensions::plateauWide);
         NTELayerIds.GUANO_ISLAND = registerCached("guano_island", NTEBiomeExtensions::guanoIsland);
         NTELayerIds.SEA_STACKS = registerCached("sea_stacks", NTEBiomeExtensions::seaStacks);
@@ -110,6 +120,8 @@ public abstract class TFCLayersMixin
         NTELayerIds.ICE_SHEET = registerCached("ice_sheet", NTEBiomeExtensions::iceSheet);
         NTELayerIds.ICE_SHEET_MOUNTAINS = registerCached("ice_sheet_mountains", NTEBiomeExtensions::iceSheetMountains);
         NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS = registerCached("ice_sheet_oceanic_mountains", NTEBiomeExtensions::iceSheetOceanicMountains);
+        NTELayerIds.ICE_SHEET_VOLCANIC_MOUNTAINS = registerCached("ice_sheet_volcanic_mountains", NTEBiomeExtensions::iceSheetVolcanicMountains);
+        NTELayerIds.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS = registerCached("ice_sheet_volcanic_oceanic_mountains", NTEBiomeExtensions::iceSheetVolcanicOceanicMountains);
         NTELayerIds.ICE_SHEET_SHIELD_VOLCANO = registerCached("ice_sheet_shield_volcano", NTEBiomeExtensions::iceSheetShieldVolcano);
         NTELayerIds.ICE_SHEET_TUYAS = registerCached("ice_sheet_tuyas", NTEBiomeExtensions::iceSheetTuyas);
         NTELayerIds.SUBGLACIAL_LAKE = registerCached("subglacial_lake", NTEBiomeExtensions::subglacialLake);
@@ -120,11 +132,15 @@ public abstract class TFCLayersMixin
         NTELayerIds.ICE_SHEET_MOUNTAINS_EDGE = registerCached("ice_sheet_mountains_edge", NTEBiomeExtensions::iceSheetMountainsEdge);
         NTELayerIds.GLACIATED_MOUNTAINS = registerCached("glaciated_mountains", NTEBiomeExtensions::glaciatedMountains);
         NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS = registerCached("glaciated_oceanic_mountains", NTEBiomeExtensions::glaciatedOceanicMountains);
+        NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS = registerCached("glaciated_volcanic_mountains", NTEBiomeExtensions::glaciatedVolcanicMountains);
+        NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS = registerCached("glaciated_volcanic_oceanic_mountains", NTEBiomeExtensions::glaciatedVolcanicOceanicMountains);
         NTELayerIds.MELTWATER_LAKE = registerCached("meltwater_lake", NTEBiomeExtensions::meltwaterLake);
         NTELayerIds.GLACIATED_SHIELD_VOLCANO = registerCached("glaciated_shield_volcano", NTEBiomeExtensions::glaciatedShieldVolcano);
         NTELayerIds.ICE_SHEET_SHORE = registerCached("ice_sheet_shore", NTEBiomeExtensions::iceSheetShore);
         NTELayerIds.GLACIALLY_CARVED_MOUNTAINS = registerCached("glacially_carved_mountains", NTEBiomeExtensions::glaciallyCarvedMountains);
         NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS = registerCached("glacially_carved_oceanic_mountains", NTEBiomeExtensions::glaciallyCarvedOceanicMountains);
+        NTELayerIds.GLACIALLY_CARVED_VOLCANIC_MOUNTAINS = registerCached("glacially_carved_volcanic_mountains", NTEBiomeExtensions::glaciallyCarvedVolcanicMountains);
+        NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS = registerCached("glacially_carved_volcanic_oceanic_mountains", NTEBiomeExtensions::glaciallyCarvedVolcanicOceanicMountains);
         NTELayerIds.DRUMLINS = registerCached("drumlins", NTEBiomeExtensions::drumlins);
         NTELayerIds.TUYAS = registerCached("tuyas", NTEBiomeExtensions::tuyas);
         NTELayerIds.KNOB_AND_KETTLE = registerCached("knob_and_kettle", NTEBiomeExtensions::knobAndKettle);
@@ -145,24 +161,24 @@ public abstract class TFCLayersMixin
     @Overwrite(remap = false)
     public static AreaFactory createRegionBiomeLayer(RegionGenerator generator, long seed)
     {
-        final Random random = new Random(seed);
-        final TypedAreaFactory<Region.Point> regionLayer = new RegionLayer(generator).apply(random.nextLong());
+        final NTESeed layerSeed = NTESeed.of(seed);
+        final TypedAreaFactory<Region.Point> regionLayer = new RegionLayer(generator).apply(layerSeed.next());
 
         AreaFactory mainLayer = RegionBiomeLayer.INSTANCE.apply(regionLayer);
 
-        mainLayer = RegionEdgeBiomeLayer.INSTANCE.apply(random.nextLong(), mainLayer);
-        mainLayer = ZoomLayer.NORMAL.apply(random.nextLong(), mainLayer);
+        mainLayer = RegionEdgeBiomeLayer.INSTANCE.apply(layerSeed.next(), mainLayer);
+        mainLayer = ZoomLayer.NORMAL.apply(layerSeed.next(), mainLayer);
 
-        mainLayer = ShoreLayer.INSTANCE.apply(random.nextLong(), mainLayer);
-        mainLayer = MoreShoresLayer.INSTANCE.apply(random.nextLong(), mainLayer);
-        mainLayer = NTEIceSheetEdgeLayer.INSTANCE.apply(random.nextLong(), mainLayer);
-        mainLayer = ZoomLayer.NORMAL.apply(random.nextLong(), mainLayer);
-        mainLayer = ZoomLayer.NORMAL.apply(random.nextLong(), mainLayer);
+        mainLayer = NTERiverShoreLayer.INSTANCE.apply(layerSeed.next(), mainLayer);
+        mainLayer = MoreShoresLayer.INSTANCE.apply(layerSeed.next(), mainLayer);
+        mainLayer = NTEIceSheetEdgeLayer.INSTANCE.apply(layerSeed.next(), mainLayer);
+        mainLayer = ZoomLayer.NORMAL.apply(layerSeed.next(), mainLayer);
+        mainLayer = ZoomLayer.NORMAL.apply(layerSeed.next(), mainLayer);
 
-        mainLayer = ZoomLayer.NORMAL.apply(random.nextLong(), mainLayer);
-        mainLayer = ZoomLayer.NORMAL.apply(random.nextLong(), mainLayer);
+        mainLayer = ZoomLayer.NORMAL.apply(layerSeed.next(), mainLayer);
+        mainLayer = ZoomLayer.NORMAL.apply(layerSeed.next(), mainLayer);
 
-        mainLayer = SmoothLayer.INSTANCE.apply(random.nextLong(), mainLayer);
+        mainLayer = SmoothLayer.INSTANCE.apply(layerSeed.next(), mainLayer);
 
         return mainLayer;
     }
@@ -174,18 +190,21 @@ public abstract class TFCLayersMixin
     @Overwrite(remap = false)
     public static boolean hasShore(int value)
     {
-        return value != TFCLayers.LOW_CANYONS
+        return !TFCLayers.isOcean(value)
+            && value != TFCLayers.LOW_CANYONS
             && value != TFCLayers.CANYONS
             && value != TFCLayers.OCEANIC_MOUNTAINS
             && value != TFCLayers.VOLCANIC_OCEANIC_MOUNTAINS
             && value != NTELayerIds.TOWER_KARST_BAY
             && value != NTELayerIds.SUNKEN_SHIELD_VOLCANO
             && value != NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS
             && value != NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS
             && value != NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS_EDGE
             && value != NTELayerIds.ICE_SHEET_SHIELD_VOLCANO
             && value != NTELayerIds.GLACIATED_SHIELD_VOLCANO
-            && value != NTELayerIds.GUANO_ISLAND;
+            && value != NTELayerIds.GUANO_ISLAND
+            && value != NTELayerIds.VOLCANIC_MOUNTAIN_ISLANDS;
     }
 
     /**
@@ -199,7 +218,7 @@ public abstract class TFCLayersMixin
         {
             return TFCLayers.SALT_MARSH;
         }
-        if (value == TFCLayers.MOUNTAINS)
+        if (value == TFCLayers.MOUNTAINS || value == NTELayerIds.COLLISIONAL_MOUNTAINS)
         {
             return TFCLayers.OCEANIC_MOUNTAINS;
         }
@@ -223,11 +242,15 @@ public abstract class TFCLayersMixin
         {
             return NTELayerIds.ICE_SHEET_SHORE;
         }
-        if (value == NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS)
+        if (value == NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS || value == NTELayerIds.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS)
         {
             return NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS_EDGE;
         }
-        if (value == NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS || value == NTELayerIds.GLACIALLY_CARVED_MOUNTAINS)
+        if (value == NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS || value == NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS || value == NTELayerIds.GLACIALLY_CARVED_VOLCANIC_MOUNTAINS)
+        {
+            return NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS;
+        }
+        if (value == NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS || value == NTELayerIds.GLACIATED_MOUNTAINS || value == NTELayerIds.GLACIALLY_CARVED_MOUNTAINS)
         {
             return NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS;
         }
@@ -266,7 +289,16 @@ public abstract class TFCLayersMixin
     public static boolean hasLake(int value)
     {
         return !TFCLayers.isOcean(value)
+            && value != TFCLayers.LAKE
+            && value != TFCLayers.MOUNTAIN_LAKE
+            && value != TFCLayers.VOLCANIC_MOUNTAIN_LAKE
+            && value != TFCLayers.OLD_MOUNTAIN_LAKE
+            && value != TFCLayers.OCEANIC_MOUNTAIN_LAKE
+            && value != TFCLayers.VOLCANIC_OCEANIC_MOUNTAIN_LAKE
+            && value != TFCLayers.PLATEAU_LAKE
             && value != TFCLayers.BADLANDS
+            && value != NTELayerIds.SALT_FLATS
+            && value != NTELayerIds.MUD_FLATS
             && value != NTELayerIds.ACTIVE_SHIELD_VOLCANO
             && value != NTELayerIds.DORMANT_SHIELD_VOLCANO
             && value != NTELayerIds.EXTINCT_SHIELD_VOLCANO
@@ -280,8 +312,16 @@ public abstract class TFCLayersMixin
             && value != NTELayerIds.GLACIATED_SHIELD_VOLCANO
             && value != NTELayerIds.GLACIATED_MOUNTAINS
             && value != NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS
             && value != NTELayerIds.GLACIALLY_CARVED_MOUNTAINS
-            && value != NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS;
+            && value != NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIALLY_CARVED_VOLCANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS
+            && value != NTELayerIds.RIFT_LAKE
+            && value != NTELayerIds.TOWER_KARST_LAKE
+            && value != NTELayerIds.SUBGLACIAL_LAKE
+            && value != NTELayerIds.MELTWATER_LAKE;
     }
 
     /**
@@ -291,7 +331,7 @@ public abstract class TFCLayersMixin
     @Overwrite(remap = false)
     public static int lakeFor(int value)
     {
-        if (value == TFCLayers.MOUNTAINS)
+        if (value == TFCLayers.MOUNTAINS || value == NTELayerIds.COLLISIONAL_MOUNTAINS)
         {
             return TFCLayers.MOUNTAIN_LAKE;
         }
@@ -299,7 +339,7 @@ public abstract class TFCLayersMixin
         {
             return TFCLayers.VOLCANIC_MOUNTAIN_LAKE;
         }
-        if (value == TFCLayers.OLD_MOUNTAINS)
+        if (value == TFCLayers.OLD_MOUNTAINS || value == NTELayerIds.EXTREME_DOLINE_MOUNTAINS)
         {
             return TFCLayers.OLD_MOUNTAIN_LAKE;
         }
@@ -311,7 +351,14 @@ public abstract class TFCLayersMixin
         {
             return TFCLayers.VOLCANIC_OCEANIC_MOUNTAIN_LAKE;
         }
-        if (value == TFCLayers.PLATEAU)
+        if (value == TFCLayers.PLATEAU
+            || value == NTELayerIds.PLATEAU_WIDE
+            || value == NTELayerIds.ROCKY_PLATEAU
+            || value == NTELayerIds.BURREN_PLATEAU
+            || value == NTELayerIds.SHILIN_PLATEAU
+            || value == NTELayerIds.DOLINE_PLATEAU
+            || value == NTELayerIds.CENOTE_PLATEAU
+            || value == NTELayerIds.EXTREME_DOLINE_PLATEAU)
         {
             return TFCLayers.PLATEAU_LAKE;
         }
@@ -322,6 +369,17 @@ public abstract class TFCLayersMixin
         if (value == NTELayerIds.ICE_SHEET_EDGE)
         {
             return NTELayerIds.MELTWATER_LAKE;
+        }
+        // Keep the 4.2.9 tower-karst lake branch intact when the 1.20
+        // river task converts a karst biome into a nearby lake. Without
+        // these cases it falls through to the generic LAKE heightmap,
+        // replacing the fenglin mountain profile with a sea-level profile.
+        if (value == NTELayerIds.TOWER_KARST_CANYONS
+            || value == NTELayerIds.TOWER_KARST_HIGHLANDS
+            || value == NTELayerIds.TOWER_KARST_HILLS
+            || value == NTELayerIds.TOWER_KARST_PLAINS)
+        {
+            return NTELayerIds.TOWER_KARST_LAKE;
         }
         return TFCLayers.LAKE;
     }
@@ -340,7 +398,8 @@ public abstract class TFCLayersMixin
             || value == TFCLayers.SALT_MARSH
             || value == NTELayerIds.MUD_FLATS
             || value == NTELayerIds.SALT_FLATS
-            || value == NTELayerIds.DUNE_SEA;
+            || value == NTELayerIds.DUNE_SEA
+            || value == NTELayerIds.RIFT_VALLEY;
     }
 
     /**
@@ -354,7 +413,26 @@ public abstract class TFCLayersMixin
             || value == TFCLayers.OCEANIC_MOUNTAINS
             || value == TFCLayers.OLD_MOUNTAINS
             || value == TFCLayers.VOLCANIC_MOUNTAINS
-            || value == TFCLayers.VOLCANIC_OCEANIC_MOUNTAINS;
+            || value == TFCLayers.VOLCANIC_OCEANIC_MOUNTAINS
+            || value == NTELayerIds.VOLCANIC_MOUNTAIN_ISLANDS
+            || value == NTELayerIds.COLLISIONAL_MOUNTAINS;
+    }
+
+    /**
+     * @author Codex
+     * @reason Keep newly registered ocean families in the shoreline/lake layer contract.
+     */
+    @Overwrite(remap = false)
+    public static boolean isOcean(int value)
+    {
+        return value == TFCLayers.OCEAN
+            || value == TFCLayers.DEEP_OCEAN
+            || value == TFCLayers.DEEP_OCEAN_TRENCH
+            || value == TFCLayers.OCEAN_REEF
+            || value == NTELayerIds.OCEANIC_VOLCANIC_ARC
+            || value == NTELayerIds.OCEAN_ATOLLS
+            || value == NTELayerIds.DEEP_OCEAN_ATOLLS
+            || value == NTELayerIds.OCEAN_RIDGE;
     }
 
     private static boolean isFlatIceSheet(int value)

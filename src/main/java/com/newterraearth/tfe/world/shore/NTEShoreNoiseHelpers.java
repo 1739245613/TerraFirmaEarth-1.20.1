@@ -23,7 +23,7 @@ public final class NTEShoreNoiseHelpers
 
     public static Noise2D lowerTerraceNoise(NTESeed seed)
     {
-        return BiomeNoise.hills(seed.seed(), 7, 15);
+        return BiomeNoise.hills(seed.seed(), 3, 11);
     }
 
     public static Noise2D upperTerraceNoise(NTESeed seed)

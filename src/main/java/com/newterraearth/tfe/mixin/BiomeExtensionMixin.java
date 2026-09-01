@@ -37,6 +37,7 @@ public class BiomeExtensionMixin implements NTEBiomeExtensionAccess
     @Unique private int tfe$shoreBaseHeight = SEA_LEVEL_Y;
     @Unique private NTECenteredFeatureBlendType tfe$centeredFeatureBlendType = NTECenteredFeatureBlendType.NONE;
     @Unique private int tfe$centeredFeatureRarity;
+    @Unique private float tfe$centeredFeatureFrequency;
     @Unique private int tfe$centeredFeatureRockHeight;
     @Unique private int tfe$centeredFeatureBaseHeight;
     @Unique private int tfe$centeredFeatureScaleHeight;
@@ -104,6 +105,18 @@ public class BiomeExtensionMixin implements NTEBiomeExtensionAccess
     public void tfe$setCenteredFeatureRarity(int rarity)
     {
         tfe$centeredFeatureRarity = rarity;
+    }
+
+    @Override
+    public float tfe$getCenteredFeatureFrequency()
+    {
+        return tfe$centeredFeatureFrequency;
+    }
+
+    @Override
+    public void tfe$setCenteredFeatureFrequency(float frequency)
+    {
+        tfe$centeredFeatureFrequency = frequency;
     }
 
     @Override

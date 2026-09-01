@@ -71,5 +71,9 @@ public interface NTEChunkHeightFillerAccess
 
     double tfe$getRiverTerrainHeight(int localX, int localZ);
 
+    int[] tfe$getPreVolcanicHeights();
+
+    int[] tfe$getSurfaceIntegrityDepth();
+
     void tfe$recordRiverHydrologyProfile(int localX, int localZ);
 }

@@ -30,11 +30,11 @@ public enum NTEIceSheetEdgeLayer implements AdjacentTransformLayer
             }
         }
 
-        if (center == NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS && matcher.test(NTEIceSheetEdgeLayer::isNotIceSheet))
+        if ((center == NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS || center == NTELayerIds.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS) && matcher.test(NTEIceSheetEdgeLayer::isNotIceSheet))
         {
             return NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS_EDGE;
         }
-        if (center == NTELayerIds.ICE_SHEET_MOUNTAINS && matcher.test(NTEIceSheetEdgeLayer::isNotIceSheet))
+        if ((center == NTELayerIds.ICE_SHEET_MOUNTAINS || center == NTELayerIds.ICE_SHEET_VOLCANIC_MOUNTAINS) && matcher.test(NTEIceSheetEdgeLayer::isNotIceSheet))
         {
             return NTELayerIds.ICE_SHEET_MOUNTAINS_EDGE;
         }
@@ -87,6 +87,14 @@ public enum NTEIceSheetEdgeLayer implements AdjacentTransformLayer
             {
                 return NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS;
             }
+            if (matcher.test(i -> i == NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS))
+            {
+                return NTELayerIds.GLACIALLY_CARVED_VOLCANIC_MOUNTAINS;
+            }
+            if (matcher.test(i -> i == NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS))
+            {
+                return NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS;
+            }
         }
 
         if ((center == TFCLayers.PLATEAU
@@ -129,7 +137,9 @@ public enum NTEIceSheetEdgeLayer implements AdjacentTransformLayer
             && value != NTELayerIds.SUBGLACIAL_LAKE
             && value != NTELayerIds.ICE_SHEET_MOUNTAINS
             && value != NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS
-            && value != NTELayerIds.ICE_SHEET_SHIELD_VOLCANO;
+            && value != NTELayerIds.ICE_SHEET_SHIELD_VOLCANO
+            && value != NTELayerIds.ICE_SHEET_VOLCANIC_MOUNTAINS
+            && value != NTELayerIds.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS;
     }
 
     private static boolean isNotIceSheetOrGlaciated(int value)
@@ -137,6 +147,8 @@ public enum NTEIceSheetEdgeLayer implements AdjacentTransformLayer
         return isNotIceSheet(value)
             && value != NTELayerIds.GLACIATED_MOUNTAINS
             && value != NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS
-            && value != NTELayerIds.GLACIATED_SHIELD_VOLCANO;
+            && value != NTELayerIds.GLACIATED_SHIELD_VOLCANO
+            && value != NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS
+            && value != NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS;
     }
 }

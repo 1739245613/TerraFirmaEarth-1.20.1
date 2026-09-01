@@ -22,8 +22,10 @@ import com.newterraearth.tfe.world.surface.IceSheetSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.IceSheetShieldVolcanoSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.MudFlatsSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTEBadlandsSurfaceBuilder;
+import com.newterraearth.tfe.world.surface.NTEAtollSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTECinderConeSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTERiverSurfaceBuilder;
+import com.newterraearth.tfe.world.surface.NTEStratovolcanoSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTETuffRingsSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTETuyaSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.PatternedGroundSurfaceBuilder;
@@ -49,7 +51,7 @@ public final class NTEBiomeExtensions
     public static BiomeExtension ocean()
     {
         return build("ocean", BiomeBuilder.builder()
-            .noise(seed -> NTEOceanDepthSampler.ocean(seed))
+            .heightmap(seed -> BiomeNoise.ocean(seed, -26, -12))
             .surface(ShorelineSurfaceBuilder.OCEAN)
             .aquiferHeightOffset(-24)
             .salty()
@@ -60,7 +62,7 @@ public final class NTEBiomeExtensions
     public static BiomeExtension oceanReef()
     {
         return build("ocean_reef", BiomeBuilder.builder()
-            .noise(seed -> NTEOceanDepthSampler.oceanReef(seed))
+            .heightmap(seed -> BiomeNoise.ocean(seed, -16, -8))
             .surface(ShorelineSurfaceBuilder.OCEAN)
             .aquiferHeightOffset(-24)
             .salty()
@@ -71,7 +73,7 @@ public final class NTEBiomeExtensions
     public static BiomeExtension deepOcean()
     {
         return build("deep_ocean", BiomeBuilder.builder()
-            .noise(seed -> NTEOceanDepthSampler.deepOcean(seed))
+            .heightmap(seed -> BiomeNoise.ocean(seed, -46, -30))
             .surface(ShorelineSurfaceBuilder.OCEAN)
             .aquiferHeightOffset(-24)
             .salty()
@@ -82,12 +84,106 @@ public final class NTEBiomeExtensions
     public static BiomeExtension deepOceanTrench()
     {
         return build("deep_ocean_trench", BiomeBuilder.builder()
-            .noise(seed -> NTEOceanDepthSampler.trench(seed))
+            .heightmap(seed -> NTEBiomeNoise.oceanTrench(seed, -60, -46))
             .surface(ShorelineSurfaceBuilder.OCEAN)
             .aquiferHeightOffset(-24)
             .salty()
             .type(BiomeBlendType.OCEAN)
             .noRivers());
+    }
+
+    public static BiomeExtension oceanicVolcanicArc()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("oceanic_volcanic_arc", BiomeBuilder.builder()
+            .heightmap(seed -> BiomeNoise.ocean(seed, -26, -12))
+            .surface(stratovolcanoes(ShorelineSurfaceBuilder.OCEAN))
+            .aquiferHeightOffset(-24)
+            .salty()
+            .type(BiomeBlendType.OCEAN)
+            .noRivers()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.7f, SEA_LEVEL_Y, -12, 200, false);
+    }
+
+    public static BiomeExtension oceanAtolls()
+    {
+        return setCenteredFeatureMetadata(build("ocean_atolls", BiomeBuilder.builder()
+            .heightmap(seed -> BiomeNoise.ocean(seed, -26, -12))
+            .surface(atolls(ShorelineSurfaceBuilder.OCEAN))
+            .aquiferHeightOffset(-24)
+            .salty()
+            .type(BiomeBlendType.OCEAN)
+            .noRivers()), NTECenteredFeatureBlendType.ATOLL, 8, SEA_LEVEL_Y - 3, -4, 11, false);
+    }
+
+    public static BiomeExtension deepOceanAtolls()
+    {
+        return setCenteredFeatureMetadata(build("deep_ocean_atolls", BiomeBuilder.builder()
+            .heightmap(seed -> BiomeNoise.ocean(seed, -46, -30))
+            .surface(atolls(ShorelineSurfaceBuilder.OCEAN))
+            .aquiferHeightOffset(-24)
+            .salty()
+            .type(BiomeBlendType.OCEAN)
+            .noRivers()), NTECenteredFeatureBlendType.ATOLL, 8, SEA_LEVEL_Y - 3, -4, 11, false);
+    }
+
+    public static BiomeExtension oceanRidge()
+    {
+        return build("ocean_ridge", BiomeBuilder.builder()
+            .heightmap(NTEBiomeNoise::oceanRidge)
+            .surface(ShorelineSurfaceBuilder.OCEAN_RIDGE)
+            .aquiferHeightOffset(-24)
+            .salty()
+            .type(BiomeBlendType.OCEAN)
+            .noRivers());
+    }
+
+    public static BiomeExtension riftValley()
+    {
+        return setCenteredFeatureMetadata(build("rift_valley", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.riftValley(seed, 2, 25, false))
+            .surface(cinder(SimpleSurfaceBuilder.VOLCANIC_SOIL))
+            .spawnable()
+            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.CINDER_CONE, 7, SEA_LEVEL_Y + 20, 0, 28, false);
+    }
+
+    public static BiomeExtension riftLake()
+    {
+        return build("rift_lake", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.riftValley(seed, -10, 25, true))
+            .surface(NormalSurfaceBuilder.INSTANCE)
+            .aquiferHeightOffset(-16)
+            .type(RiverBlendType.CAVE)
+            .type(BiomeBlendType.LAKE)
+            .noRivers());
+    }
+
+    public static BiomeExtension riverValley()
+    {
+        return setRiverMetadata(build("river_valley", BiomeBuilder.builder()
+            .heightmap(seed -> BiomeNoise.hills(seed, -2, 4))
+            .surface(ShorelineSurfaceBuilder.SANDY)
+            .aquiferHeightOffset(-16)
+            .spawnable()
+            .type(RiverBlendType.WIDE)), NTERiverBlendType.FLOODPLAIN);
+    }
+
+    public static BiomeExtension volcanicMountainIslands()
+    {
+        return setCenteredFeatureMetadata(build("volcanic_mountain_islands", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.mountains(seed, -24, 50))
+            .surface(cinder(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
+            .aquiferHeightOffset(-8)
+            .salty()
+            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.CINDER_CONE, 2, SEA_LEVEL_Y + 15, 7, 35, false);
+    }
+
+    public static BiomeExtension volcanicIsland()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("volcanic_island", BiomeBuilder.builder()
+            .heightmap(seed -> BiomeNoise.hills(seed, -5, 28))
+            .surface(stratovolcanoes(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
+            .aquiferHeightOffset(-8)
+            .salty()
+            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y, 0, 200, false);
     }
 
     public static BiomeExtension plains()
@@ -193,7 +289,16 @@ public final class NTEBiomeExtensions
     public static BiomeExtension mountains()
     {
         return build("mountains", BiomeBuilder.builder()
-            .heightmap(seed -> NTEBiomeNoise.mountains(seed, 10, 70))
+            .heightmap(seed -> NTEBiomeNoise.ridgeMountains(seed, 10, 90, 0.4f, 140, 40))
+            .surface(NormalSurfaceBuilder.ROCKY)
+            .spawnable()
+            .type(RiverBlendType.CAVE));
+    }
+
+    public static BiomeExtension collisionalMountains()
+    {
+        return build("collisional_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.ridgeMountains(seed, 18, 130, 0.3f, 170, 35))
             .surface(NormalSurfaceBuilder.ROCKY)
             .spawnable()
             .type(RiverBlendType.CAVE));
@@ -221,20 +326,20 @@ public final class NTEBiomeExtensions
 
     public static BiomeExtension volcanicMountains()
     {
-        return setCenteredFeatureMetadata(build("volcanic_mountains", BiomeBuilder.builder()
-            .heightmap(seed -> NTEBiomeNoise.mountains(seed, 10, 60))
-            .surface(cinder(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
-            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.CINDER_CONE, 4, SEA_LEVEL_Y + 40, 25, 50, false);
+        return setCenteredFeatureFrequencyMetadata(build("volcanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.ridgeMountains(seed, 10, 80, 0.4f, 130, 40))
+            .surface(stratovolcanoes(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
+            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y + 12, 12, 200, false);
     }
 
     public static BiomeExtension volcanicOceanicMountains()
     {
-        return setCenteredFeatureMetadata(build("volcanic_oceanic_mountains", BiomeBuilder.builder()
+        return setCenteredFeatureFrequencyMetadata(build("volcanic_oceanic_mountains", BiomeBuilder.builder()
             .heightmap(seed -> NTEBiomeNoise.mountains(seed, -24, 50))
-            .surface(cinder(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
+            .surface(stratovolcanoes(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
             .aquiferHeightOffset(-8)
             .salty()
-            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.CINDER_CONE, 2, SEA_LEVEL_Y + 20, -12, 50, false);
+            .type(RiverBlendType.CAVE)), NTECenteredFeatureBlendType.STRATOVOLCANO, 1f, SEA_LEVEL_Y, 0, 200, false);
     }
 
     public static BiomeExtension shore()
@@ -383,9 +488,9 @@ public final class NTEBiomeExtensions
     public static BiomeExtension mountainLake()
     {
         return build("mountain_lake", BiomeBuilder.builder()
-            .heightmap(seed -> NTEBiomeNoise.mountains(seed, 10, 70))
+            .heightmap(seed -> NTEBiomeNoise.ridgeMountains(seed, 10, 90, 0.4f, 140, 40))
             .surface(NormalSurfaceBuilder.ROCKY)
-            .carving(BiomeNoise::undergroundLakes)
+            .carving(NTEBiomeNoise::undergroundLakes)
             .type(BiomeBlendType.LAKE)
             .noRivers());
     }
@@ -395,7 +500,7 @@ public final class NTEBiomeExtensions
         return build("old_mountain_lake", BiomeBuilder.builder()
             .heightmap(seed -> NTEBiomeNoise.mountains(seed, -16, 60))
             .surface(NormalSurfaceBuilder.ROCKY)
-            .carving(BiomeNoise::undergroundLakes)
+            .carving(NTEBiomeNoise::undergroundLakes)
             .type(BiomeBlendType.LAKE)
             .noRivers());
     }
@@ -405,7 +510,7 @@ public final class NTEBiomeExtensions
         return build("oceanic_mountain_lake", BiomeBuilder.builder()
             .heightmap(seed -> NTEBiomeNoise.mountains(seed, -16, 60))
             .surface(ShorelineSurfaceBuilder.MOUNTAINS)
-            .carving(BiomeNoise::undergroundLakes)
+            .carving(NTEBiomeNoise::undergroundLakes)
             .salty()
             .type(BiomeBlendType.LAKE)
             .noRivers());
@@ -413,23 +518,23 @@ public final class NTEBiomeExtensions
 
     public static BiomeExtension volcanicMountainLake()
     {
-        return setCenteredFeatureMetadata(build("volcanic_mountain_lake", BiomeBuilder.builder()
-            .heightmap(seed -> NTEBiomeNoise.mountains(seed, 10, 60))
-            .surface(cinder(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
-            .carving(BiomeNoise::undergroundLakes)
+        return setCenteredFeatureFrequencyMetadata(build("volcanic_mountain_lake", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.ridgeMountains(seed, 10, 80, 0.4f, 130, 40))
+            .surface(stratovolcanoes(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
+            .carving(NTEBiomeNoise::undergroundLakes)
             .type(BiomeBlendType.LAKE)
-            .noRivers()), NTECenteredFeatureBlendType.CINDER_CONE, 4, SEA_LEVEL_Y + 40, 25, 50, false);
+            .noRivers()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y + 12, 12, 200, false);
     }
 
     public static BiomeExtension volcanicOceanicMountainLake()
     {
-        return setCenteredFeatureMetadata(build("volcanic_oceanic_mountain_lake", BiomeBuilder.builder()
+        return setCenteredFeatureFrequencyMetadata(build("volcanic_oceanic_mountain_lake", BiomeBuilder.builder()
             .heightmap(seed -> NTEBiomeNoise.mountains(seed, -24, 50))
-            .surface(cinder(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
-            .carving(BiomeNoise::undergroundLakes)
+            .surface(stratovolcanoes(ShorelineSurfaceBuilder.VOLCANIC_MOUNTAINS))
+            .carving(NTEBiomeNoise::undergroundLakes)
             .salty()
             .type(BiomeBlendType.LAKE)
-            .noRivers()), NTECenteredFeatureBlendType.CINDER_CONE, 2, SEA_LEVEL_Y + 20, -12, 50, false);
+            .noRivers()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y, 0, 200, false);
     }
 
     public static BiomeExtension plateauLake()
@@ -437,7 +542,7 @@ public final class NTEBiomeExtensions
         return build("plateau_lake", BiomeBuilder.builder()
             .heightmap(seed -> BiomeNoise.hills(seed, 20, 30))
             .surface(NormalSurfaceBuilder.INSTANCE)
-            .carving(BiomeNoise::undergroundLakes)
+            .carving(NTEBiomeNoise::undergroundLakes)
             .type(BiomeBlendType.LAKE)
             .noRivers());
     }
@@ -560,7 +665,7 @@ public final class NTEBiomeExtensions
             .heightmap(NTEBiomeNoise::towerKarstCanyons)
             .surface(NormalSurfaceBuilder.ROCKY)
             .spawnable()
-            .type(RiverBlendType.TALL_CANYON)
+            .type(RiverBlendType.CAVE)
             .noSandyRiverShores());
     }
 
@@ -579,7 +684,8 @@ public final class NTEBiomeExtensions
             .heightmap(NTEBiomeNoise::towerKarstHighlands)
             .surface(NormalSurfaceBuilder.ROCKY)
             .spawnable()
-            .type(RiverBlendType.TALL_CANYON));
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores());
     }
 
     public static BiomeExtension towerKarstLake()
@@ -590,6 +696,7 @@ public final class NTEBiomeExtensions
             .aquiferHeightOffset(-16)
             .spawnable()
             .type(RiverBlendType.TALL_CANYON)
+            .type(BiomeBlendType.LAKE)
             .noSandyRiverShores());
     }
 
@@ -759,7 +866,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenotePlains()
     {
         return setRiverMetadata(build("cenote_plains", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenotePlains)
+            .heightmap(seed -> BiomeNoise.hills(seed, 4, 10))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.WIDE)), NTERiverBlendType.FLOODPLAIN);
@@ -768,7 +876,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenoteHills()
     {
         return build("cenote_hills", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenoteHills)
+            .heightmap(seed -> BiomeNoise.hills(seed, -5, 16))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.WIDE));
@@ -777,7 +886,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenoteRollingHills()
     {
         return build("cenote_rolling_hills", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenoteRollingHills)
+            .heightmap(seed -> BiomeNoise.hills(seed, -5, 28))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.CANYON));
@@ -786,7 +896,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenoteCanyons()
     {
         return build("cenote_canyons", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenoteCanyons)
+            .heightmap(seed -> BiomeNoise.canyons(seed, 2, 28))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.CANYON)
@@ -796,7 +907,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenoteHighlands()
     {
         return build("cenote_highlands", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenoteHighlands)
+            .heightmap(seed -> NTEBiomeNoise.sharpHills(seed, 0, 24))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.TALL_CANYON)
@@ -806,7 +918,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension cenotePlateau()
     {
         return build("cenote_plateau", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::cenotePlateau)
+            .heightmap(seed -> BiomeNoise.hills(seed, 20, 30))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.INSTANCE)
             .spawnable()
             .type(RiverBlendType.TALL_CANYON)
@@ -816,7 +929,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension extremeDolinePlateau()
     {
         return build("extreme_doline_plateau", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::extremeDolinePlateau)
+            .heightmap(NTEBiomeNoise::mogotePlateau)
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.ROCKY)
             .spawnable()
             .type(RiverBlendType.TALL_CANYON));
@@ -825,7 +939,8 @@ public final class NTEBiomeExtensions
     public static BiomeExtension extremeDolineMountains()
     {
         return build("extreme_doline_mountains", BiomeBuilder.builder()
-            .heightmap(NTEBiomeNoise::extremeDolineMountains)
+            .heightmap(seed -> NTEBiomeNoise.tiankeng(seed, NTEBiomeNoise.mountains(seed, 16, 40, 1.3f)))
+            .carving(NTEBiomeNoise::cenotes)
             .surface(NormalSurfaceBuilder.ROCKY)
             .spawnable()
             .type(RiverBlendType.CAVE));
@@ -940,6 +1055,28 @@ public final class NTEBiomeExtensions
             .noSandyRiverShores());
     }
 
+    public static BiomeExtension iceSheetVolcanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("ice_sheet_volcanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.iceSheetMountains(seed, false))
+            .surface(stratovolcanoes(IceSheetSurfaceBuilder.ICE_SHEET_VOLCANIC_MOUNTAINS))
+            .spawnable()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y + 12, 12, 200, true);
+    }
+
+    public static BiomeExtension iceSheetVolcanicOceanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("ice_sheet_volcanic_oceanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.iceSheetMountains(seed, true))
+            .surface(stratovolcanoes(IceSheetSurfaceBuilder.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS))
+            .aquiferHeightOffset(-24)
+            .spawnable()
+            .salty()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y, 0, 200, true);
+    }
+
     public static BiomeExtension iceSheetShieldVolcano()
     {
         return build("ice_sheet_shield_volcano", BiomeBuilder.builder()
@@ -965,7 +1102,7 @@ public final class NTEBiomeExtensions
         return build("subglacial_lake", BiomeBuilder.builder()
             .heightmap(NTEBiomeNoise::iceSheet)
             .surface(IceSheetSurfaceBuilder.HIDDEN_LAKE)
-            .carving(BiomeNoise::undergroundLakes)
+            .carving(NTEBiomeNoise::undergroundLakes)
             .type(BiomeBlendType.LAKE)
             .noRivers());
     }
@@ -1046,6 +1183,28 @@ public final class NTEBiomeExtensions
             .noSandyRiverShores());
     }
 
+    public static BiomeExtension glaciatedVolcanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("glaciated_volcanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.glaciatedMountains(seed, false))
+            .surface(stratovolcanoes(IceSheetSurfaceBuilder.GLACIATED_VOLCANIC_MOUNTAINS))
+            .spawnable()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y + 12, 12, 200, true);
+    }
+
+    public static BiomeExtension glaciatedVolcanicOceanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("glaciated_volcanic_oceanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.glaciatedMountains(seed, true))
+            .surface(stratovolcanoes(IceSheetSurfaceBuilder.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS))
+            .aquiferHeightOffset(-24)
+            .spawnable()
+            .salty()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y, 0, 200, true);
+    }
+
     public static BiomeExtension meltwaterLake()
     {
         return buildShore("meltwater_lake", BiomeBuilder.builder()
@@ -1101,6 +1260,28 @@ public final class NTEBiomeExtensions
             .salty()
             .type(RiverBlendType.CAVE)
             .noSandyRiverShores());
+    }
+
+    public static BiomeExtension glaciallyCarvedVolcanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("glacially_carved_volcanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.glaciallyCarvedMountains(seed, false))
+            .surface(stratovolcanoes(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
+            .spawnable()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y + 12, 12, 200, true);
+    }
+
+    public static BiomeExtension glaciallyCarvedVolcanicOceanicMountains()
+    {
+        return setCenteredFeatureFrequencyMetadata(build("glacially_carved_volcanic_oceanic_mountains", BiomeBuilder.builder()
+            .heightmap(seed -> NTEBiomeNoise.glaciallyCarvedMountains(seed, true))
+            .surface(stratovolcanoes(SimpleSurfaceBuilder.ROCKY_VOLCANIC_SOIL))
+            .aquiferHeightOffset(-24)
+            .spawnable()
+            .salty()
+            .type(RiverBlendType.CAVE)
+            .noSandyRiverShores()), NTECenteredFeatureBlendType.STRATOVOLCANO, 0.8f, SEA_LEVEL_Y, 0, 200, true);
     }
 
     public static BiomeExtension drumlins()
@@ -1194,11 +1375,19 @@ public final class NTEBiomeExtensions
         final NTEBiomeExtensionAccess access = (NTEBiomeExtensionAccess) (Object) extension;
         access.tfe$setCenteredFeatureBlendType(blendType);
         access.tfe$setCenteredFeatureRarity(rarity);
+        access.tfe$setCenteredFeatureFrequency(rarity > 0 ? 1f / rarity : 0f);
         access.tfe$setCenteredFeatureRockHeight(rockHeight);
         access.tfe$setCenteredFeatureBaseHeight(baseHeight);
         access.tfe$setCenteredFeatureScaleHeight(scaleHeight);
         access.tfe$setCenteredFeatureIce(icy);
         return extension;
+    }
+
+    private static BiomeExtension setCenteredFeatureFrequencyMetadata(BiomeExtension extension, NTECenteredFeatureBlendType blendType, float frequency, int rockHeight, int baseHeight, int scaleHeight, boolean icy)
+    {
+        final BiomeExtension result = setCenteredFeatureMetadata(extension, blendType, Math.max(1, Math.round(1f / Math.max(0.0001f, frequency))), rockHeight, baseHeight, scaleHeight, icy);
+        ((NTEBiomeExtensionAccess) (Object) result).tfe$setCenteredFeatureFrequency(frequency);
+        return result;
     }
 
     private static SurfaceBuilderFactory cinder(SurfaceBuilderFactory parent)
@@ -1214,6 +1403,16 @@ public final class NTEBiomeExtensions
     private static SurfaceBuilderFactory tuyas(SurfaceBuilderFactory parent)
     {
         return NTETuyaSurfaceBuilder.create(parent);
+    }
+
+    private static SurfaceBuilderFactory atolls(SurfaceBuilderFactory parent)
+    {
+        return NTEAtollSurfaceBuilder.create(parent);
+    }
+
+    private static SurfaceBuilderFactory stratovolcanoes(SurfaceBuilderFactory parent)
+    {
+        return NTEStratovolcanoSurfaceBuilder.create(parent);
     }
 
     private static Noise2D constant(int height)

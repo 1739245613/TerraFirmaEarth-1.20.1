@@ -16,8 +16,6 @@ import static net.dries007.tfc.world.layer.TFCLayers.*;
 @Mixin(value = ChooseBiomes.class, remap = false)
 public abstract class ChooseBiomesMixin
 {
-    private static final int[] MOUNTAIN_ALTITUDE_BIOMES = {MOUNTAINS, MOUNTAINS, MOUNTAINS, OLD_MOUNTAINS, OLD_MOUNTAINS, PLATEAU, HIGHLANDS};
-    private static final int[] OCEANIC_MOUNTAIN_ALTITUDE_BIOMES = {VOLCANIC_MOUNTAINS, VOLCANIC_OCEANIC_MOUNTAINS, VOLCANIC_OCEANIC_MOUNTAINS, OCEANIC_MOUNTAINS, OCEANIC_MOUNTAINS, ROLLING_HILLS};
     private static final int[][] ALTITUDE_BIOMES = {
         {PLAINS, PLAINS, HILLS, HILLS, ROLLING_HILLS, LOW_CANYONS, LOWLANDS, LOWLANDS},
         {PLAINS, HILLS, ROLLING_HILLS, ROLLING_HILLS, ROLLING_HILLS, HIGHLANDS, NTELayerIds.BUTTES, NTELayerIds.MESAS, BADLANDS, NTELayerIds.PLATEAU_WIDE, CANYONS, CANYONS, LOW_CANYONS},
@@ -44,8 +42,11 @@ public abstract class ChooseBiomesMixin
         {HIGHLANDS, HIGHLANDS, NTELayerIds.MESAS, NTELayerIds.HOODOOS, ROLLING_HILLS, ROLLING_HILLS, BADLANDS, BADLANDS, NTELayerIds.PLATEAU_WIDE, NTELayerIds.ROCKY_PLATEAU, NTELayerIds.STAIR_STEP_CANYONS, NTELayerIds.STAIR_STEP_CANYONS, OLD_MOUNTAINS, OLD_MOUNTAINS, NTELayerIds.WHORLED_CANYONS},
     };
     private static final int[] KNOB_AND_KETTLE_BIOMES = {NTELayerIds.KNOB_AND_KETTLE, NTELayerIds.PATTERNED_GROUND, NTELayerIds.INVERTED_PATTERNED_GROUND};
-    private static final int[] ISLAND_BIOMES = {PLAINS, HILLS, ROLLING_HILLS, VOLCANIC_OCEANIC_MOUNTAINS, VOLCANIC_OCEANIC_MOUNTAINS, NTELayerIds.GUANO_ISLAND};
-    private static final int[] MID_DEPTH_OCEAN_BIOMES = {DEEP_OCEAN, OCEAN, OCEAN, OCEAN_REEF, OCEAN_REEF, OCEAN_REEF};
+    private static final int[] ISLAND_BIOMES = {ROLLING_HILLS, VOLCANIC_OCEANIC_MOUNTAINS, NTELayerIds.VOLCANIC_MOUNTAIN_ISLANDS, NTELayerIds.GUANO_ISLAND};
+    private static final int[] RIFT_VALLEY_BIOMES = {NTELayerIds.RIFT_VALLEY, NTELayerIds.RIFT_VALLEY, NTELayerIds.RIFT_VALLEY, NTELayerIds.RIFT_LAKE, NTELayerIds.RIFT_LAKE};
+    private static final int[] MID_DEPTH_OCEAN_BIOMES = {DEEP_OCEAN, OCEAN, OCEAN, OCEAN_REEF, NTELayerIds.OCEAN_ATOLLS, OCEAN_REEF};
+    private static final int[] VOLCANIC_ARC_BIOMES = {VOLCANIC_OCEANIC_MOUNTAINS, VOLCANIC_OCEANIC_MOUNTAINS, VOLCANIC_OCEANIC_MOUNTAINS, NTELayerIds.VOLCANIC_ISLAND, NTELayerIds.OCEANIC_VOLCANIC_ARC};
+    private static final int[] BARRIER_ISLAND_BIOMES = {PLAINS, PLAINS, PLAINS, SALT_MARSH, TIDAL_FLATS};
 
     /**
      * @author Codex
@@ -58,7 +59,6 @@ public abstract class ChooseBiomesMixin
         final Area blobArea = context.generator().biomeArea.get();
         final long rngSeed = context.random.nextLong();
         final long climateSeed = context.random.nextLong();
-
         for (int x = region.minX(); x <= region.maxX(); x++)
         {
             for (int z = region.minZ(); z <= region.maxZ(); z++)
@@ -76,13 +76,83 @@ public abstract class ChooseBiomesMixin
                 {
                     point.biome = randomSeededFrom(rngSeed, areaSeed, ISLAND_BIOMES);
                 }
+                else if (point.distanceToEdge < 3 && pointAccess.nte$getDivergence() > 0d && point.land())
+                {
+                    point.biome = point.distanceToOcean > 2
+                        ? randomSeededFrom(rngSeed, areaSeed, RIFT_VALLEY_BIOMES)
+                        : NTELayerIds.RIFT_VALLEY;
+                }
+                else if (point.river() && point.distanceToEdge > 4 && point.temperature > -16f + 0.006f * point.rainfall)
+                {
+                    point.biome = NTELayerIds.RIVER_VALLEY;
+                }
                 else if (point.mountain())
                 {
                     final float temperature = point.temperature;
-                    if (point.coastalMountain())
+                    final boolean collisional = pointAccess.nte$getDivergence() < 0d
+                        && point.distanceToEdge < 1.2f * context.generator().continentNoise.noise(x, z) - 5.2f;
+                    if (collisional)
                     {
                         final float maxIceSheetTemp = -16f + 0.006f * point.rainfall;
-                        if (temperature < maxIceSheetTemp + 2f)
+                        if (point.distanceToOcean < 3)
+                        {
+                            if (temperature < maxIceSheetTemp + 2f)
+                            {
+                                point.biome = NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 6f)
+                            {
+                                point.biome = NTELayerIds.GLACIATED_OCEANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 10f)
+                            {
+                                point.biome = NTELayerIds.GLACIALLY_CARVED_OCEANIC_MOUNTAINS;
+                            }
+                            else
+                            {
+                                point.biome = OCEANIC_MOUNTAINS;
+                            }
+                        }
+                        else if (temperature < maxIceSheetTemp + 4f)
+                        {
+                            point.biome = NTELayerIds.ICE_SHEET_MOUNTAINS;
+                        }
+                        else if (temperature < maxIceSheetTemp + 8f)
+                        {
+                            point.biome = NTELayerIds.GLACIATED_MOUNTAINS;
+                        }
+                        else if (temperature < maxIceSheetTemp + 11f)
+                        {
+                            point.biome = NTELayerIds.GLACIALLY_CARVED_MOUNTAINS;
+                        }
+                        else
+                        {
+                            point.biome = NTELayerIds.COLLISIONAL_MOUNTAINS;
+                        }
+                    }
+                    else if (point.coastalMountain())
+                    {
+                        final float maxIceSheetTemp = -16f + 0.006f * point.rainfall;
+                        if (pointAccess.nte$isVolcanic())
+                        {
+                            if (temperature < maxIceSheetTemp + 2f)
+                            {
+                                point.biome = NTELayerIds.ICE_SHEET_VOLCANIC_OCEANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 6f)
+                            {
+                                point.biome = NTELayerIds.GLACIATED_VOLCANIC_OCEANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 10f)
+                            {
+                                point.biome = NTELayerIds.GLACIALLY_CARVED_VOLCANIC_OCEANIC_MOUNTAINS;
+                            }
+                            else
+                            {
+                                point.biome = VOLCANIC_OCEANIC_MOUNTAINS;
+                            }
+                        }
+                        else if (temperature < maxIceSheetTemp + 2f)
                         {
                             point.biome = NTELayerIds.ICE_SHEET_OCEANIC_MOUNTAINS;
                         }
@@ -96,27 +166,46 @@ public abstract class ChooseBiomesMixin
                         }
                         else
                         {
-                            point.biome = randomSeededFrom(rngSeed, areaSeed, OCEANIC_MOUNTAIN_ALTITUDE_BIOMES);
+                            point.biome = OCEANIC_MOUNTAINS;
                         }
-                    }
-                    else
-                    {
-                        final float maxIceSheetTemp = -14f + 0.006f * point.rainfall;
-                        if (temperature < maxIceSheetTemp)
+                        }
+                        else
                         {
-                            point.biome = NTELayerIds.ICE_SHEET_MOUNTAINS;
+                            final float maxIceSheetTemp = -14f + 0.006f * point.rainfall;
+                            if (pointAccess.nte$isVolcanic())
+                        {
+                            if (temperature < maxIceSheetTemp + 4f)
+                            {
+                                point.biome = NTELayerIds.ICE_SHEET_VOLCANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 8f)
+                            {
+                                point.biome = NTELayerIds.GLACIATED_VOLCANIC_MOUNTAINS;
+                            }
+                            else if (temperature < maxIceSheetTemp + 11f)
+                            {
+                                point.biome = NTELayerIds.GLACIALLY_CARVED_VOLCANIC_MOUNTAINS;
+                            }
+                            else
+                            {
+                                point.biome = VOLCANIC_MOUNTAINS;
+                            }
                         }
                         else if (temperature < maxIceSheetTemp + 4f)
                         {
+                            point.biome = NTELayerIds.ICE_SHEET_MOUNTAINS;
+                        }
+                        else if (temperature < maxIceSheetTemp + 8f)
+                        {
                             point.biome = NTELayerIds.GLACIATED_MOUNTAINS;
                         }
-                        else if (temperature < maxIceSheetTemp + 10f)
+                        else if (temperature < maxIceSheetTemp + 11f)
                         {
                             point.biome = NTELayerIds.GLACIALLY_CARVED_MOUNTAINS;
                         }
                         else
                         {
-                            point.biome = randomSeededFrom(rngSeed, areaSeed, MOUNTAIN_ALTITUDE_BIOMES);
+                            point.biome = MOUNTAINS;
                         }
                     }
                 }
@@ -159,21 +248,33 @@ public abstract class ChooseBiomesMixin
                         point.biome = randomSeededFrom(rngSeed, areaSeed, ALTITUDE_BIOMES[point.discreteBiomeAltitude()]);
                     }
                 }
-                else if (point.baseOceanDepth < 3)
+                else if (pointAccess.nte$isBarrierIsland())
                 {
-                    point.biome = OCEAN;
+                    point.biome = pointAccess.nte$isVolcanic()
+                        ? randomSeededFrom(rngSeed, areaSeed, VOLCANIC_ARC_BIOMES)
+                        : randomSeededFrom(rngSeed, areaSeed, BARRIER_ISLAND_BIOMES);
                 }
-                else if (point.baseOceanDepth > 9)
+                else if (pointAccess.nte$getOceanDepth() == 1)
+                {
+                    point.biome = pointAccess.nte$isVolcanic() ? NTELayerIds.OCEANIC_VOLCANIC_ARC : OCEAN_REEF;
+                }
+                else if (pointAccess.nte$getOceanDepth() == 2)
+                {
+                    point.biome = point.temperature > 12f && pointAccess.nte$getDistanceToLand() > 4
+                        ? NTELayerIds.OCEAN_ATOLLS : OCEAN;
+                }
+                else if (pointAccess.nte$getOceanDepth() == 3)
+                {
+                    point.biome = NTELayerIds.OCEAN_RIDGE;
+                }
+                else if (pointAccess.nte$getOceanDepth() == 5)
                 {
                     point.biome = DEEP_OCEAN_TRENCH;
                 }
-                else if (point.baseOceanDepth >= 5 || point.distanceToEdge < 2)
-                {
-                    point.biome = DEEP_OCEAN;
-                }
                 else
                 {
-                    point.biome = randomSeededFrom(rngSeed, areaSeed, MID_DEPTH_OCEAN_BIOMES);
+                    point.biome = point.temperature > 12f && pointAccess.nte$getDistanceToLand() > 3
+                        ? NTELayerIds.DEEP_OCEAN_ATOLLS : DEEP_OCEAN;
                 }
 
                 final byte hotSpotAge = pointAccess.nte$getHotSpotAge();
@@ -272,8 +373,16 @@ public abstract class ChooseBiomesMixin
                 {
                     point.biome = SALT_MARSH;
                 }
+
+                // Lake flags are applied after climate and karst substitutions in 4.2.9.
+                if (point.lake() && hasLake(point.biome))
+                {
+                    point.biome = lakeFor(point.biome);
+                }
+
             }
         }
+
     }
 
     private int randomSeededFrom(long rngSeed, int areaSeed, int[] choices)

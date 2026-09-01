@@ -2,10 +2,17 @@ package com.newterraearth.tfe.world;
 
 import net.minecraft.util.Mth;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import net.dries007.tfc.util.Helpers;
+import net.dries007.tfc.world.BiomeNoiseSampler;
 import net.dries007.tfc.world.biome.BiomeNoise;
 import net.dries007.tfc.world.noise.Noise2D;
+import net.dries007.tfc.world.noise.Noise3D;
 import net.dries007.tfc.world.noise.OpenSimplex2D;
+import net.dries007.tfc.world.noise.OpenSimplex3D;
+import net.dries007.tfc.world.region.Units;
 
 import com.newterraearth.tfe.config.NTECommonConfig;
 import com.newterraearth.tfe.world.noise.NTECellular2D;
@@ -15,8 +22,29 @@ import static net.dries007.tfc.world.TFCChunkGenerator.SEA_LEVEL_Y;
 
 public final class NTEBiomeNoise
 {
+    /**
+     * The 1.20 TFC region generator derives its cellular seed from the
+     * random stream, while 1.21 derives it from the level seed. Keep the
+     * migrated cell-boundary biomes on the actual 1.20 region field.
+     */
+    private static final Map<Long, Integer> REGION_CELL_SEEDS = new ConcurrentHashMap<>();
+
     private NTEBiomeNoise()
     {
+    }
+
+    public static void registerRegionCellSeed(long levelSeed, int hashedCellSeed)
+    {
+        REGION_CELL_SEEDS.put(levelSeed, hashedCellSeed);
+    }
+
+    private static NTECellular2D continentCellNoise(long levelSeed)
+    {
+        final Integer hashedCellSeed = REGION_CELL_SEEDS.get(levelSeed);
+        final NTECellular2D cellNoise = hashedCellSeed == null
+            ? new NTECellular2D(levelSeed, 2)
+            : NTECellular2D.fromHashedSeed(hashedCellSeed);
+        return cellNoise.spread((1d / 128d) / Units.CELL_WIDTH_IN_GRID);
     }
 
     public static Noise2D badlands(long seed)
@@ -151,13 +179,21 @@ public final class NTEBiomeNoise
 
     public static Noise2D mountains(long seed, int baseHeight, int scaleHeight)
     {
+        return mountains(seed, baseHeight, scaleHeight, 1f);
+    }
+
+    /**
+     * 4.2.9 mountain noise with an explicit spread factor, while retaining TFE's configurable cliff pass.
+     */
+    public static Noise2D mountains(long seed, int baseHeight, int scaleHeight, float spreadFactor)
+    {
         final Noise2D baseNoise = new OpenSimplex2D(seed)
             .octaves(6)
-            .spread(0.14f)
+            .spread(0.14f * spreadFactor)
             .add(new OpenSimplex2D(seed + 1)
                 .octaves(4)
-                .spread(0.02f)
-                .scaled(-0.7f, 0.7f)
+                .spread(0.02f * spreadFactor)
+                .scaled(-0.9f, 0.9f)
                 .ridged()
             )
             .map(x -> {
@@ -176,16 +212,16 @@ public final class NTEBiomeNoise
 
         final Noise2D cliffLiftNoise = new OpenSimplex2D(seed + 2)
             .octaves(2)
-            .spread(0.01f)
+            .spread(0.01f * spreadFactor)
             .scaled(-cliffMaxHeight, cliffMaxHeight)
             .map(value -> value > 0 ? Mth.clampedMap(value, 0, cliffMaxHeight, cliffMinHeight, cliffMaxHeight) : 0);
         final Noise2D cliffThresholdNoise = new OpenSimplex2D(seed + 3)
             .octaves(2)
-            .spread(0.01f)
+            .spread(0.01f * spreadFactor)
             .scaled(140 - 20, 140 + 20);
         final Noise2D cliffFadeRatioNoise = new OpenSimplex2D(seed + 4)
             .octaves(2)
-            .spread(0.01f)
+            .spread(0.01f * spreadFactor)
             .scaled(fadeMinRatio, fadeMaxRatio);
 
         return (x, z) -> {
@@ -205,6 +241,61 @@ public final class NTEBiomeNoise
                 }
             }
             return height;
+        };
+    }
+
+    /**
+     * 4.2.9 collisional mountain terrain: continuous ridges with pass cuts and softened high peaks.
+     */
+    public static Noise2D ridgeMountains(long seed, double baseHeight, double scaleHeight, float spreadFactor, int cliffStartHeight, int cliffStartVariance)
+    {
+        final Noise2D ridges = new OpenSimplex2D(seed + 3987677L)
+            .octaves(4)
+            .spread(0.022f)
+            .map(value -> 1 - 2.8 * value * value);
+        final Noise2D passes = new OpenSimplex2D(seed + 454379L)
+            .octaves(2)
+            .spread(0.003f)
+            .map(value -> 16 * value * value);
+        final Noise2D passHeight = ridges.map(value -> Mth.clampedMap(value, 0.3, 0.9, 0.3, 0.5));
+        final Noise2D carvedRidges = min(ridges, passes.add(passHeight));
+
+        final OpenSimplex2D warp = new OpenSimplex2D(seed).octaves(3).spread(0.025f).scaled(-50f, 50f);
+        final Noise2D peaks = easeIn(
+            new OpenSimplex2D(seed + 4242L).octaves(3).spread(0.045).scaled(-0.6, 1).warped(warp),
+            0.4, 0.8, 0.1, 1, carvedRidges);
+        final Noise2D scale = easeIn(
+            new OpenSimplex2D(seed + 245L).octaves(4).spread(0.012),
+            0.3, 0.9, 0, 1, ridges).map(value -> 1 + 0.35 * value);
+        final Noise2D flatValleys = BiomeNoise.hills(seed + 525L, (int) (baseHeight - 15), (int) (baseHeight + 15));
+        final Noise2D textureNoise = new OpenSimplex2D(seed + 5).octaves(6).spread(0.4).scaled(-30, 30);
+        final Noise2D baseNoise = max(
+            carvedRidges.add(peaks).lazyProduct(scale).scaled(0, 1, SEA_LEVEL_Y + baseHeight, SEA_LEVEL_Y + baseHeight + scaleHeight),
+            flatValleys
+        ).add(textureNoise).spread(spreadFactor);
+
+        final Noise2D cliffNoise = new OpenSimplex2D(seed + 2)
+            .octaves(2)
+            .spread(0.01f * spreadFactor)
+            .scaled(-25, 25)
+            .map(value -> value > 0 ? value : 0);
+        final Noise2D cliffHeightNoise = new OpenSimplex2D(seed + 3)
+            .octaves(2)
+            .spread(0.01f * spreadFactor)
+            .scaled(cliffStartHeight - cliffStartVariance, cliffStartHeight + cliffStartVariance);
+
+        return (x, z) -> {
+            double height = baseNoise.noise(x, z);
+            if (height > cliffStartHeight - cliffStartVariance)
+            {
+                final double cliffHeight = cliffHeightNoise.noise(x, z) - height;
+                if (cliffHeight < 0)
+                {
+                    final double mappedCliffHeight = Mth.clampedMap(cliffHeight, 0, -1, 0, 1);
+                    height += mappedCliffHeight * cliffNoise.noise(x, z);
+                }
+            }
+            return height > 260 ? Mth.clampedMap(height, 260, 340, 260, 300) : height;
         };
     }
 
@@ -241,32 +332,80 @@ public final class NTEBiomeNoise
 
     public static Noise2D towerKarstPlains(long seed)
     {
-        return fenglin(seed, BiomeNoise.hills(seed, 4, 8), 40);
+        return fengcongPlains(seed, 0, 90);
     }
 
     public static Noise2D towerKarstCanyons(long seed)
     {
-        return fengcong(seed, BiomeNoise.canyons(seed, -2, 30));
+        return mogotes(seed, 6, 110);
     }
 
     public static Noise2D towerKarstHills(long seed)
     {
-        return fengcong(seed, BiomeNoise.hills(seed, -5, 22));
+        return fenglinPlains(seed, 0, 90);
     }
 
     public static Noise2D towerKarstHighlands(long seed)
     {
-        return fengcong(seed, sharpHills(seed, 0, 20));
+        return mogotes(seed, 6, 110);
     }
 
     public static Noise2D towerKarstLake(long seed)
     {
-        return fenglin(seed, BiomeNoise.hills(seed, -12, -4), 50);
+        return fenglinPlains(seed, -8, 98);
     }
 
     public static Noise2D towerKarstBay(long seed)
     {
-        return fenglin(seed, BiomeNoise.hills(seed, -18, -8), 50);
+        return fenglinPlains(seed, -12, 102);
+    }
+
+    /** 4.2.9 cone karst terrain. */
+    public static Noise2D fengcongPlains(long seed, double baseHeight, double scale)
+    {
+        final Noise2D layer0 = new OpenSimplex2D(seed)
+            .spread(0.06)
+            .octaves(4)
+            .abs()
+            .scaled(0.25, 1, 0, scale);
+        return addConstant(max(layer0, (x, z) -> 0), baseHeight + SEA_LEVEL_Y);
+    }
+
+    /** 4.2.9 tower karst terrain. */
+    public static Noise2D fenglinPlains(long seed, double baseHeight, double scale)
+    {
+        final Noise2D cliffCompare1 = addConstant(new OpenSimplex2D(seed).spread(0.04).octaves(3).scaled(0, 0.2 * scale), baseHeight + SEA_LEVEL_Y);
+        final Noise2D cliffCompare2 = addConstant(new OpenSimplex2D(seed).spread(0.04).octaves(3).scaled(0.15 * scale, 0.3 * scale), baseHeight + SEA_LEVEL_Y);
+        final Noise2D cliffHeight = new OpenSimplex2D(seed).spread(0.08).octaves(3).scaled(0, 0.1 * scale);
+        // 1.21's fenglinPlains uses Noise2D.cliffMap here: once the base
+        // height exceeds the comparison field, the cliff height is added.
+        // fenglinCliffMap is a different interpolation helper used by the
+        // older fenglin/tunnel terrain and would invert tall karst columns
+        // when the addend is greater than one.
+        final Noise2D firstCliff = cliffMap(fengcongPlains(seed, baseHeight, 0.9 * scale), cliffCompare2, cliffHeight);
+        return cliffMap(firstCliff, cliffCompare1, cliffHeight);
+    }
+
+    /** 4.2.9 cockpit karst terrain. */
+    public static Noise2D mogotes(long seed, double baseHeight, double scale)
+    {
+        final Noise2D layer0 = new OpenSimplex2D(seed)
+            .spread(0.03)
+            .octaves(4)
+            .abs()
+            .scaled(0.09, 1, 0, scale);
+        return addConstant(max(layer0, (x, z) -> 0), baseHeight + SEA_LEVEL_Y);
+    }
+
+    /** 4.2.9 extreme doline base terrain. */
+    public static Noise2D mogotePlateau(long seed)
+    {
+        final Noise2D layer0 = new OpenSimplex2D(seed)
+            .spread(0.04)
+            .octaves(3)
+            .abs()
+            .scaled(0.05, 1, 0, 30);
+        return addConstant(layer0, 21 + SEA_LEVEL_Y);
     }
 
     public static Noise2D burrenPlateau(long seed)
@@ -397,6 +536,251 @@ public final class NTEBiomeNoise
         return tiankeng(seed, mountains(seed, 16, 40));
     }
 
+    /** 4.2.9 cenote chambers and connecting tunnels. */
+    public static BiomeNoiseSampler cenotes(long seed, Noise2D heightNoise)
+    {
+        final NTECellular2D cells = new NTECellular2D(seed + 432, 2).spread(0.012);
+        final Noise2D openingHeightNoise = new OpenSimplex2D(seed + 1432).octaves(2).spread(0.04).scaled(-10, 10);
+        final Noise2D tunnelCenterNoise = new OpenSimplex2D(seed + 1112).octaves(3).abs().spread(0.05);
+        final Noise2D tunnelDepthNoise = new OpenSimplex2D(seed + 41).octaves(3).spread(0.05).scaled(-10, -35);
+        final Noise2D tunnelSizeNoise = new OpenSimplex2D(seed + 331).octaves(2).spread(0.07).scaled(5, 12);
+        final Noise3D cliffNoise = new OpenSimplex3D(seed).octaves(2).spread(0.1f);
+
+        return new BiomeNoiseSampler()
+        {
+            private int x, z;
+            private double surfaceHeight, tunnelCenterDist, tunnelDepth, tunnelSize, noise;
+            private double f1 = 1, f2 = 0, scale = 0, maxRadius = 0, cenoteCenterDist = 0, openingHeight = 0;
+
+            @Override
+            public void setColumn(int x, int z)
+            {
+                final NTECellular2D.Cell cell = cells.cell(x, z);
+                surfaceHeight = heightNoise.noise(x, z);
+                tunnelCenterDist = tunnelCenterNoise.noise(x, z);
+                tunnelDepth = tunnelDepthNoise.noise(x, z);
+                tunnelSize = tunnelSizeNoise.noise(x, z);
+                this.x = x;
+                this.z = z;
+
+                noise = cell.noise();
+                if (noise > 0)
+                {
+                    f1 = cell.f1();
+                    f2 = cell.f2();
+                    scale = (noise * 0.4 + 0.6) * Mth.clampedMap(surfaceHeight, SEA_LEVEL_Y, SEA_LEVEL_Y + 30, 0.4, 1);
+                    maxRadius = 0.05 * scale;
+                    cenoteCenterDist = f1 + Mth.clampedMap(f2 - f1, 0, 0.1, maxRadius, 0);
+                    openingHeight = openingHeightNoise.noise(x, z);
+                }
+            }
+
+            @Override
+            public double height()
+            {
+                return surfaceHeight;
+            }
+
+            @Override
+            public double noise(int y)
+            {
+                double cenoteNoise = 0;
+                if (noise > 0 && cenoteCenterDist < maxRadius)
+                {
+                    final double cenoteHeight = scale * 45;
+                    final double depth = Math.max(0, openingHeight + surfaceHeight - y);
+                    final double radius = depth < cenoteHeight / 3
+                        ? maxRadius * 3 * depth / cenoteHeight
+                        : Mth.clampedMap(depth, 0.9 * cenoteHeight, cenoteHeight, maxRadius, 0);
+                    cenoteNoise = 100 * (radius - cenoteCenterDist) + 2 * cliffNoise.noise(x, y, z);
+                }
+
+                double tunnelNoise = 0;
+                if (tunnelCenterDist < 0.15)
+                {
+                    final double centerHeight = surfaceHeight + tunnelDepth;
+                    final double verticalIntensity = Mth.clampedMap(Math.abs(y - centerHeight), 0, 5, 1, 0);
+                    final double horizontalIntensity = Mth.clampedMap(tunnelCenterDist, 0, 0.15, 1, 0);
+                    tunnelNoise = verticalIntensity * horizontalIntensity * tunnelSize;
+                }
+                return cenoteNoise + tunnelNoise;
+            }
+        };
+    }
+
+    /** 4.2.9 deep-ocean trench terrain. */
+    public static Noise2D oceanTrench(long seed, int depthMin, int depthMax)
+    {
+        final OpenSimplex2D warp = new OpenSimplex2D(seed).octaves(2).spread(0.015f).scaled(-30, 30);
+        final Noise2D ridgeNoise = new OpenSimplex2D(seed + 1)
+            .octaves(4)
+            .spread(0.015f)
+            .ridged()
+            .map(value -> {
+                if (value > -0.3f)
+                {
+                    value = (value + 0.3f) / 1.3f;
+                    return -16f * value * value * value;
+                }
+                return 0;
+            });
+        return new OpenSimplex2D(seed + 2)
+            .octaves(4)
+            .spread(0.11f)
+            .scaled(SEA_LEVEL_Y + depthMin, SEA_LEVEL_Y + depthMax)
+            .add(ridgeNoise)
+            .warped(warp);
+    }
+
+    /** 4.2.9 spreading ridge aligned to the nearest continent-cell boundary. */
+    public static Noise2D oceanRidge(long seed)
+    {
+        final Noise2D abyssalPlain = BiomeNoise.ocean(seed, -46, -30);
+        final NTECellular2D cellNoise = continentCellNoise(seed);
+        final Noise2D baseFaultingNoise = new OpenSimplex2D(seed).octaves(2).spread(0.0018f).scaled(-4.5, 4.5);
+        final Noise2D warpNoise = new OpenSimplex2D(seed).octaves(2).spread(0.05f).scaled(0, 20);
+        final Noise2D bigWarpNoise = baseFaultingNoise.map(w -> 30 * Math.round(w));
+        return (x, z) -> {
+            final double[] distanceAndScale = oceanRidgeDistanceAndScale(x, z, cellNoise, baseFaultingNoise, warpNoise, bigWarpNoise);
+            final double warpedEdgeDistance = distanceAndScale[0];
+            final double scale = Mth.clampedMap(distanceAndScale[1], 0, 0.05, 0, 1);
+            final double abyssal = abyssalPlain.noise(x, z);
+            final double ridge = warpedEdgeDistance < 27
+                ? Mth.map(warpedEdgeDistance, 0, 27, SEA_LEVEL_Y - 36, SEA_LEVEL_Y - 12)
+                : Mth.clampedMap(warpedEdgeDistance, 27, 120, SEA_LEVEL_Y - 12, SEA_LEVEL_Y - 50);
+            return ridge <= abyssal ? abyssal : Mth.lerp(scale, abyssal, ridge);
+        };
+    }
+
+    /**
+     * Returns the warped distance to the nearest ocean ridge fault used by
+     * the 4.2.9 ocean ridge placement modifier.
+     */
+    public static Noise2D oceanRidgeDistance(long seed)
+    {
+        final NTECellular2D cellNoise = continentCellNoise(seed);
+        final Noise2D baseFaultingNoise = new OpenSimplex2D(seed).octaves(2).spread(0.0018f).scaled(-4.5, 4.5);
+        final Noise2D warpNoise = new OpenSimplex2D(seed).octaves(2).spread(0.05f).scaled(0, 20);
+        final Noise2D bigWarpNoise = baseFaultingNoise.map(w -> 30 * Math.round(w));
+        return (x, z) -> oceanRidgeDistanceAndScale(x, z, cellNoise, baseFaultingNoise, warpNoise, bigWarpNoise)[0];
+    }
+
+    /** 4.2.9 continental rift valley profile, adapted to the local cellular sampler. */
+    public static Noise2D riftValley(long seed, int minHeightIn, int edgeHeightIn, boolean isLake)
+    {
+        final double minHeight = SEA_LEVEL_Y + minHeightIn;
+        final double edgeHeight = SEA_LEVEL_Y + edgeHeightIn;
+        final NTECellular2D cellNoise = continentCellNoise(seed);
+        final Noise2D widthNoise = new OpenSimplex2D(seed + 8424L).octaves(2).spread(0.005f).scaled(1, 1.4);
+        final Noise2D textureWarpNoise = new OpenSimplex2D(seed + 2456L).octaves(2).spread(0.05f).scaled(-10, 10);
+        final Noise2D wiggleNoise = new OpenSimplex2D(seed + 94312L).octaves(3).spread(0.006f).scaled(-130, 130);
+        final Noise2D roughness = new OpenSimplex2D(seed).octaves(3).spread(0.04f).scaled(-8, 8);
+        final Noise2D rangeScaleNoise = new OpenSimplex2D(seed + 48993L).octaves(2).spread(0.006f).scaled(-2, 3).clamped(0, 1);
+        final Noise2D valleyNoise = new OpenSimplex2D(seed + 3245L).octaves(2).ridged().scaled(edgeHeight + 60, edgeHeight + 3).spread(0.01);
+
+        return (x, z) -> roughness.noise(x, z) + riftValleyProfile(
+            x, z, cellNoise, widthNoise, textureWarpNoise, wiggleNoise, rangeScaleNoise, valleyNoise,
+            minHeight, edgeHeight, isLake
+        );
+    }
+
+    private static double riftValleyProfile(double x, double z, NTECellular2D cellNoise, Noise2D widthNoise,
+        Noise2D textureWarpNoise, Noise2D wiggleNoise, Noise2D rangeScaleNoise, Noise2D valleyNoise,
+        double minHeight, double edgeHeight, boolean isLake)
+    {
+        final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+        final double centroidX = 0.5 * (cell.x() + cell.nx());
+        final double centroidZ = 0.5 * (cell.y() + cell.ny());
+        final double sampleX = x - centroidX;
+        final double sampleZ = z - centroidZ;
+        final double parallelX = centroidZ - cell.y();
+        final double parallelZ = cell.x() - centroidX;
+        final double denominator = parallelX * parallelX + parallelZ * parallelZ;
+        final double projection = denominator < 1e-9 ? 0 : (sampleX * parallelX + sampleZ * parallelZ) / denominator;
+        final double projectedX = centroidX + projection * parallelX;
+        final double projectedZ = centroidZ + projection * parallelZ;
+        final double edgeDistance = Math.sqrt((x - projectedX) * (x - projectedX) + (z - projectedZ) * (z - projectedZ));
+        final double widthWarp = widthNoise.noise(projectedX, projectedZ);
+        final double wiggleWarp = cell.nx() > cell.x() ? -wiggleNoise.noise(projectedX, projectedZ) : wiggleNoise.noise(projectedX, projectedZ);
+        final double edgeDistanceWarped = Math.abs(edgeDistance * widthWarp + wiggleWarp + textureWarpNoise.noise(x, z));
+
+        final double profile;
+        if (edgeDistanceWarped < 80)
+        {
+            if (isLake)
+            {
+                profile = Mth.clampedMap(edgeDistanceWarped, 0, 80, minHeight - 15, minHeight);
+            }
+            else
+            {
+                final double rangeScale = rangeScaleNoise.noise(x, z);
+                if (rangeScale > 0)
+                {
+                    final double rangeHeight = edgeDistanceWarped < 48
+                        ? Mth.clampedMap(edgeDistanceWarped, 28, 48, minHeight, minHeight + 20)
+                        : Mth.clampedMap(edgeDistanceWarped, 48, 80, minHeight + 20, minHeight);
+                    profile = Math.max(minHeight, rangeHeight * rangeScale);
+                }
+                else
+                {
+                    profile = minHeight;
+                }
+            }
+        }
+        else if (edgeDistanceWarped < 192)
+        {
+            if (tfe$hashDouble(cell.noise(), 6353) < 0.6)
+            {
+                profile = edgeDistanceWarped < 128
+                    ? Mth.clampedMap(edgeDistanceWarped, 96, 128, minHeight, edgeHeight + 2)
+                    : edgeDistanceWarped < 160
+                        ? Mth.clampedMap(edgeDistanceWarped, 128, 160, edgeHeight + 2, edgeHeight - 2)
+                        : Mth.clampedMap(edgeDistanceWarped, 160, 192, edgeHeight - 2, edgeHeight + 32);
+            }
+            else
+            {
+                profile = Mth.clampedMap(edgeDistanceWarped, 128, 192, minHeight, edgeHeight + 32);
+            }
+        }
+        else
+        {
+            profile = Math.max(Mth.clampedMap(edgeDistanceWarped, 192, 280, edgeHeight + 32, edgeHeight), edgeHeight);
+        }
+        return edgeDistanceWarped < 80 ? profile : Math.min(profile, valleyNoise.noise(x, z));
+    }
+
+    private static double[] oceanRidgeDistanceAndScale(double x, double z, NTECellular2D cellNoise, Noise2D baseFaultingNoise, Noise2D warpNoise, Noise2D bigWarpNoise)
+    {
+        final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+        final double ridgeX = 0.5 * (cell.x() + cell.nx());
+        final double ridgeZ = 0.5 * (cell.y() + cell.ny());
+        final double sampleX = x - ridgeX;
+        final double sampleZ = z - ridgeZ;
+        final double parallelX = ridgeZ - cell.y();
+        final double parallelZ = cell.x() - ridgeX;
+        final double denominator = parallelX * parallelX + parallelZ * parallelZ;
+        final double projection = denominator < 1e-9 ? 0 : (sampleX * parallelX + sampleZ * parallelZ) / denominator;
+        final double projectedX = ridgeX + projection * parallelX;
+        final double projectedZ = ridgeZ + projection * parallelZ;
+        final double edgeDistance = Math.sqrt((x - projectedX) * (x - projectedX) + (z - projectedZ) * (z - projectedZ));
+        final double sign = cell.nx() > cell.x() ? -1 : 1;
+        final double warped = Math.abs(edgeDistance + sign * warpNoise.noise(x, z) + sign * bigWarpNoise.noise(projectedX, projectedZ));
+        final double distanceToFault = Math.abs(Mth.positiveModulo(baseFaultingNoise.noise(projectedX, projectedZ), 1) - 0.5);
+        return new double[] {warped, distanceToFault};
+    }
+
+    private static double tfe$hashDouble(double input, int index)
+    {
+        final long inputBits = Double.doubleToLongBits(input);
+        long bits = inputBits + index;
+        bits ^= bits >>> 33;
+        bits *= 0xff51afd7ed558ccdL;
+        bits ^= bits >>> 33;
+        bits *= 0xc4ceb9fe1a85ec53L;
+        bits ^= bits >>> 33;
+        return (bits >>> 11) * 0x1.0p-53;
+    }
+
     public static Noise2D iceSheet(long seed)
     {
         return iceSheetSurfaceHeight(seed).add(glacialSurfaceTexture(seed));
@@ -495,6 +879,45 @@ public final class NTEBiomeNoise
         return (x, z) -> {
             final double f1 = cells.cell(x, z).f1();
             return f1 > 0.06 && f1 < 0.13 ? 1 : 0;
+        };
+    }
+
+    /**
+     * 4.2.9 lake cavern density. The lower base intensity avoids over-carving lake columns.
+     */
+    public static BiomeNoiseSampler undergroundLakes(long seed, Noise2D heightNoise)
+    {
+        final Noise2D blobsNoise = new OpenSimplex2D(seed + 1).spread(0.04f).abs();
+        final Noise2D depthNoise = new OpenSimplex2D(seed + 2).octaves(4).scaled(2, 18).spread(0.2f);
+        final Noise2D centerNoise = new OpenSimplex2D(seed + 3).octaves(2).spread(0.06f).scaled(SEA_LEVEL_Y - 4, SEA_LEVEL_Y + 4);
+
+        return new BiomeNoiseSampler()
+        {
+            private double surfaceHeight;
+            private double center;
+            private double height;
+
+            @Override
+            public void setColumn(int x, int z)
+            {
+                final double blobHeight = Mth.clamp((0.7f - blobsNoise.noise(x, z)) / 0.3f, 0, 1);
+                surfaceHeight = heightNoise.noise(x, z);
+                center = centerNoise.noise(x, z);
+                height = blobHeight * depthNoise.noise(x, z);
+            }
+
+            @Override
+            public double height()
+            {
+                return surfaceHeight;
+            }
+
+            @Override
+            public double noise(int y)
+            {
+                final double delta = Math.abs(center - y);
+                return Mth.clamp(0.2f + 0.05f * (height - delta), 0, 1);
+            }
         };
     }
 
@@ -821,8 +1244,7 @@ public final class NTEBiomeNoise
         final Noise2D shape = glacialValleyShapeNoise(seed);
         final Noise2D shapeMap = connectedValleyNoise(seed);
 
-        final double cellScale = 0.010;
-        final NTECellular2D cells = new NTECellular2D(seed, 2).spread(cellScale);
+        final NTECellular2D cells = new NTECellular2D(seed, 2).spread(0.010);
         final Noise2D warp = new OpenSimplex2D(seed).spread(0.02).add(shapeMap).scaled(-1, 2, -0.25, 0.2);
         final Noise2D roughPeaks = new OpenSimplex2D(seed).octaves(3).spread(0.08).scaled(0.6, 1.6);
 
@@ -835,7 +1257,7 @@ public final class NTEBiomeNoise
             final double f2 = cell.f2();
             final double f2f1 = f1 > 0 ? (f2 - f1) : 1;
 
-            final double shapeAtCenter = shapeMap.noise(cell.cx() / cellScale, cell.cy() / cellScale);
+            final double shapeAtCenter = shapeMap.noise(cell.x(), cell.y());
             if (shapeAtCenter > 0.60)
             {
                 double y = f2f1 + warp.noise(x, z);
@@ -964,7 +1386,7 @@ public final class NTEBiomeNoise
         return baseTerrainNoise.add(fenglinCliffMap(cliffBase, cliffStartHeight, cliffScale).map(y -> -verticalScale * y));
     }
 
-    private static Noise2D tiankeng(long seed, Noise2D baseTerrainNoise)
+    public static Noise2D tiankeng(long seed, Noise2D baseTerrainNoise)
     {
         final Noise2D cliffScale = new OpenSimplex2D(seed + 78535267L).spread(0.04).scaled(0, 0.04);
         final Noise2D cliffStartHeight = new OpenSimplex2D(seed + 390798L).spread(0.04).scaled(0, 0.7);
@@ -1013,6 +1435,11 @@ public final class NTEBiomeNoise
     private static Noise2D addConstant(Noise2D input, double value)
     {
         return (x, z) -> input.noise(x, z) + value;
+    }
+
+    private static Noise2D easeIn(Noise2D input, double start, double end, double minScale, double maxScale, Noise2D easingNoise)
+    {
+        return (x, z) -> Mth.clampedMap(easingNoise.noise(x, z), start, end, minScale, maxScale) * input.noise(x, z);
     }
 
     private static Noise2D clampedScaled(Noise2D input, double oldMin, double oldMax, double min, double max)

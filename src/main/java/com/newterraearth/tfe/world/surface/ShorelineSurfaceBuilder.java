@@ -24,6 +24,7 @@ import net.dries007.tfc.world.surface.builder.SurfaceBuilder;
 import net.dries007.tfc.world.surface.builder.SurfaceBuilderFactory;
 
 import com.newterraearth.tfe.world.NTESeed;
+import com.newterraearth.tfe.world.NTEBiomeNoise;
 import com.newterraearth.tfe.world.NTEClimateSeasonModel;
 import com.newterraearth.tfe.world.shore.NTEShoreNoiseHelpers;
 
@@ -54,6 +55,7 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
     public static final SurfaceBuilderFactory FORCE_RARE_SAND = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.RARE_SHORE_SAND, NTESurfaceStates.RARE_SHORE_SANDSTONE, 6, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory GRAVELLY = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.GRAVEL, NTESurfaceStates.RAW, 6, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory OCEAN = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SURFACE, NTESurfaceStates.SHORE_UNDERLAYER, 6, false, false, SimpleSurfaceBuilder.OCEAN_MUD.apply(seed));
+    public static final SurfaceBuilderFactory OCEAN_RIDGE = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SURFACE, NTESurfaceStates.SHORE_UNDERLAYER, 6, false, false, true, SimpleSurfaceBuilder.ROCKY_SHORE.apply(seed));
     public static final SurfaceBuilderFactory SEA_CLIFFS = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.SHORE_SURFACE, NTESurfaceStates.SHORE_UNDERLAYER, 2, false, false, ROCKY_LAND);
     public static final SurfaceBuilderFactory OLD_SHIELD_VOLCANO = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.VOLCANIC_SHORE_SAND, NTESurfaceStates.VOLCANIC_SHORE_SANDSTONE, 6, true, false, new ShieldVolcanoVariantSurfaceBuilder(seed, true, false));
     public static final SurfaceBuilderFactory ACTIVE_SHIELD_VOLCANO = seed -> new ShorelineSurfaceBuilder(seed, NTESurfaceStates.VOLCANIC_SHORE_SAND, NTESurfaceStates.VOLCANIC_SHORE_SANDSTONE, 2, false, true, new ShieldVolcanoVariantSurfaceBuilder(seed, false, false));
@@ -68,6 +70,7 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
     private final int sandHeight;
     private final boolean isShieldVolcano;
     private final boolean isActiveShieldVolcano;
+    private final boolean isOceanRidge;
     private final SurfaceBuilder landBuilder;
     private final SurfaceBuilder shieldVolcanoBeachBuilder;
     private final NormalNoise icebergPillarNoise;
@@ -80,12 +83,18 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
 
     protected ShorelineSurfaceBuilder(long seed, SurfaceState surface, SurfaceState subsurface, int sandHeight, boolean isShieldVolcano, boolean isActiveShieldVolcano, SurfaceBuilder landBuilder)
     {
+        this(seed, surface, subsurface, sandHeight, isShieldVolcano, isActiveShieldVolcano, false, landBuilder);
+    }
+
+    protected ShorelineSurfaceBuilder(long seed, SurfaceState surface, SurfaceState subsurface, int sandHeight, boolean isShieldVolcano, boolean isActiveShieldVolcano, boolean isOceanRidge, SurfaceBuilder landBuilder)
+    {
         this.seed = seed;
         this.surface = surface;
         this.subsurface = subsurface;
         this.sandHeight = sandHeight;
         this.isShieldVolcano = isShieldVolcano;
         this.isActiveShieldVolcano = isActiveShieldVolcano;
+        this.isOceanRidge = isOceanRidge;
         this.landBuilder = landBuilder;
         this.shieldVolcanoBeachBuilder = isShieldVolcano ? new ShieldVolcanoVariantSurfaceBuilder(seed, false, true) : ROCKY_LAND;
         this.tideLevelNoise = NTEShoreNoiseHelpers.shoreTideLevelNoise(NTESeed.unsafeOf(seed));
@@ -116,7 +125,14 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
         final boolean deepWaterGravel = oceanFloorY < tideLevel - 5;
         if (deepWaterGravel)
         {
-            buildDeepWaterGravelSurface(context, startY, endY);
+            if (isOceanRidge)
+            {
+                buildOceanRidgeSurface(context, startY, endY, x, z);
+            }
+            else
+            {
+                buildDeepWaterGravelSurface(context, startY, endY);
+            }
         }
         else if (oceanFloorY <= sandHeightAbsolute)
         {
@@ -180,6 +196,21 @@ public class ShorelineSurfaceBuilder implements SurfaceBuilder
             {
                 break;
             }
+        }
+    }
+
+    /**
+     * Ocean ridges use TFC's distance-based mud thickness. Ordinary oceans
+     * intentionally keep TFE's shallow gravel decorator, so this branch is
+     * isolated to the dedicated 4.2.9 ocean_ridge surface factory.
+     */
+    private static void buildOceanRidgeSurface(SurfaceBuilderContext context, int startY, int endY, int x, int z)
+    {
+        final double distance = NTEBiomeNoise.oceanRidgeDistance(context.getSeed()).noise(x, z);
+        if (distance >= 50d)
+        {
+            final int endYOut = (int) Mth.clampedMap(distance, 50d, 200d, startY, endY);
+            SimpleSurfaceBuilder.OCEAN_MUD.apply(context.getSeed()).buildSurface(context, startY, endYOut);
         }
     }
 

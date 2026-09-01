@@ -160,6 +160,8 @@ def tfeRuntimeTraceX = (project.findProperty('tfeTraceX') ?: project.findPropert
 def tfeRuntimeTraceY = (project.findProperty('tfeTraceY') ?: '64').toString()
 def tfeRuntimeTraceZ = (project.findProperty('tfeTraceZ') ?: project.findProperty('tfeTerrainCutZ') ?: '6738').toString()
 def tfeRuntimeTraceRadius = (project.findProperty('tfeTraceRadius') ?: '8').toString()
+def tfeRuntimeTraceScanRadius = (project.findProperty('tfeTraceScanRadius') ?: '32768').toString()
+def tfeRuntimeTraceScanStep = (project.findProperty('tfeTraceScanStep') ?: '128').toString()
 def tfeRuntimeTraceAxis = (project.findProperty('tfeTraceAxis') ?: 'x').toString()
 def tfeRuntimeTraceConfigFile = project.findProperty('tfeTraceConfigFile')?.toString()
 def tfeRuntimeTraceResetWorld = (project.findProperty('tfeTraceResetWorld') ?: 'true').toString().toBoolean()
@@ -178,6 +180,8 @@ minecraft {
             property 'tfe.debug.traceY', tfeRuntimeTraceY
             property 'tfe.debug.traceZ', tfeRuntimeTraceZ
             property 'tfe.debug.traceRadius', tfeRuntimeTraceRadius
+            property 'tfe.debug.traceScanRadius', tfeRuntimeTraceScanRadius
+            property 'tfe.debug.traceScanStep', tfeRuntimeTraceScanStep
             property 'tfe.debug.traceAxis', tfeRuntimeTraceAxis
         }
     }

@@ -18,10 +18,10 @@ public abstract class ChunkBaseBlockSourceMixin implements NTEChunkBaseBlockSour
     @Shadow @Final private BlockState[] cachedFluidStates;
 
     @Override
-    public void tfe$useAccurateBiome(int localX, int localZ, BiomeExtension biome, double weight, boolean couldBeSalty)
+    public void tfe$useAccurateBiome(int localX, int localZ, BiomeExtension biome, double weight, boolean couldBeSalty, boolean forceCoastalSaltWater)
     {
         cachedFluidStates[(localX & 15) | ((localZ & 15) << 4)] =
-            !couldBeSalty || (!biome.isSalty() && (weight > 0.5 || biome == TFCBiomes.RIVER))
+            !forceCoastalSaltWater && (!couldBeSalty || (!biome.isSalty() && (weight > 0.5 || biome == TFCBiomes.RIVER)))
                 ? Blocks.WATER.defaultBlockState()
                 : net.dries007.tfc.common.blocks.TFCBlocks.SALT_WATER.get().defaultBlockState();
     }

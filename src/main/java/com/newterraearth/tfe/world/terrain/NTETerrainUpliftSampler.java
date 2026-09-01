@@ -572,11 +572,15 @@ public final class NTETerrainUpliftSampler
         return switch (path)
             {
                 case "mountains",
+                    "collisional_mountains",
                     "old_mountains",
                     "extreme_doline_mountains",
                     "ice_sheet_mountains",
+                    "ice_sheet_volcanic_mountains",
                     "glaciated_mountains",
+                    "glaciated_volcanic_mountains",
                     "glacially_carved_mountains",
+                    "glacially_carved_volcanic_mountains",
                     "tuyas",
                     "ice_sheet_tuyas" -> SourceProfile.NORMAL;
                 case "volcanic_mountains" -> SourceProfile.NORMAL;

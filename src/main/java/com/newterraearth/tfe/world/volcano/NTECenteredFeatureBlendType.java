@@ -9,7 +9,9 @@ public enum NTECenteredFeatureBlendType
     NONE(seed -> NTECenteredFeatureNoiseSampler.NONE),
     CINDER_CONE(NTECenteredFeatureNoise::cinder),
     TUYA(NTECenteredFeatureNoise::tuya),
-    TUFF_RING(NTECenteredFeatureNoise::tuffRing);
+    TUFF_RING(NTECenteredFeatureNoise::tuffRing),
+    ATOLL(NTECenteredFeatureNoise::atoll),
+    STRATOVOLCANO(NTECenteredFeatureNoise::stratovolcano);
 
     public static final NTECenteredFeatureBlendType[] ALL = values();
     public static final int SIZE = ALL.length;

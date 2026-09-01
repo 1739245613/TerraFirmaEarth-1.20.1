@@ -24,5 +24,10 @@ public interface NTERegionGeneratorAccess
 
     float nte$continentFactor(int gridX, int gridZ);
 
+    /**
+     * 4.2.9-compatible signed convergence estimate for the boundary nearest to a region point.
+     */
+    double nte$getDivergence(int gridX, int gridZ);
+
     RockSettings nte$getSurfaceRock(Region.Point point);
 }

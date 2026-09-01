@@ -76,6 +76,15 @@ public abstract class TFCBiomesMixin
         OCEAN_REEF = replace("ocean_reef", NTEBiomeExtensions.oceanReef());
         DEEP_OCEAN = replace("deep_ocean", NTEBiomeExtensions.deepOcean());
         DEEP_OCEAN_TRENCH = replace("deep_ocean_trench", NTEBiomeExtensions.deepOceanTrench());
+        replace("oceanic_volcanic_arc", NTEBiomeExtensions.oceanicVolcanicArc());
+        replace("ocean_atolls", NTEBiomeExtensions.oceanAtolls());
+        replace("deep_ocean_atolls", NTEBiomeExtensions.deepOceanAtolls());
+        replace("ocean_ridge", NTEBiomeExtensions.oceanRidge());
+        replace("rift_valley", NTEBiomeExtensions.riftValley());
+        replace("rift_lake", NTEBiomeExtensions.riftLake());
+        replace("river_valley", NTEBiomeExtensions.riverValley());
+        replace("volcanic_mountain_islands", NTEBiomeExtensions.volcanicMountainIslands());
+        replace("volcanic_island", NTEBiomeExtensions.volcanicIsland());
         PLAINS = replace("plains", NTEBiomeExtensions.plains());
         HILLS = replace("hills", NTEBiomeExtensions.hills());
         LOWLANDS = replace("lowlands", NTEBiomeExtensions.lowlands());
@@ -87,6 +96,7 @@ public abstract class TFCBiomesMixin
         PLATEAU = replace("plateau", NTEBiomeExtensions.plateau());
         CANYONS = replace("canyons", NTEBiomeExtensions.canyons());
         MOUNTAINS = replace("mountains", NTEBiomeExtensions.mountains());
+        replace("collisional_mountains", NTEBiomeExtensions.collisionalMountains());
         OLD_MOUNTAINS = replace("old_mountains", NTEBiomeExtensions.oldMountains());
         OCEANIC_MOUNTAINS = replace("oceanic_mountains", NTEBiomeExtensions.oceanicMountains());
         VOLCANIC_MOUNTAINS = replace("volcanic_mountains", NTEBiomeExtensions.volcanicMountains());
@@ -159,6 +169,8 @@ public abstract class TFCBiomesMixin
         replace("ice_sheet", NTEBiomeExtensions.iceSheet());
         replace("ice_sheet_mountains", NTEBiomeExtensions.iceSheetMountains());
         replace("ice_sheet_oceanic_mountains", NTEBiomeExtensions.iceSheetOceanicMountains());
+        replace("ice_sheet_volcanic_mountains", NTEBiomeExtensions.iceSheetVolcanicMountains());
+        replace("ice_sheet_volcanic_oceanic_mountains", NTEBiomeExtensions.iceSheetVolcanicOceanicMountains());
         replace("ice_sheet_shield_volcano", NTEBiomeExtensions.iceSheetShieldVolcano());
         replace("ice_sheet_tuyas", NTEBiomeExtensions.iceSheetTuyas());
         replace("subglacial_lake", NTEBiomeExtensions.subglacialLake());
@@ -169,11 +181,15 @@ public abstract class TFCBiomesMixin
         replace("ice_sheet_mountains_edge", NTEBiomeExtensions.iceSheetMountainsEdge());
         replace("glaciated_mountains", NTEBiomeExtensions.glaciatedMountains());
         replace("glaciated_oceanic_mountains", NTEBiomeExtensions.glaciatedOceanicMountains());
+        replace("glaciated_volcanic_mountains", NTEBiomeExtensions.glaciatedVolcanicMountains());
+        replace("glaciated_volcanic_oceanic_mountains", NTEBiomeExtensions.glaciatedVolcanicOceanicMountains());
         replace("meltwater_lake", NTEBiomeExtensions.meltwaterLake());
         replace("glaciated_shield_volcano", NTEBiomeExtensions.glaciatedShieldVolcano());
         replace("ice_sheet_shore", NTEBiomeExtensions.iceSheetShore());
         replace("glacially_carved_mountains", NTEBiomeExtensions.glaciallyCarvedMountains());
         replace("glacially_carved_oceanic_mountains", NTEBiomeExtensions.glaciallyCarvedOceanicMountains());
+        replace("glacially_carved_volcanic_mountains", NTEBiomeExtensions.glaciallyCarvedVolcanicMountains());
+        replace("glacially_carved_volcanic_oceanic_mountains", NTEBiomeExtensions.glaciallyCarvedVolcanicOceanicMountains());
         replace("drumlins", NTEBiomeExtensions.drumlins());
         replace("tuyas", NTEBiomeExtensions.tuyas());
         replace("knob_and_kettle", NTEBiomeExtensions.knobAndKettle());

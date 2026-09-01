@@ -1,5 +1,7 @@
 package com.newterraearth.tfe.world.region;
 
+import net.minecraft.util.Mth;
+
 import net.dries007.tfc.world.noise.Cellular2D;
 import net.dries007.tfc.world.noise.Noise2D;
 import net.dries007.tfc.world.noise.OpenSimplex2D;
@@ -28,17 +30,17 @@ public final class NTERegionNoise
 
     public static Noise2D dormantHotSpots(long seed)
     {
-        return hotSpotWarp(activeHotSpots(seed), plateRegionNoise(seed), 1024, 0).map(y -> Math.max(y - 0.1, 0) * 1.111);
+        return hotSpotWarp(activeHotSpots(seed), plateRegions(seed), 1024, 0).map(y -> Math.max(y - 0.1, 0) * 1.111);
     }
 
     public static Noise2D extinctHotSpots(long seed)
     {
-        return hotSpotWarp(activeHotSpots(seed), plateRegionNoise(seed), 2048, 0.25).map(y -> Math.max(y - 0.2, 0) * 1.25);
+        return hotSpotWarp(activeHotSpots(seed), plateRegions(seed), 2048, 0.25).map(y -> Math.max(y - 0.2, 0) * 1.25);
     }
 
     public static Noise2D ancientHotSpots(long seed)
     {
-        return hotSpotWarp(activeHotSpots(seed), plateRegionNoise(seed), 3072, 0.5).map(y -> Math.max(y - 0.3, 0) * 1.4286);
+        return hotSpotWarp(activeHotSpots(seed), plateRegions(seed), 3072, 0.5).map(y -> Math.max(y - 0.3, 0) * 1.4286);
     }
 
     public static Noise2D hotSpotIntensity(long seed)
@@ -63,10 +65,14 @@ public final class NTERegionNoise
         );
     }
 
-    public static Noise2D hotSpotWarp(Noise2D noiseToWarp, Noise2D warp, int velocityScale, double accelScale)
+    /**
+     * Domain-warp a hotspot chain while fading it at cellular plate boundaries.
+     * The fade matches TFC 4.2.9 and prevents sharp volcano transitions at seams.
+     */
+    public static Noise2D hotSpotWarp(Noise2D noiseToWarp, Cellular2D warpCells, int velocityScale, double accelScale)
     {
         return (x, z) -> {
-            final double ux = warp.noise(x, z);
+            final double ux = warpCells.noise(x, z);
             final double uz = (Math.abs(ux * 16) % 1 > 0.5 ? 1 : -1) * (ux * 256) % 1;
 
             final int sx = ux > 0 ? 1 : -1;
@@ -77,7 +83,9 @@ public final class NTERegionNoise
             final double ax = -vz * accelScale;
             final double az = vx * accelScale;
 
-            return noiseToWarp.noise(x + vx + ax, z + vz + az);
+            final Cellular2D.Cell cell = warpCells.cell(x, z);
+            final double boundaryFade = Mth.clampedMap(cell.f2() - cell.f1(), 0, 0.002, 0, 1);
+            return noiseToWarp.noise(x + vx + ax, z + vz + az) * boundaryFade;
         };
     }
 
@@ -118,8 +126,4 @@ public final class NTERegionNoise
         return new Cellular2D(seed).spread(0.00590625f / Units.CELL_WIDTH_IN_GRID);
     }
 
-    private static Noise2D plateRegionNoise(long seed)
-    {
-        return plateRegions(seed)::noise;
-    }
 }

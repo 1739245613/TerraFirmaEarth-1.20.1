@@ -1,0 +1,7 @@
+{
+  "__comment__": "Compatibility tag for 4.2.9 volcanic feature slots",
+  "replace": false,
+  "values": [
+    "tfc:lava_surface_spring"
+  ]
+}

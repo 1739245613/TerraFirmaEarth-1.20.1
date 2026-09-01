@@ -8,10 +8,10 @@
         "tag": "tfc:chisels"
       },
       {
-        "item": "tfc:brick/granite"
+        "item": "tfe:brick/tuff"
       },
       {
-        "item": "tfc:brick/granite"
+        "item": "tfe:brick/tuff"
       }
     ],
     "result": {

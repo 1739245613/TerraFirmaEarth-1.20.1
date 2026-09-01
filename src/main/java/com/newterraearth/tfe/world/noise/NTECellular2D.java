@@ -34,6 +34,23 @@ public class NTECellular2D implements Noise2D
         this.sample = sample;
     }
 
+    private NTECellular2D(int hashedSeed, float jitter, int sample)
+    {
+        this.seed = hashedSeed;
+        this.frequency = 1;
+        this.jitter = jitter;
+        this.sample = sample;
+    }
+
+    /**
+     * Reuses the hashed seed stored by the 1.20 TFC Cellular2D implementation.
+     * This keeps the local 4.2.9-compatible cell math on the same worldgen field.
+     */
+    public static NTECellular2D fromHashedSeed(int hashedSeed)
+    {
+        return new NTECellular2D(hashedSeed, 0.43701595f, 1);
+    }
+
     @Override
     public double noise(double x, double y)
     {
@@ -68,12 +85,14 @@ public class NTECellular2D implements Noise2D
         double angle0 = -1;
         double closestCenterX = 0;
         double closestCenterY = 0;
+        double neighborCenterX = 0;
+        double neighborCenterY = 0;
         int closestHash = 0;
         int closestCellX = 0;
         int closestCellY = 0;
 
-        int xPrimed = (xr - 1) * primeX;
-        final int yPrimedBase = (yr - 1) * primeY;
+        int xPrimed = (xr - sample) * primeX;
+        final int yPrimedBase = (yr - sample) * primeY;
 
         for (int xi = xr - sample; xi <= xr + sample; xi++)
         {
@@ -92,16 +111,24 @@ public class NTECellular2D implements Noise2D
                 final double newAngle = diamondAngle(newDistanceX, newDistanceY);
                 final double newDistance = newDistanceX * newDistanceX + newDistanceY * newDistanceY;
 
+                final double oldDist1 = distance1;
                 distance1 = FastNoiseLite.FastMax(FastNoiseLite.FastMin(distance1, newDistance), distance0);
                 if (newDistance < distance0)
                 {
                     distance0 = newDistance;
                     angle0 = newAngle;
                     closestHash = hash;
+                    neighborCenterX = closestCenterX;
+                    neighborCenterY = closestCenterY;
                     closestCenterX = vecX;
                     closestCenterY = vecY;
                     closestCellX = xi;
                     closestCellY = yi;
+                }
+                else if (distance1 != oldDist1)
+                {
+                    neighborCenterX = vecX;
+                    neighborCenterY = vecY;
                 }
                 yPrimed += primeY;
             }
@@ -113,6 +140,8 @@ public class NTECellular2D implements Noise2D
             closestCenterY / frequency,
             closestCellX,
             closestCellY,
+            neighborCenterX / frequency,
+            neighborCenterY / frequency,
             distance0,
             distance1,
             closestHash * (1 / 2147483648.0f),
@@ -129,5 +158,5 @@ public class NTECellular2D implements Noise2D
         return x < 0 ? 2 - y / (-x - y) : 3 + x / (x - y);
     }
 
-    public record Cell(double x, double y, int cx, int cy, double f1, double f2, double noise, double angle) {}
+    public record Cell(double x, double y, int cx, int cy, double nx, double ny, double f1, double f2, double noise, double angle) {}
 }

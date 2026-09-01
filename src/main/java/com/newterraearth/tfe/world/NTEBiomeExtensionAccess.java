@@ -26,6 +26,10 @@ public interface NTEBiomeExtensionAccess
 
     void tfe$setCenteredFeatureRarity(int rarity);
 
+    float tfe$getCenteredFeatureFrequency();
+
+    void tfe$setCenteredFeatureFrequency(float frequency);
+
     int tfe$getCenteredFeatureRockHeight();
 
     void tfe$setCenteredFeatureRockHeight(int rockHeight);

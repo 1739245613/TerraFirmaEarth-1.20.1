@@ -243,6 +243,198 @@ public final class NTECenteredFeatureNoise
         };
     }
 
+    /** 4.2.9 atoll reef geometry and integrity shaping. */
+    public static NTECenteredFeatureNoiseSampler atoll(NTESeed seed)
+    {
+        return new NTECenteredFeatureNoiseSampler()
+        {
+            final double minThickness = -0.3, maxThickness = 0.4, thicknessAmplitude = maxThickness - minThickness;
+            final NTECellular2D cellNoise = new NTECellular2D(seed.seed(), 0.5f, 2).spread(0.0023f);
+            final Noise2D heightNoise = new OpenSimplex2D(seed.seed()).octaves(4).spread(0.03f).scaled(SEA_LEVEL_Y - 3, SEA_LEVEL_Y + 7);
+            final Noise2D rimWarpNoise = new OpenSimplex2D(seed.seed() + 1431L).octaves(3).scaled(0f, 0.3f).spread(0.029f);
+            final Noise2D unscaledThicknessNoise = new OpenSimplex2D(seed.seed() + 131L).octaves(3).spread(0.02f);
+
+            @Override
+            public double setColumnAndSampleHeight(double heightIn, int x, int z, BiomeSourceExtension biomeSource)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                final BiomeExtension biome = biomeSource.getBiomeExtension(QuartPos.fromBlock((int) cell.x()), QuartPos.fromBlock((int) cell.y()));
+                if (!isValidBiome(biome) || !checkCellFrequency(cell, getFrequency(biome)))
+                {
+                    return NOT_PRESENT_RETURN;
+                }
+                final NTEBiomeExtensionAccess access = (NTEBiomeExtensionAccess) (Object) biome;
+                final double integrity = getAtollIntegrity(cell);
+                final double unclampedThickness = Mth.map(unscaledThicknessNoise.noise(x, z), -1, 1, minThickness, maxThickness);
+                final float easing = calculateAtollEasing(cell, x, z);
+                final double lagoonHeight = 0.8 + 0.12 * hashDouble(cell.noise(), 15413);
+                final double reefHeight = reefShape(easing, lagoonHeight, unclampedThickness, integrity);
+                double maxHeight = heightNoise.noise(x, z);
+                if (integrity < 1) maxHeight = Mth.clampedMap(unscaledThicknessNoise.noise(x, z) + integrity, -1, 1, lagoonHeight * maxHeight, maxHeight);
+                return Math.max(heightIn, Mth.map(reefHeight, 0, 1, SEA_LEVEL_Y - 60, maxHeight));
+            }
+
+            @Override
+            public BiomeExtension getCenterBiome(int x, int z, BiomeSourceExtension biomeSource)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return biomeSource.getBiomeExtension(QuartPos.fromBlock((int) cell.x()), QuartPos.fromBlock((int) cell.y()));
+            }
+
+            @Override
+            public boolean isValidBiome(BiomeExtension biome)
+            {
+                return ((NTEBiomeExtensionAccess) (Object) biome).tfe$getCenteredFeatureBlendType() == NTECenteredFeatureBlendType.ATOLL;
+            }
+
+            @Override
+            public float calculateEasing(int x, int z, int rarity)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return checkCellRarity(cell, rarity) ? calculateAtollEasing(cell, x, z) : 0;
+            }
+
+            @Override
+            public @Nullable BlockPos calculateCenter(int x, int y, int z, int rarity)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return checkCellRarity(cell, rarity) ? new BlockPos((int) cell.x(), y, (int) cell.y()) : null;
+            }
+
+            @Override
+            public NTECellular2D getCellularNoise()
+            {
+                return cellNoise;
+            }
+
+            private float calculateAtollEasing(NTECellular2D.Cell cell, int x, int z)
+            {
+                final double difference = cell.f2() - cell.f1();
+                final float easing = (float) (Math.sqrt(cell.f2()) - Math.sqrt(cell.f1()) + rimWarpNoise.noise(x, z));
+                return difference > 0.18 ? easing : easing * (float) Mth.map(difference, 0, 0.18, 0, 1);
+            }
+
+            private double reefShape(double easing, double lagoonDepth, double thickness, double integrity)
+            {
+                final double edgeDist = 0.47;
+                final double beachDist = edgeDist + 0.11;
+                final double clampedThickness = Mth.clamp(thickness, 0, 0.3);
+                final double lagoonDist = beachDist + 0.19 + clampedThickness;
+                final double baseShape;
+                if (easing < edgeDist) return Mth.map(easing, 0, edgeDist, 0, lagoonDepth);
+                if (easing < beachDist) baseShape = Mth.map(easing, edgeDist, beachDist, lagoonDepth, 1);
+                else baseShape = Mth.clampedMap(easing, beachDist, lagoonDist, 1, lagoonDepth);
+                return integrity >= 1 ? baseShape : Mth.clampedMap(thickness, minThickness - thicknessAmplitude * integrity, maxThickness - thicknessAmplitude * integrity, lagoonDepth, baseShape);
+            }
+
+            private double getAtollIntegrity(NTECellular2D.Cell cell)
+            {
+                return Math.min(0.4 + hashDouble(cell.noise(), 523), 1);
+            }
+        };
+    }
+
+    /** 4.2.9 stratovolcano geometry with size-dependent shape variants. */
+    public static NTECenteredFeatureNoiseSampler stratovolcano(NTESeed seed)
+    {
+        return new NTECenteredFeatureNoiseSampler()
+        {
+            final NTECellular2D cellNoise = new NTECellular2D(seed.seed(), 2).spread(0.0024f);
+
+            @Override
+            public double setColumnAndSampleHeight(double heightIn, int x, int z, BiomeSourceExtension biomeSource)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                final BiomeExtension biome = biomeSource.getBiomeExtension(QuartPos.fromBlock((int) cell.x()), QuartPos.fromBlock((int) cell.y()));
+                if (!isValidBiome(biome) || !checkCellFrequency(cell, getFrequency(biome)))
+                {
+                    return NOT_PRESENT_RETURN;
+                }
+                final NTEBiomeExtensionAccess access = (NTEBiomeExtensionAccess) (Object) biome;
+                final double maxDiam = Math.sqrt(Math.min(1, maxSafeDiameterSquared(cell, cellNoise)));
+                final NTEVolcanoVariant variant = getVolcanoVariant(cell);
+                return variant.getHeight(heightIn, x, z, maxDiam, access.tfe$getCenteredFeatureScaleHeight(), access.tfe$getCenteredFeatureBaseHeight(), cell);
+            }
+
+            @Override
+            public BiomeExtension getCenterBiome(int x, int z, BiomeSourceExtension biomeSource)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return biomeSource.getBiomeExtension(QuartPos.fromBlock((int) cell.x()), QuartPos.fromBlock((int) cell.y()));
+            }
+
+            @Override
+            public boolean isValidBiome(BiomeExtension biome)
+            {
+                return ((NTEBiomeExtensionAccess) (Object) biome).tfe$getCenteredFeatureBlendType() == NTECenteredFeatureBlendType.STRATOVOLCANO;
+            }
+
+            @Override
+            public float calculateEasing(int x, int z, int rarity)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return checkCellRarity(cell, rarity) ? calculateClampedEasing((float) cell.f1()) : 0;
+            }
+
+            @Override
+            public float calculateEasing(BlockPos pos, BiomeExtension biome)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(pos.getX(), pos.getZ());
+                return checkCellFrequency(cell, getFrequency(biome)) ? calculateClampedEasing((float) cell.f1()) : 0;
+            }
+
+            @Override
+            public @Nullable BlockPos calculateCenter(BlockPos pos, BiomeExtension biome)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(pos.getX(), pos.getZ());
+                return checkCellFrequency(cell, getFrequency(biome)) ? new BlockPos((int) cell.x(), pos.getY(), (int) cell.y()) : null;
+            }
+
+            @Override
+            public @Nullable BlockPos calculateCenter(int x, int y, int z, int rarity)
+            {
+                final NTECellular2D.Cell cell = cellNoise.cell(x, z);
+                return checkCellRarity(cell, rarity) ? new BlockPos((int) cell.x(), y, (int) cell.y()) : null;
+            }
+
+            @Override
+            public NTECellular2D getCellularNoise()
+            {
+                return cellNoise;
+            }
+
+            @Override
+            public @Nullable NTEVolcanoVariant getVolcanoVariant(NTECellular2D.Cell cell)
+            {
+                return NTEVolcanoVariants.forCell(seed, cell, cellNoise);
+            }
+        };
+    }
+
+    public static double maxSafeDiameterSquared(NTECellular2D.Cell cell, NTECellular2D cellNoise)
+    {
+        double f2 = Math.min(cellNoise.cell(cell.x() + 1, cell.y()).f2(), cellNoise.cell(cell.x() - 1, cell.y()).f2());
+        f2 = Math.min(f2, cellNoise.cell(cell.x(), cell.y() + 1).f2());
+        return Math.min(f2, cellNoise.cell(cell.x(), cell.y() - 1).f2());
+    }
+
+    public static double getAtollIntegrity(NTECellular2D.Cell cell)
+    {
+        return Math.min(0.4 + hashDouble(cell.noise(), 523), 1);
+    }
+
+    public static double hashDouble(double input, int index)
+    {
+        final long inputBits = Double.doubleToLongBits(input);
+        long bits = inputBits + index;
+        bits ^= bits >>> 33;
+        bits *= 0xff51afd7ed558ccdL;
+        bits ^= bits >>> 33;
+        bits *= 0xc4ceb9fe1a85ec53L;
+        bits ^= bits >>> 33;
+        return (bits >>> 11) * 0x1.0p-53;
+    }
+
     private static float calculateClampedEasing(float f1)
     {
         return Mth.clamp(Mth.map(f1, 0, 0.23f, 1, 0), 0, 1);

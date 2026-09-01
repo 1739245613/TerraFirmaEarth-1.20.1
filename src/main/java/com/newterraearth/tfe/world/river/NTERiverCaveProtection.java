@@ -184,14 +184,15 @@ public final class NTERiverCaveProtection
 
     private NTERiverCaveProtection() {}
 
+    /**
+     * Builds the protection geometry for one generated chunk. Route planning
+     * stays demand-driven: the current chunk is queried first, and the
+     * one-chunk protection ring is queried only after a local river profile is
+     * actually present. This keeps cave protection local instead of turning
+     * every noise-fill task into a neighboring-partition route batch.
+     */
     public static Geometry plan(NTERiverHydrology hydrology, ChunkPos chunkPos)
     {
-        hydrology.prepareGraphProfiles(
-            chunkPos.getMinBlockX() - SEARCH_BUFFER,
-            chunkPos.getMinBlockZ() - SEARCH_BUFFER,
-            chunkPos.getMaxBlockX() + SEARCH_BUFFER,
-            chunkPos.getMaxBlockZ() + SEARCH_BUFFER
-        );
         boolean localInfluence = false;
         final List<CoreColumn> coreColumns = new ArrayList<>();
         final NTERiverHydrology.ColumnProfile[] localProfiles = new NTERiverHydrology.ColumnProfile[16 * 16];
@@ -199,7 +200,7 @@ public final class NTERiverCaveProtection
         {
             for (int blockX = chunkPos.getMinBlockX(); blockX <= chunkPos.getMaxBlockX(); blockX++)
             {
-                final NTERiverHydrology.ColumnProfile profile = hydrology.findGraphProfileIfPlanned(blockX, blockZ);
+                final NTERiverHydrology.ColumnProfile profile = hydrology.findGraphProfile(blockX, blockZ);
                 localProfiles[blockX - chunkPos.getMinBlockX() + 16 * (blockZ - chunkPos.getMinBlockZ())] = profile;
                 if (profile != null)
                 {
@@ -218,7 +219,7 @@ public final class NTERiverCaveProtection
                     if (blockX < chunkPos.getMinBlockX() || blockX > chunkPos.getMaxBlockX()
                         || blockZ < chunkPos.getMinBlockZ() || blockZ > chunkPos.getMaxBlockZ())
                     {
-                        addCoreColumn(coreColumns, hydrology.findGraphProfileIfPlanned(blockX, blockZ), blockX, blockZ);
+                        addCoreColumn(coreColumns, hydrology.findGraphProfile(blockX, blockZ), blockX, blockZ);
                     }
                 }
             }

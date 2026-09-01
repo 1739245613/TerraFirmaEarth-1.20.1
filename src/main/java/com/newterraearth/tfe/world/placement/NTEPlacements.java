@@ -16,8 +16,14 @@ public final class NTEPlacements
 
     public static final RegistryObject<PlacementModifierType<IntertidalPlacement>> INTERTIDAL = register("intertidal", () -> IntertidalPlacement.PLACEMENT_CODEC);
     public static final RegistryObject<PlacementModifierType<TuyaPlacement>> TUYA = register("tuya", () -> TuyaPlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEAtollPlacement>> ATOLL = register("atoll", () -> NTEAtollPlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEOceanRidgePlacement>> OCEAN_RIDGE = register("ocean_ridge", () -> NTEOceanRidgePlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEStratovolcanoPlacement>> STRATOVOLCANO = register("stratovolcano", () -> NTEStratovolcanoPlacement.PLACEMENT_CODEC);
     public static final RegistryObject<PlacementModifierType<IntertidalPlacement>> TFC_INTERTIDAL = register(TFC_PLACEMENT_ALIASES, "intertidal", () -> IntertidalPlacement.PLACEMENT_CODEC);
     public static final RegistryObject<PlacementModifierType<TuyaPlacement>> TFC_TUYA = register(TFC_PLACEMENT_ALIASES, "tuya", () -> TuyaPlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEAtollPlacement>> TFC_ATOLL = register(TFC_PLACEMENT_ALIASES, "atoll", () -> NTEAtollPlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEOceanRidgePlacement>> TFC_OCEAN_RIDGE = register(TFC_PLACEMENT_ALIASES, "ocean_ridge", () -> NTEOceanRidgePlacement.PLACEMENT_CODEC);
+    public static final RegistryObject<PlacementModifierType<NTEStratovolcanoPlacement>> TFC_STRATOVOLCANO = register(TFC_PLACEMENT_ALIASES, "stratovolcano", () -> NTEStratovolcanoPlacement.PLACEMENT_CODEC);
 
     private NTEPlacements()
     {

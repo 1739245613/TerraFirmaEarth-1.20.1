@@ -49,6 +49,27 @@ class NTEHeadwaterNetworkTest
     }
 
     @Test
+    void globalLeafMayDescendThroughTheFinalSeaMouth()
+    {
+        final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.planTestStream(
+            13572468L,
+            SEA_LEVEL,
+            320d,
+            0d,
+            0d,
+            0d,
+            16,
+            (x, z) -> 62.5d + Math.max(0d, x) * 0.08d + Math.abs(z) * 0.12d
+        );
+
+        assertTrue(stream.valid(), "a global leaf must be allowed to reach a submerged coastal mouth: " + stream.failureReason());
+        final List<NTEHeadwaterNetwork.DiagnosticPoint> points = stream.points();
+        assertEquals(SEA_LEVEL - 1d, points.get(points.size() - 1).waterY(), 1.0e-9d);
+        assertTrue(points.get(points.size() - 1).terrainY() < SEA_LEVEL - 1d + 1.25d,
+            "the regression fixture must exercise a below-sea-level shore endpoint");
+    }
+
+    @Test
     void highlandHeadwaterFollowsTerrainAndLimitsCascadeSlope()
     {
         final NTEHeadwaterNetwork.TestStream stream = NTEHeadwaterNetwork.planTestStream(
