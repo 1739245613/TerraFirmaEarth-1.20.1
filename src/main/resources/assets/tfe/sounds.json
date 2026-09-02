@@ -1,106 +1,48 @@
 {
-  "entity.seal.ambient": {
-    "subtitle": "subtitles.tfe.entity.seal.ambient",
-    "sounds": [
-      {
-        "name": "minecraft:entity.wolf.ambient",
-        "type": "event"
-      }
-    ]
-  },
-  "entity.seal.death": {
-    "subtitle": "subtitles.tfe.entity.seal.death",
-    "sounds": [
-      {
-        "name": "minecraft:entity.wolf.death",
-        "type": "event"
-      }
-    ]
-  },
-  "entity.seal.hurt": {
-    "subtitle": "subtitles.tfe.entity.seal.hurt",
-    "sounds": [
-      {
-        "name": "minecraft:entity.wolf.hurt",
-        "type": "event"
-      }
-    ]
-  },
-  "entity.seal.step": {
-    "subtitle": "subtitles.tfe.entity.seal.step",
-    "sounds": [
-      {
-        "name": "minecraft:entity/fish/flop1",
-        "pitch": 0.7,
-        "volume": 0.5
-      }
-    ]
-  },
-  "entity.seal.attack": {
-    "subtitle": "subtitles.tfe.entity.seal.attack",
-    "sounds": [
-      {
-        "name": "minecraft:entity.fox.bite",
-        "pitch": 0.5,
-        "type": "event"
-      }
-    ]
-  },
-  "entity.bison.ambient": {
-    "subtitle": "subtitles.tfe.entity.bison.ambient",
-    "sounds": [
-      {
-        "name": "tfc:entity/deer/say1",
-        "pitch": 0.9
-      },
-      {
-        "name": "tfc:entity/deer/say2",
-        "pitch": 0.9
-      },
-      {
-        "name": "tfc:entity/deer/say3",
-        "pitch": 0.9
-      },
-      {
-        "name": "tfc:entity/deer/say5",
-        "pitch": 0.9,
-        "weight": 4
-      },
-      {
-        "name": "tfc:entity/deer/say6",
-        "pitch": 0.9
-      },
-      {
-        "name": "tfc:entity/deer/say7",
-        "pitch": 0.9
-      }
-    ]
-  },
-  "entity.bison.death": {
-    "subtitle": "subtitles.tfe.entity.bison.death",
-    "sounds": [
-      "tfc:entity/deer/death1"
-    ]
-  },
-  "entity.bison.hurt": {
-    "subtitle": "subtitles.tfe.entity.bison.hurt",
-    "sounds": [
-      "tfc:entity/deer/hurt1"
-    ]
-  },
-  "entity.bison.step": {
-    "subtitle": "subtitles.block.generic.footsteps",
-    "sounds": [
-      {
-        "name": "minecraft:entity.wolf.step",
-        "type": "event"
-      }
-    ]
-  },
-  "entity.bison.attack": {
-    "subtitle": "subtitles.tfe.entity.bison.attack",
-    "sounds": [
-      "tfc:entity/deer/moose_charge_1"
-    ]
-  }
+  "entity.bison.ambient": {"sounds": [{"name": "tfc:entity/deer/say1"}, {"name": "tfc:entity/deer/say2"}, {"name": "tfc:entity/deer/say3"}, {"name": "tfc:entity/deer/say5"}, {"name": "tfc:entity/deer/say6"}, {"name": "tfc:entity/deer/say7"}]},
+  "entity.bison.hurt": {"sounds": [{"name": "tfc:entity/deer/hurt1"}]},
+  "entity.bison.death": {"sounds": [{"name": "tfc:entity/deer/death1"}]},
+  "entity.bison.step": {"sounds": [{"name": "minecraft:entity/wolf/step", "type": "event"}]},
+  "entity.bison.attack": {"sounds": [{"name": "tfc:entity/deer/moose_charge_1"}]},
+  "entity.seal.ambient": {"sounds": [{"name": "tfe:entity/seal/ambient0"}, {"name": "tfe:entity/seal/ambient1"}]},
+  "entity.seal.hurt": {"sounds": [{"name": "tfe:entity/seal/ambient0", "pitch": 1.5}]},
+  "entity.seal.death": {"sounds": [{"name": "tfe:entity/seal/ambient1", "pitch": 0.7}]},
+  "entity.seal.step": {"sounds": [{"name": "minecraft:entity/fish/flop1", "type": "event", "volume": 0.5, "pitch": 0.7}]},
+  "entity.seal.attack": {"sounds": [{"name": "minecraft:entity/fox/bite", "type": "event", "pitch": 0.5}]},
+  "entity.arctic_char.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.arctic_char.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.arctic_char.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.arctic_char.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.burbot.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.burbot.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.burbot.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.burbot.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.muksun.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.muksun.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.muksun.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.muksun.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.northern_pike.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.northern_pike.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.northern_pike.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.northern_pike.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.pacu.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.pacu.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.pacu.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.pacu.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.peacock_bass.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.peacock_bass.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.peacock_bass.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.peacock_bass.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.red_piranha.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.red_piranha.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.red_piranha.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.red_piranha.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.spotted_gudgeon.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.spotted_gudgeon.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.spotted_gudgeon.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.spotted_gudgeon.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]},
+  "entity.tilapia.ambient": {"sounds": [{"name": "minecraft:entity/turtle/swim", "type": "event"}]},
+  "entity.tilapia.hurt": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.tilapia.death": {"sounds": [{"name": "minecraft:entity/fish/hurt1"}, {"name": "minecraft:entity/fish/hurt2"}, {"name": "minecraft:entity/fish/hurt3"}, {"name": "minecraft:entity/fish/hurt4"}]},
+  "entity.tilapia.flop": {"sounds": [{"name": "minecraft:entity/fish/flop1", "volume": 0.3}, {"name": "minecraft:entity/fish/flop2", "volume": 0.3}, {"name": "minecraft:entity/fish/flop3", "volume": 0.3}, {"name": "minecraft:entity/fish/flop4", "volume": 0.3}]}
 }

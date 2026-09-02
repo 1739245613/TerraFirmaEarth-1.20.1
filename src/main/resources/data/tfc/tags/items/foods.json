@@ -10,6 +10,26 @@
                    "tfe:canola",
                    "tfe:food/peanut",
                    "tfe:food/radish",
-                   "tfe:peanut_jam"
+                   "tfe:peanut_jam",
+                   "tfc:food/armadillo",
+                   "tfc:food/cooked_armadillo",
+                   "tfc:food/arctic_char",
+                   "tfc:food/cooked_arctic_char",
+                   "tfc:food/burbot",
+                   "tfc:food/cooked_burbot",
+                   "tfc:food/muksun",
+                   "tfc:food/cooked_muksun",
+                   "tfc:food/northern_pike",
+                   "tfc:food/cooked_northern_pike",
+                   "tfc:food/pacu",
+                   "tfc:food/cooked_pacu",
+                   "tfc:food/peacock_bass",
+                   "tfc:food/cooked_peacock_bass",
+                   "tfc:food/red_piranha",
+                   "tfc:food/cooked_red_piranha",
+                   "tfc:food/spotted_gudgeon",
+                   "tfc:food/cooked_spotted_gudgeon",
+                   "tfc:food/tilapia",
+                   "tfc:food/cooked_tilapia"
                ]
 }

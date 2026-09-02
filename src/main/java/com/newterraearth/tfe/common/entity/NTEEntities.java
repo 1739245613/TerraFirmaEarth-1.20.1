@@ -1,7 +1,11 @@
 package com.newterraearth.tfe.common.entity;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -11,6 +15,7 @@ import net.minecraftforge.registries.RegistryObject;
 import com.newterraearth.tfe.common.entity.aquatic.NTELeopardSeal;
 
 import net.dries007.tfc.client.TFCSounds;
+import net.dries007.tfc.common.entities.aquatic.FreshwaterFish;
 import net.dries007.tfc.common.entities.prey.Pest;
 import net.dries007.tfc.common.entities.prey.RammingPrey;
 
@@ -51,6 +56,37 @@ public final class NTEEntities
             .build(TFC_NAMESPACE + ":jerboa")
     );
 
+    public static final RegistryObject<EntityType<NTEBactrianCamel>> BACTRIAN_CAMEL = ENTITIES.register("bactrian_camel", () ->
+        EntityType.Builder.<NTEBactrianCamel>of(NTEBactrianCamel::new, MobCategory.CREATURE)
+            .sized(1.7F, 2.375F).clientTrackingRange(10).build(TFC_NAMESPACE + ":bactrian_camel")
+    );
+    public static final RegistryObject<EntityType<NTEDromedaryCamel>> DROMEDARY_CAMEL = ENTITIES.register("dromedary_camel", () ->
+        EntityType.Builder.<NTEDromedaryCamel>of(NTEDromedaryCamel::new, MobCategory.CREATURE)
+            .sized(1.7F, 2.375F).clientTrackingRange(10).build(TFC_NAMESPACE + ":dromedary_camel")
+    );
+    public static final RegistryObject<EntityType<NTEArmadillo>> ARMADILLO = ENTITIES.register("armadillo", () ->
+        EntityType.Builder.<NTEArmadillo>of(NTEArmadillo::new, MobCategory.CREATURE)
+            .sized(0.7F, 0.65F).clientTrackingRange(8).build(TFC_NAMESPACE + ":armadillo")
+    );
+
+    /** The 4.2.x freshwater fish absent from the 1.20 TFC dependency. */
+    public static final Map<NTEFish, RegistryObject<EntityType<FreshwaterFish>>> NEW_FRESHWATER_FISH = new EnumMap<>(NTEFish.class);
+
+    static
+    {
+        for (NTEFish fish : NTEFish.values())
+        {
+            NEW_FRESHWATER_FISH.put(fish, ENTITIES.register(fish.getSerializedName(), () ->
+                EntityType.Builder.<FreshwaterFish>of((type, level) -> new FreshwaterFish(type, level,
+                    NTEEntitySounds.NEW_FRESHWATER_FISHES.get(fish),
+                    () -> NTEItems.NEW_FRESHWATER_FISH_BUCKETS.get(fish).get()), MobCategory.WATER_AMBIENT)
+                    .sized(fish.getWidth(), fish.getHeight())
+                    .clientTrackingRange(4)
+                    .build(TFC_NAMESPACE + ":" + fish.getSerializedName())
+            ));
+        }
+    }
+
     private NTEEntities()
     {
     }
@@ -67,5 +103,12 @@ public final class NTEEntities
         event.put(LEMMING.get(), Pest.createAttributes().build());
         event.put(MONGOOSE.get(), Pest.createAttributes().build());
         event.put(JERBOA.get(), Pest.createAttributes().build());
+        event.put(BACTRIAN_CAMEL.get(), NTECamel.createAttributes().build());
+        event.put(DROMEDARY_CAMEL.get(), NTEDromedaryCamel.createAttributes().build());
+        event.put(ARMADILLO.get(), NTEArmadillo.createAttributes().build());
+        for (RegistryObject<EntityType<FreshwaterFish>> fish : NEW_FRESHWATER_FISH.values())
+        {
+            event.put(fish.get(), AbstractFish.createAttributes().build());
+        }
     }
 }

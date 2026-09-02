@@ -1,6 +1,16 @@
 {
   "replace": false,
   "values": [
-    "tfc:food/cooked_bison"
+    "tfc:food/cooked_bison",
+    "tfc:food/cooked_armadillo",
+    "tfc:food/cooked_arctic_char",
+    "tfc:food/cooked_burbot",
+    "tfc:food/cooked_muksun",
+    "tfc:food/cooked_northern_pike",
+    "tfc:food/cooked_pacu",
+    "tfc:food/cooked_peacock_bass",
+    "tfc:food/cooked_red_piranha",
+    "tfc:food/cooked_spotted_gudgeon",
+    "tfc:food/cooked_tilapia"
   ]
 }

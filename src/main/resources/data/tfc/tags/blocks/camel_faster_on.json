@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "tfe:coarse_dirt/silt",
+    "tfe:coarse_dirt/loam",
+    "tfe:coarse_dirt/sandy_loam",
+    "tfe:coarse_dirt/silty_loam",
+    "tfe:coarse_dirt/fluvisol",
+    "tfe:coarse_dirt/mollisol",
+    "tfe:coarse_dirt/podzol",
+    "tfe:coarse_dirt/oxisol",
+    "#forge:gravel",
+    "#forge:sand",
+    "tfc:raw_sandstone/brown",
+    "tfc:raw_sandstone/white",
+    "tfc:raw_sandstone/black",
+    "tfc:raw_sandstone/red",
+    "tfc:raw_sandstone/yellow",
+    "tfc:raw_sandstone/green",
+    "tfc:raw_sandstone/pink"
+  ]
+}

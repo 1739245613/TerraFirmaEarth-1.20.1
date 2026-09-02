@@ -32,6 +32,10 @@ public final class NTECommonConfig
     private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_LEMMING;
     private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_MONGOOSE;
     private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_JERBOA;
+    private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_NEW_FRESHWATER_FISH;
+    private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_BACTRIAN_CAMEL;
+    private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_DROMEDARY_CAMEL;
+    private static final ForgeConfigSpec.BooleanValue ENTITY_SPAWN_ARMADILLO;
     private static final ForgeConfigSpec.IntValue SNOW_MAX_ACCUMULATION_ON_UPDATE;
     private static final ForgeConfigSpec.IntValue TICKS_PER_SNOW_ACCUMULATION;
     private static final ForgeConfigSpec.IntValue SNOW_MELT_MULTIPLIER;
@@ -83,6 +87,10 @@ public final class NTECommonConfig
         ENTITY_SPAWN_LEMMING = builder.define("lemming", true);
         ENTITY_SPAWN_MONGOOSE = builder.define("mongoose", true);
         ENTITY_SPAWN_JERBOA = builder.define("jerboa", true);
+        ENTITY_SPAWN_NEW_FRESHWATER_FISH = builder.define("new_freshwater_fish", true);
+        ENTITY_SPAWN_BACTRIAN_CAMEL = builder.define("bactrian_camel", true);
+        ENTITY_SPAWN_DROMEDARY_CAMEL = builder.define("dromedary_camel", true);
+        ENTITY_SPAWN_ARMADILLO = builder.define("armadillo", true);
         builder.pop();
 
         builder.comment("控制 1.21 风格的运行时积雪追赶后端；原版 1.20 的降雨和雷暴调度不会改变。");
@@ -313,6 +321,10 @@ public final class NTECommonConfig
             case "lemming" -> ENTITY_SPAWN_LEMMING.get();
             case "mongoose" -> ENTITY_SPAWN_MONGOOSE.get();
             case "jerboa" -> ENTITY_SPAWN_JERBOA.get();
+            case "arctic_char", "burbot", "muksun", "northern_pike", "pacu", "peacock_bass", "red_piranha", "spotted_gudgeon", "tilapia" -> ENTITY_SPAWN_NEW_FRESHWATER_FISH.get();
+            case "bactrian_camel" -> ENTITY_SPAWN_BACTRIAN_CAMEL.get();
+            case "dromedary_camel" -> ENTITY_SPAWN_DROMEDARY_CAMEL.get();
+            case "armadillo" -> ENTITY_SPAWN_ARMADILLO.get();
             default -> true;
         };
     }
@@ -323,7 +335,11 @@ public final class NTECommonConfig
             || !ENTITY_SPAWN_LEOPARD_SEAL.get()
             || !ENTITY_SPAWN_LEMMING.get()
             || !ENTITY_SPAWN_MONGOOSE.get()
-            || !ENTITY_SPAWN_JERBOA.get();
+            || !ENTITY_SPAWN_JERBOA.get()
+            || !ENTITY_SPAWN_NEW_FRESHWATER_FISH.get()
+            || !ENTITY_SPAWN_BACTRIAN_CAMEL.get()
+            || !ENTITY_SPAWN_DROMEDARY_CAMEL.get()
+            || !ENTITY_SPAWN_ARMADILLO.get();
     }
 
     public static int getConfiguredEntitySpawnMask()
@@ -348,6 +364,22 @@ public final class NTECommonConfig
         if (ENTITY_SPAWN_JERBOA.get())
         {
             mask |= 1 << 4;
+        }
+        if (ENTITY_SPAWN_NEW_FRESHWATER_FISH.get())
+        {
+            mask |= 1 << 5;
+        }
+        if (ENTITY_SPAWN_BACTRIAN_CAMEL.get())
+        {
+            mask |= 1 << 6;
+        }
+        if (ENTITY_SPAWN_DROMEDARY_CAMEL.get())
+        {
+            mask |= 1 << 7;
+        }
+        if (ENTITY_SPAWN_ARMADILLO.get())
+        {
+            mask |= 1 << 8;
         }
         return mask;
     }

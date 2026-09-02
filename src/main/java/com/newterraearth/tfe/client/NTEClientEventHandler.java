@@ -6,6 +6,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.model.CamelModel;
+import com.newterraearth.tfe.client.model.entity.NTEArmadilloModel;
+import com.newterraearth.tfe.client.model.entity.NTEArcticCharModel;
+import com.newterraearth.tfe.client.model.entity.NTEBurbotModel;
+import com.newterraearth.tfe.client.model.entity.NTEMuksunModel;
+import com.newterraearth.tfe.client.model.entity.NTENorthernPikeModel;
+import com.newterraearth.tfe.client.model.entity.NTEPacuModel;
+import com.newterraearth.tfe.client.model.entity.NTEPeacockBassModel;
+import com.newterraearth.tfe.client.model.entity.NTERedPiranhaModel;
+import com.newterraearth.tfe.client.model.entity.NTESpottedGudgeonModel;
+import com.newterraearth.tfe.client.model.entity.NTETilapiaModel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +29,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.dries007.tfc.client.RenderHelpers;
 import net.dries007.tfc.client.TFCColors;
 import net.dries007.tfc.client.render.entity.SimpleMobRenderer;
+import net.dries007.tfc.util.Helpers;
 import net.dries007.tfc.common.blocks.rock.Rock;
 import net.dries007.tfc.common.blocks.soil.ConnectedGrassBlock;
 import net.dries007.tfc.common.entities.prey.Pest;
@@ -25,7 +37,10 @@ import net.dries007.tfc.common.entities.prey.Pest;
 import com.newterraearth.tfe.NewTerraEarthMod;
 import com.newterraearth.tfe.client.model.NTEPlantBlockModel;
 import com.newterraearth.tfe.client.model.entity.NTEBisonModel;
+import com.newterraearth.tfe.client.model.entity.NTEBactrianCamelModel;
+import com.newterraearth.tfe.client.render.entity.NTEBactrianCamelRenderer;
 import com.newterraearth.tfe.common.NTEDevices;
+import com.newterraearth.tfe.common.entity.NTEFish;
 import com.newterraearth.tfe.client.model.entity.NTEJerboaModel;
 import com.newterraearth.tfe.client.model.entity.NTELeopardSealModel;
 import com.newterraearth.tfe.client.model.entity.NTELemmingModel;
@@ -191,6 +206,26 @@ public final class NTEClientEventHandler
         event.registerEntityRenderer(NTEEntities.LEMMING.get(), ctx -> pestRenderer(ctx, NTELemmingModel::new, "lemming"));
         event.registerEntityRenderer(NTEEntities.MONGOOSE.get(), ctx -> pestRenderer(ctx, NTEMongooseModel::new, "mongoose"));
         event.registerEntityRenderer(NTEEntities.JERBOA.get(), ctx -> pestRenderer(ctx, NTEJerboaModel::new, "jerboa"));
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.ARCTIC_CHAR).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEArcticCharModel::new, "arctic_char").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.BURBOT).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEBurbotModel::new, "burbot").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.MUKSUN).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEMuksunModel::new, "muksun").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.NORTHERN_PIKE).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTENorthernPikeModel::new, "northern_pike").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.PACU).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEPacuModel::new, "pacu").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.PEACOCK_BASS).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEPeacockBassModel::new, "peacock_bass").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.RED_PIRANHA).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTERedPiranhaModel::new, "red_piranha").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.SPOTTED_GUDGEON).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTESpottedGudgeonModel::new, "spotted_gudgeon").flops().build());
+        event.registerEntityRenderer(NTEEntities.NEW_FRESHWATER_FISH.get(NTEFish.TILAPIA).get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTETilapiaModel::new, "tilapia").flops().build());
+        event.registerEntityRenderer(NTEEntities.BACTRIAN_CAMEL.get(), ctx -> new NTEBactrianCamelRenderer(
+            ctx,
+            new NTEBactrianCamelModel(RenderHelpers.bakeSimple(ctx, "bactrian_camel")),
+            0.6F
+        ));
+        event.registerEntityRenderer(NTEEntities.DROMEDARY_CAMEL.get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, CamelModel::new, "dromedary_camel")
+            .texture(camel -> new ResourceLocation("minecraft", "textures/entity/camel/camel.png"))
+            .hasBabyTexture().shadow(0.8f).scale(1.0f).build());
+        event.registerEntityRenderer(NTEEntities.ARMADILLO.get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEArmadilloModel::new, "armadillo")
+            .texture(entity -> Helpers.animalTexture("armadillo"))
+            .shadow(0.35f).scale(0.9f).build());
     }
 
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)
@@ -200,6 +235,18 @@ public final class NTEClientEventHandler
         event.registerLayerDefinition(RenderHelpers.modelIdentifier("lemming"), NTELemmingModel::createBodyLayer);
         event.registerLayerDefinition(RenderHelpers.modelIdentifier("mongoose"), NTEMongooseModel::createBodyLayer);
         event.registerLayerDefinition(RenderHelpers.modelIdentifier("jerboa"), NTEJerboaModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("arctic_char"), NTEArcticCharModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("burbot"), NTEBurbotModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("muksun"), NTEMuksunModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("northern_pike"), NTENorthernPikeModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("pacu"), NTEPacuModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("peacock_bass"), NTEPeacockBassModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("red_piranha"), NTERedPiranhaModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("spotted_gudgeon"), NTESpottedGudgeonModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("tilapia"), NTETilapiaModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("bactrian_camel"), NTEBactrianCamelModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("dromedary_camel"), CamelModel::createBodyLayer);
+        event.registerLayerDefinition(RenderHelpers.modelIdentifier("armadillo"), NTEArmadilloModel::createBodyLayer);
     }
 
     private static <M extends net.minecraft.client.model.EntityModel<Pest>> SimpleMobRenderer<Pest, M> pestRenderer(

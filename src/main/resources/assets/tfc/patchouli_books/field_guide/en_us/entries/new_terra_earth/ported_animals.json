@@ -1,0 +1,52 @@
+{
+  "name": "Ported Animals",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/arctic_char",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Ported Animals",
+      "text": "This entry covers the creatures added by the TFC 4.1~4.2 migration. Their drops are connected to the existing TFC food, heating, hide, wool, blubber, bone, flux, bucket, and fishing systems."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/arctic_char",
+      "title": "Freshwater Fish",
+      "link_recipes": false,
+      "text": "Arctic char, burbot, muksun, northern pike, pacu, peacock bass, red piranha, spotted gudgeon, and tilapia use the TFC freshwater-fish AI. Catch them with a rod or collect them in their matching water bucket. Player kills drop raw fish; every raw fish has a TFC heating recipe and food decay / nutrition data for its cooked form. Each species also has a spawn egg."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Fish Tags and Predators",
+      "text": "The new fish are included in TFC's water-creature and small-fish tags, the common raw-fish / cooked-fish tags, the food creative tab, and the All Fish advancement. Fish can therefore be hunted by the leopard seal and used anywhere a TFC fish or food tag is accepted."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/bison",
+      "title": "Bison and Leopard Seal",
+      "link_recipes": false,
+      "text": "Bison retain TFC ramming-prey AI and drop bison meat, large raw hide, and bones when not predated. Leopard seals use pinniped brain AI, hunt small fish in water, and drop blubber, medium raw hide, and bones. Bison meat enters TFC food and heating chains; the other products use existing TFC processing."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:armadillo_scute",
+      "title": "Armadillo",
+      "link_recipes": false,
+      "text": "Adult armadillos shed one scute every 30 in-game hours and also drop a scute on death. They flee players and entities in TFC's land-predator tag, roll up for damage reduction, and can breed with spider eyes. In 1.20 the scute is registered as tfc:armadillo_scute and is accepted by TFC's fluxstone tag, so a hand quern turns it into two flux powder through the normal TFC recipe chain."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/camelidae",
+      "title": "Camels",
+      "link_recipes": false,
+      "text": "Dromedary and Bactrian camels accept TFC grain and fruit foods, use camel terrain-speed tags, and keep the vanilla camel riding / saddle interaction. Dromedaries are cactus-immune and non-breeding, matching TFC 4.2. Bactrian camels can be sheared when adult and ready, producing tfc:wool; their 168-hour production cooldown is stored in the entity save data. Both species have dedicated spawn eggs and fauna entries."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "1.20 Compatibility",
+      "text": "Minecraft 1.20.1 has no native armadillo entity, wolf armor item, or the 1.21 TFC familiarity / genetics / pregnancy interfaces. TFE supplies an equivalent 1.20 armadillo entity and practical scute-to-flux use, while preserving all available TFC food, AI, loot, bucket, spawn, and processing behavior without inventing a fake wolf-armor system."
+    }
+  ],
+  "read_by_default": false,
+  "sortnum": 2
+}

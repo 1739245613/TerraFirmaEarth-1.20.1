@@ -16,6 +16,7 @@ import net.dries007.tfc.util.events.StartFireEvent;
 
 import com.newterraearth.tfe.common.NTEBlocks;
 import com.newterraearth.tfe.common.NTEDevices;
+import com.newterraearth.tfe.common.entity.NTEItems;
 
 /**
  * Forge-bus event glue for the stove / stove pot devices.
@@ -43,12 +44,27 @@ public final class NTEDeviceEvents
 
     private static void onBuildCreativeTab(BuildCreativeModeTabContentsEvent event)
     {
-        if (event.getTab() == TFCCreativeTabs.MISC.tab().get())
+        if (event.getTab() == TFCCreativeTabs.FOOD.tab().get())
+        {
+            // Items registered by the compatibility layer are not part of
+            // TFCItems.FOOD, so add their food entries explicitly. Their
+            // TFC food_items definitions still provide decay, nutrition and
+            // recipe behaviour at runtime.
+            event.accept(NTEItems.BISON.get());
+            event.accept(NTEItems.COOKED_BISON.get());
+            event.accept(NTEItems.ARMADILLO.get());
+            event.accept(NTEItems.COOKED_ARMADILLO.get());
+            NTEItems.NEW_FRESHWATER_FISH.values().forEach(reg -> event.accept(reg.get()));
+            NTEItems.NEW_COOKED_FRESHWATER_FISH.values().forEach(reg -> event.accept(reg.get()));
+        }
+        else if (event.getTab() == TFCCreativeTabs.MISC.tab().get())
         {
             event.accept(NTEBlocks.CACTUS_WOOD.get());
             event.accept(NTEBlocks.DRIED_CACTUS_WOOD.get());
             event.accept(NTEDevices.STOVE_ITEM.get());
             event.accept(NTEDevices.STOVE_POT_ITEM.get());
+            event.accept(NTEItems.ARMADILLO_SCUTE.get());
+            NTEItems.NEW_FRESHWATER_FISH_BUCKETS.values().forEach(reg -> event.accept(reg.get()));
         }
     }
 

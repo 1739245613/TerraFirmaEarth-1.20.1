@@ -10,6 +10,15 @@
     "tfc:bluegill",
     "tfc:largemouth_bass",
     "tfc:smallmouth_bass",
-    "tfc:crappie"
+    "tfc:crappie",
+    "tfc:arctic_char",
+    "tfc:burbot",
+    "tfc:muksun",
+    "tfc:northern_pike",
+    "tfc:pacu",
+    "tfc:peacock_bass",
+    "tfc:red_piranha",
+    "tfc:spotted_gudgeon",
+    "tfc:tilapia"
   ]
 }

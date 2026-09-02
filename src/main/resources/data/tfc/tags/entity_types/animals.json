@@ -2,6 +2,9 @@
   "replace": false,
   "values": [
     "#tfc:water_creatures",
-    "tfc:bison"
+    "tfc:bison",
+    "tfc:bactrian_camel",
+    "tfc:dromedary_camel",
+    "tfc:armadillo"
   ]
 }

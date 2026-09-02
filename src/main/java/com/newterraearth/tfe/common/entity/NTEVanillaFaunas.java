@@ -32,7 +32,7 @@ public final class NTEVanillaFaunas
         final BiMap<ResourceLocation, ?> types = ((DataManagerAccessor<?>) Fauna.MANAGER).tfe$getTypes();
         for (ResourceLocation id : types.keySet())
         {
-            if (id.equals(NTEEntities.BISON.getId()) || id.equals(NTEEntities.LEOPARD_SEAL.getId()))
+            if (isCustomEntity(id))
             {
                 continue;
             }
@@ -45,6 +45,17 @@ public final class NTEVanillaFaunas
 
             registerSpawnPlacement(event, (EntityType<? extends Mob>) entityType);
         }
+    }
+
+    private static boolean isCustomEntity(ResourceLocation id)
+    {
+        if (id.equals(NTEEntities.BISON.getId()) || id.equals(NTEEntities.LEOPARD_SEAL.getId())
+            || id.equals(NTEEntities.BACTRIAN_CAMEL.getId()) || id.equals(NTEEntities.DROMEDARY_CAMEL.getId())
+            || id.equals(NTEEntities.ARMADILLO.getId()))
+        {
+            return true;
+        }
+        return NTEEntities.NEW_FRESHWATER_FISH.values().stream().anyMatch(entity -> id.equals(entity.getId()));
     }
 
     private static <E extends Mob> void registerSpawnPlacement(SpawnPlacementRegisterEvent event, EntityType<E> entityType)

@@ -6,7 +6,7 @@
     {
       "type": "patchouli:text",
       "title": "新增篇",
-      "text": "本篇整理 TFE 新增的系统与世界内容。点击下列标题可直接跳转：$(br2)$(l:new_terra_earth/added#prospecting)勘探系统$()$(br)$(l:new_terra_earth/added#streams)源头溪流$()$(br)$(l:new_terra_earth/added#boats)船只与水流$()$(br)$(l:new_terra_earth/added#terrain)新增地势$()"
+      "text": "本篇整理 TFE 新增的系统与世界内容。点击下列标题可直接跳转：$(br2)$(l:new_terra_earth/ported_animals)移植生物与掉落$()$(br)$(l:new_terra_earth/added#prospecting)勘探系统$()$(br)$(l:new_terra_earth/added#streams)源头溪流$()$(br)$(l:new_terra_earth/added#boats)船只与水流$()$(br)$(l:new_terra_earth/added#terrain)新增地势$()"
     },
     {
       "type": "patchouli:text",

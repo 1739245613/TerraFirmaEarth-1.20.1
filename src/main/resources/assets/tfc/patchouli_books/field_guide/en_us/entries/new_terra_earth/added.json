@@ -6,7 +6,7 @@
     {
       "type": "patchouli:text",
       "title": "New Features",
-      "text": "This section collects systems and world content added by TFE. Select a topic to jump directly to it:$(br2)$(l:new_terra_earth/added#prospecting)Prospecting System$()$(br)$(l:new_terra_earth/added#streams)Headwater Streams$()$(br)$(l:new_terra_earth/added#boats)Boats and Flowing Water$()$(br)$(l:new_terra_earth/added#terrain)Added Terrain Systems$()"
+      "text": "This section collects systems and world content added by TFE. Select a topic to jump directly to it:$(br2)$(l:new_terra_earth/ported_animals)Ported Animals and Drops$()$(br)$(l:new_terra_earth/added#prospecting)Prospecting System$()$(br)$(l:new_terra_earth/added#streams)Headwater Streams$()$(br)$(l:new_terra_earth/added#boats)Boats and Flowing Water$()$(br)$(l:new_terra_earth/added#terrain)Added Terrain Systems$()"
     },
     {
       "type": "patchouli:text",

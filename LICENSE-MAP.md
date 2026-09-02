@@ -39,6 +39,8 @@ Copyright (c) 2026 交错次元 and contributors.
 | 明确复制或结构性翻译 TFC 源码表达的 Java 文件 / 片段 | 对应复制 / 派生片段按 `EUPL v1.2` | Java 目录默认不整体归入此类；以具体文件 / 片段证据为准。 |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | 定向移植 TFC 1.21 `SolarCalculator` 与 `SkyPos` 的太阳位置、太阳时和角度数据表达。 |
 | `src/main/java/com/newterraearth/tfe/common/entity/ai/NTERammingPreyAi.java`、`NTEPrepareRamNearestTarget.java`、`NTERamTarget.java` | `EUPL v1.2` | 结构性移植 TFC 1.21 `RammingPrey` 冲撞脑、冲撞准备和命中行为到 1.20 Forge；保留上游 EUPL 许可声明。 |
+| `src/main/java/com/newterraearth/tfe/client/model/entity/NTEArcticCharModel.java`、`NTEBurbotModel.java`、`NTEMuksunModel.java`、`NTENorthernPikeModel.java`、`NTEPacuModel.java`、`NTEPeacockBassModel.java`、`NTERedPiranhaModel.java`、`NTESpottedGudgeonModel.java`、`NTETilapiaModel.java`、`NTEBactrianCamelModel.java` | `EUPL v1.2` | 结构性移植 TFC 4.2.9 的专用鱼类 / 双峰骆驼模型表达到 1.20 Forge；仅做包名、实体类型和动画 API 兼容调整。 |
+| `src/main/java/com/newterraearth/tfe/client/animation/NTEBactrianCamelAnimation.java`、`src/main/java/com/newterraearth/tfe/client/render/entity/NTEBactrianCamelRenderer.java` | `EUPL v1.2` | 定向移植 TFC 4.2.9 双峰骆驼的六组状态动画与专用纹理选择 renderer；按 1.20 渲染签名适配。 |
 
 ### B. 作者原创 ARR 实现
 
@@ -73,6 +75,11 @@ Copyright (c) 2026 交错次元 and contributors.
 除 TerraFirmaCraft 派生材料、Gradle wrapper 组件与常规构建 / 运行期依赖外，本
 分类表当前不单独列出其他第三方源码或资源。若以后加入单独许可的第三方文件，应
 保留其原始许可声明。
+
+本轮例外：`NTEArmadilloModel.java`、`assets/tfc/textures/entity/animal/armadillo.png`
+及 `assets/tfc/textures/item/armadillo_scute.png`
+来自本地 Minecraft 1.21.1 客户端模型 / 贴图的 1.20 兼容适配，不属于 TFC 派生
+材料；其来源和分发边界按 Minecraft 官方条款处理。
 
 ---
 
@@ -118,6 +125,8 @@ under the corresponding upstream-compatible license.
 | Java files / portions clearly copied from or structurally translated from TFC source expression | `EUPL v1.2` for the copied/derived portions | No whole Java path is classified here by default; classification follows concrete file / portion evidence. |
 | `src/main/java/com/newterraearth/tfe/api/climate/NTE121SolarCalculator.java` | `EUPL v1.2` | Targeted port of the solar-position, sun-based-time, and angle data expressions from TFC 1.21 `SolarCalculator` and `SkyPos`. |
 | `src/main/java/com/newterraearth/tfe/common/entity/ai/NTERammingPreyAi.java`, `NTEPrepareRamNearestTarget.java`, `NTERamTarget.java` | `EUPL v1.2` | Structural port of the TFC 1.21 `RammingPrey` brain, ram preparation, and impact behaviors to the 1.20 Forge runtime; upstream EUPL notices are retained. |
+| `src/main/java/com/newterraearth/tfe/client/model/entity/NTEArcticCharModel.java`, `NTEBurbotModel.java`, `NTEMuksunModel.java`, `NTENorthernPikeModel.java`, `NTEPacuModel.java`, `NTEPeacockBassModel.java`, `NTERedPiranhaModel.java`, `NTESpottedGudgeonModel.java`, `NTETilapiaModel.java`, `NTEBactrianCamelModel.java` | `EUPL v1.2` | Structural ports of the TFC 4.2.9 dedicated fish / Bactrian camel model expressions to 1.20 Forge; only package, entity-type, and animation API compatibility changes were made. |
+| `src/main/java/com/newterraearth/tfe/client/animation/NTEBactrianCamelAnimation.java`, `src/main/java/com/newterraearth/tfe/client/render/entity/NTEBactrianCamelRenderer.java` | `EUPL v1.2` | Targeted ports of the TFC 4.2.9 Bactrian camel's six state animations and dedicated texture-selecting renderer, adapted to the 1.20 render signatures. |
 
 ### B. Author-Original ARR Implementation
 
@@ -154,3 +163,9 @@ This map does not separately list third-party files beyond TerraFirmaCraft-
 derived materials, Gradle wrapper components, and normal build/runtime
 dependencies. If separately licensed third-party files are added later, their
 original license notices should be preserved.
+
+Exception for this task: `NTEArmadilloModel.java`,
+`assets/tfc/textures/entity/animal/armadillo.png`, and
+`assets/tfc/textures/item/armadillo_scute.png` are 1.20 compatibility adaptations
+of the local Minecraft 1.21.1 client model/texture, not TFC-derived material;
+their source and distribution boundary follows Minecraft's official terms.

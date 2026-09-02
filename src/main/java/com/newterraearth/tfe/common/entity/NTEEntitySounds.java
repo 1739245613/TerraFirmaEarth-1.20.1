@@ -1,6 +1,8 @@
 package com.newterraearth.tfe.common.entity;
 
 import java.util.Optional;
+import java.util.EnumMap;
+import java.util.Map;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -45,6 +47,17 @@ public final class NTEEntitySounds
         Optional.empty()
     );
 
+    /** Sound events for fish added after the 1.20 TFC dependency. */
+    public static final Map<NTEFish, TFCSounds.FishSound> NEW_FRESHWATER_FISHES = new EnumMap<>(NTEFish.class);
+
+    static
+    {
+        for (NTEFish fish : NTEFish.values())
+        {
+            NEW_FRESHWATER_FISHES.put(fish, createFish(fish.getSerializedName()));
+        }
+    }
+
     private NTEEntitySounds()
     {
     }
@@ -57,5 +70,15 @@ public final class NTEEntitySounds
     private static RegistryObject<SoundEvent> create(String name)
     {
         return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NewTerraEarthMod.MOD_ID, name)));
+    }
+
+    private static TFCSounds.FishSound createFish(String name)
+    {
+        return new TFCSounds.FishSound(
+            create("entity." + name + ".ambient"),
+            create("entity." + name + ".death"),
+            create("entity." + name + ".hurt"),
+            create("entity." + name + ".flop")
+        );
     }
 }
