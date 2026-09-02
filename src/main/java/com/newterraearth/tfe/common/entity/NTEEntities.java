@@ -13,6 +13,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import com.newterraearth.tfe.common.entity.aquatic.NTELeopardSeal;
+import com.newterraearth.tfe.common.entity.misc.NTERopeKnot;
 
 import net.dries007.tfc.client.TFCSounds;
 import net.dries007.tfc.common.entities.aquatic.FreshwaterFish;
@@ -63,6 +64,11 @@ public final class NTEEntities
     public static final RegistryObject<EntityType<NTEDromedaryCamel>> DROMEDARY_CAMEL = ENTITIES.register("dromedary_camel", () ->
         EntityType.Builder.<NTEDromedaryCamel>of(NTEDromedaryCamel::new, MobCategory.CREATURE)
             .sized(1.7F, 2.375F).clientTrackingRange(10).build(TFC_NAMESPACE + ":dromedary_camel")
+    );
+    public static final RegistryObject<EntityType<NTERopeKnot>> ROPE_KNOT = ENTITIES.register("rope_knot", () ->
+        EntityType.Builder.<NTERopeKnot>of(NTERopeKnot::new, MobCategory.MISC)
+            .noSave().sized(0.375F, 0.5F).clientTrackingRange(10).updateInterval(Integer.MAX_VALUE)
+            .build(TFC_NAMESPACE + ":rope_knot")
     );
     public static final RegistryObject<EntityType<NTEArmadillo>> ARMADILLO = ENTITIES.register("armadillo", () ->
         EntityType.Builder.<NTEArmadillo>of(NTEArmadillo::new, MobCategory.CREATURE)

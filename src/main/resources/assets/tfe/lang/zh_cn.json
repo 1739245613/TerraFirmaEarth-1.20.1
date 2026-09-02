@@ -347,5 +347,6 @@
     "subtitles.tfe.entity.bison.ambient":  "野牛：吼叫",
     "subtitles.tfe.entity.bison.death":  "野牛：死亡",
     "subtitles.tfe.entity.bison.hurt":  "野牛：受伤",
-    "subtitles.tfe.entity.bison.attack":  "野牛：冲撞"
+    "subtitles.tfe.entity.bison.attack":  "野牛：冲撞",
+    "block.tfe.rock.rope_anchor.tuff":  "凝灰岩绳锚"
 }

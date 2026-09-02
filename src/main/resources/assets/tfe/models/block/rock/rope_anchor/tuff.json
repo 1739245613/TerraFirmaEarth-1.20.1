@@ -1,0 +1,5 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "tfc:block/horizontal_rope_anchored",
+  "textures": { "texture": "tfe:block/rock/raw/tuff" }
+}

@@ -19,6 +19,8 @@
         "tfe:wild_crop/cassava",
         "tfe:wild_crop/lentil",
         "tfe:wild_crop/peanut",
-        "tfe:wild_crop/radish"
+        "tfe:wild_crop/radish",
+        "tfc:rope",
+        "tfc:hanging_rope"
     ]
 }

@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.Items;
@@ -52,6 +53,9 @@ import com.newterraearth.tfe.common.block.NTEFarmlandBlock;
 import com.newterraearth.tfe.common.item.FuelBlockItem;
 import com.newterraearth.tfe.common.item.NTEProvidedBlockItem;
 import com.newterraearth.tfe.common.item.NTEProvidedItem;
+import com.newterraearth.tfe.common.block.rope.NTEGroundedRopeBlock;
+import com.newterraearth.tfe.common.block.rope.NTEHangingRopeBlock;
+import com.newterraearth.tfe.common.block.rope.NTEMetalRopeAnchorBlock;
 import com.newterraearth.tfe.common.blockentities.NTEBlockEntities;
 import com.newterraearth.tfe.common.blockentities.NTECropBlockEntity;
 import com.newterraearth.tfe.world.crop.NTECrop;
@@ -114,6 +118,19 @@ public final class NTEBlocks
         "golden_bamboo_block",
         () -> new GoldenBambooBlock(ExtendedProperties.of(Blocks.BAMBOO_BLOCK)),
         block -> new FuelBlockItem(block, new Item.Properties(), Items.BAMBOO_BLOCK)
+    );
+
+    /** 4.2.x climbing rope blocks. Rope segments intentionally have no block item; the rope item places them. */
+    public static final RegistryObject<Block> ROPE = TFC_BLOCKS.register("rope", () ->
+        new NTEGroundedRopeBlock(ExtendedProperties.of().mapColor(DyeColor.BROWN.getMapColor()).noOcclusion().strength(1f).sound(SoundType.WOOL)));
+    public static final RegistryObject<Block> HANGING_ROPE = TFC_BLOCKS.register("hanging_rope", () ->
+        new NTEHangingRopeBlock(ExtendedProperties.of().mapColor(DyeColor.BROWN.getMapColor()).noOcclusion().strength(1f).sound(SoundType.WOOL)));
+    public static final RegistryObject<Block> STEEL_ROPE_ANCHOR = register(
+        TFC_BLOCKS,
+        TFC_ITEMS,
+        "steel_rope_anchor",
+        () -> new NTEMetalRopeAnchorBlock(ExtendedProperties.of(MapColor.METAL).noOcclusion().randomTicks().strength(4f, 10f).requiresCorrectToolForDrops().sound(SoundType.METAL)),
+        block -> new NTEProvidedBlockItem(block, new Item.Properties())
     );
 
     private static final Set<NTEPlant> TFC_NAMESPACE_PLANTS = EnumSet.of(

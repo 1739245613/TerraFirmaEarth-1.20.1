@@ -20,6 +20,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import com.newterraearth.tfe.NewTerraEarthMod;
 import com.newterraearth.tfe.common.item.NTEProvidedItem;
+import com.newterraearth.tfe.common.item.NTERopeItem;
 
 public final class NTEItems
 {
@@ -32,6 +33,7 @@ public final class NTEItems
     public static final RegistryObject<Item> ARMADILLO = registerFood("food/armadillo", true);
     public static final RegistryObject<Item> COOKED_ARMADILLO = registerFood("food/cooked_armadillo", true);
     public static final RegistryObject<Item> ARMADILLO_SCUTE = register("armadillo_scute");
+    public static final RegistryObject<Item> ROPE = ITEMS.register("rope", () -> new NTERopeItem(new Item.Properties()));
 
     public static final Map<NTEFish, RegistryObject<Item>> NEW_FRESHWATER_FISH = new EnumMap<>(NTEFish.class);
     public static final Map<NTEFish, RegistryObject<Item>> NEW_COOKED_FRESHWATER_FISH = new EnumMap<>(NTEFish.class);

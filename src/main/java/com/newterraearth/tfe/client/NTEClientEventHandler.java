@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LeashKnotRenderer;
 import net.minecraft.client.model.CamelModel;
 import com.newterraearth.tfe.client.model.entity.NTEArmadilloModel;
 import com.newterraearth.tfe.client.model.entity.NTEArcticCharModel;
@@ -88,6 +89,11 @@ public final class NTEClientEventHandler
             forEachRockCutoutBlock(block -> ItemBlockRenderTypes.setRenderLayer(block, cutout));
             ItemBlockRenderTypes.setRenderLayer(NTEDevices.STOVE.get(), cutout);
             ItemBlockRenderTypes.setRenderLayer(NTEDevices.STOVE_POT.get(), cutout);
+            ItemBlockRenderTypes.setRenderLayer(NTEBlocks.ROPE.get(), cutout);
+            ItemBlockRenderTypes.setRenderLayer(NTEBlocks.HANGING_ROPE.get(), cutout);
+            ItemBlockRenderTypes.setRenderLayer(NTEBlocks.STEEL_ROPE_ANCHOR.get(), cutout);
+            NTERockBlocks.TFC_ROPE_ANCHORS.values().forEach(anchor -> ItemBlockRenderTypes.setRenderLayer(anchor.get(), cutout));
+            ItemBlockRenderTypes.setRenderLayer(NTERockBlocks.TUFF_ROPE_ANCHOR.get(), cutout);
             for (NTEFluid fluid : NTEFluid.values())
             {
                 ItemBlockRenderTypes.setRenderLayer(NTEFluids.getBlock(fluid).get(), translucent);
@@ -226,6 +232,7 @@ public final class NTEClientEventHandler
         event.registerEntityRenderer(NTEEntities.ARMADILLO.get(), ctx -> new SimpleMobRenderer.Builder<>(ctx, NTEArmadilloModel::new, "armadillo")
             .texture(entity -> Helpers.animalTexture("armadillo"))
             .shadow(0.35f).scale(0.9f).build());
+        event.registerEntityRenderer(NTEEntities.ROPE_KNOT.get(), LeashKnotRenderer::new);
     }
 
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)

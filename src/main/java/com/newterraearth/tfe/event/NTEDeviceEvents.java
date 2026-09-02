@@ -63,6 +63,8 @@ public final class NTEDeviceEvents
             event.accept(NTEBlocks.DRIED_CACTUS_WOOD.get());
             event.accept(NTEDevices.STOVE_ITEM.get());
             event.accept(NTEDevices.STOVE_POT_ITEM.get());
+            event.accept(NTEItems.ROPE.get());
+            event.accept(NTEBlocks.STEEL_ROPE_ANCHOR.get().asItem());
             event.accept(NTEItems.ARMADILLO_SCUTE.get());
             NTEItems.NEW_FRESHWATER_FISH_BUCKETS.values().forEach(reg -> event.accept(reg.get()));
         }

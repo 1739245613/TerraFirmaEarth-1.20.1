@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "facing=east": { "model": "tfe:block/rock/rope_anchor/tuff", "y": 90 },
+    "facing=north": { "model": "tfe:block/rock/rope_anchor/tuff" },
+    "facing=south": { "model": "tfe:block/rock/rope_anchor/tuff", "y": 180 },
+    "facing=west": { "model": "tfe:block/rock/rope_anchor/tuff", "y": 270 }
+  }
+}

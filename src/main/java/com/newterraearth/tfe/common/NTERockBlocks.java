@@ -18,6 +18,7 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.registries.RegistryObject;
 
 import net.dries007.tfc.common.blocks.OreDeposit;
+import net.dries007.tfc.common.blocks.ExtendedProperties;
 import net.dries007.tfc.common.blocks.SandstoneBlockType;
 import net.dries007.tfc.common.blocks.TFCBlocks;
 import net.dries007.tfc.common.blocks.rock.Ore;
@@ -28,6 +29,7 @@ import net.dries007.tfc.util.registry.RegistrationHelpers;
 import net.dries007.tfc.world.settings.RockSettings;
 
 import com.newterraearth.tfe.NewTerraEarthMod;
+import com.newterraearth.tfe.common.block.rope.NTERockRopeAnchorBlock;
 
 public final class NTERockBlocks
 {
@@ -40,6 +42,20 @@ public final class NTERockBlocks
             register("rock/" + type.getSerializedName() + "/" + rock.getSerializedName(), () -> type.create(rock), block -> new BlockItem(block, new Item.Properties()))
         )
     );
+
+    /** Rope anchors are a 4.2 addition, but 1.20's Rock.BlockType has no ROPE_ANCHOR entry. */
+    public static final Map<Rock, RegistryObject<Block>> TFC_ROPE_ANCHORS = Helpers.mapOfKeys(Rock.class, rock ->
+        NTEBlocks.TFC_BLOCKS.register("rock/rope_anchor/" + rock.getSerializedName(), () ->
+            new NTERockRopeAnchorBlock(
+                ExtendedProperties.of(rock.color()).noOcclusion().strength(rock.category().hardness(4f), 10f).requiresCorrectToolForDrops(),
+                () -> TFCBlocks.ROCK_BLOCKS.get(rock).get(Rock.BlockType.SPIKE).get()
+            ))
+    );
+    public static final RegistryObject<Block> TUFF_ROPE_ANCHOR = NTEBlocks.BLOCKS.register("rock/rope_anchor/tuff", () ->
+        new NTERockRopeAnchorBlock(
+            ExtendedProperties.of(NTERock.TUFF.color()).noOcclusion().strength(NTERock.TUFF.category().hardness(4f), 10f).requiresCorrectToolForDrops(),
+            () -> ROCK_BLOCKS.get(NTERock.TUFF).get(Rock.BlockType.SPIKE).get()
+        ));
 
     public static final Map<NTERock, Map<Rock.BlockType, NTERock.DecorationSet>> ROCK_DECORATIONS = Helpers.mapOfKeys(NTERock.class, rock ->
         Helpers.mapOfKeys(Rock.BlockType.class, Rock.BlockType::hasVariants, type -> new NTERock.DecorationSet(
@@ -75,6 +91,19 @@ public final class NTERockBlocks
 
     public static void init()
     {
+    }
+
+    @Nullable
+    public static Block getRopeAnchor(Block spike)
+    {
+        if (spike == ROCK_BLOCKS.get(NTERock.TUFF).get(Rock.BlockType.SPIKE).get())
+            return TUFF_ROPE_ANCHOR.get();
+        for (Rock rock : Rock.values())
+        {
+            if (spike == TFCBlocks.ROCK_BLOCKS.get(rock).get(Rock.BlockType.SPIKE).get())
+                return TFC_ROPE_ANCHORS.get(rock).get();
+        }
+        return null;
     }
 
     public static void registerRockSettings()

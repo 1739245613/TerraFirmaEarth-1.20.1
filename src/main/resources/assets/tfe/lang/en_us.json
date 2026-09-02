@@ -346,5 +346,6 @@
     "subtitles.tfe.entity.bison.attack":  "Bison rams",
     "item.tfe.peanut_jam":  "Peanut Butter",
     "item.tfe.jar.peanut":  "Jar Of Peanut Butter",
-    "item.tfe.jar.peanut_unsealed":  "Jar Of Peanut Butter"
+    "item.tfe.jar.peanut_unsealed":  "Jar Of Peanut Butter",
+    "block.tfe.rock.rope_anchor.tuff":  "Tuff Rope Anchor"
 }
