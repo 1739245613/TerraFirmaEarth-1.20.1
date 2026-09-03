@@ -42,6 +42,7 @@ Copyright (c) 2026 交错次元 and contributors.
 | `src/main/java/com/newterraearth/tfe/client/model/entity/NTEArcticCharModel.java`、`NTEBurbotModel.java`、`NTEMuksunModel.java`、`NTENorthernPikeModel.java`、`NTEPacuModel.java`、`NTEPeacockBassModel.java`、`NTERedPiranhaModel.java`、`NTESpottedGudgeonModel.java`、`NTETilapiaModel.java`、`NTEBactrianCamelModel.java` | `EUPL v1.2` | 结构性移植 TFC 4.2.9 的专用鱼类 / 双峰骆驼模型表达到 1.20 Forge；仅做包名、实体类型和动画 API 兼容调整。 |
 | `src/main/java/com/newterraearth/tfe/client/animation/NTEBactrianCamelAnimation.java`、`src/main/java/com/newterraearth/tfe/client/render/entity/NTEBactrianCamelRenderer.java` | `EUPL v1.2` | 定向移植 TFC 4.2.9 双峰骆驼的六组状态动画与专用纹理选择 renderer；按 1.20 渲染签名适配。 |
 | `src/main/java/com/newterraearth/tfe/common/block/rope/**`、`src/main/java/com/newterraearth/tfe/common/item/NTERopeItem.java`、`src/main/java/com/newterraearth/tfe/common/entity/misc/NTERopeKnot.java` | 结构性派生部分按 `EUPL v1.2`；独立的 1.20 兼容 glue 按作者原创处理 | 定向移植 TFC 4.2.9 climbing rope 方块、物品、锚点和绳结行为到 1.20 Forge。 |
+| `src/main/java/com/newterraearth/tfe/world/surface/NormalAlternateSurfaceBuilder.java` | `EUPL v1.2` | 结构性移植 TFC 4.2.9 `NormalAlternateSurfaceBuilder` 的河谷普通地表分支，并替换为当前 1.20 的本地表面状态。 |
 
 ### B. 作者原创 ARR 实现
 
@@ -129,6 +130,7 @@ under the corresponding upstream-compatible license.
 | `src/main/java/com/newterraearth/tfe/client/model/entity/NTEArcticCharModel.java`, `NTEBurbotModel.java`, `NTEMuksunModel.java`, `NTENorthernPikeModel.java`, `NTEPacuModel.java`, `NTEPeacockBassModel.java`, `NTERedPiranhaModel.java`, `NTESpottedGudgeonModel.java`, `NTETilapiaModel.java`, `NTEBactrianCamelModel.java` | `EUPL v1.2` | Structural ports of the TFC 4.2.9 dedicated fish / Bactrian camel model expressions to 1.20 Forge; only package, entity-type, and animation API compatibility changes were made. |
 | `src/main/java/com/newterraearth/tfe/client/animation/NTEBactrianCamelAnimation.java`, `src/main/java/com/newterraearth/tfe/client/render/entity/NTEBactrianCamelRenderer.java` | `EUPL v1.2` | Targeted ports of the TFC 4.2.9 Bactrian camel's six state animations and dedicated texture-selecting renderer, adapted to the 1.20 render signatures. |
 | `src/main/java/com/newterraearth/tfe/common/block/rope/**`, `src/main/java/com/newterraearth/tfe/common/item/NTERopeItem.java`, `src/main/java/com/newterraearth/tfe/common/entity/misc/NTERopeKnot.java` | `EUPL v1.2` for structurally derived portions; independent 1.20 compatibility glue remains author-original | Targeted ports of TFC 4.2.9 climbing-rope block, item, anchor, and knot behavior to the 1.20 Forge runtime. |
+| `src/main/java/com/newterraearth/tfe/world/surface/NormalAlternateSurfaceBuilder.java` | `EUPL v1.2` | Structural port of TFC 4.2.9 `NormalAlternateSurfaceBuilder` for the river-valley normal-surface branch, adapted to the local 1.20 surface states. |
 
 ### B. Author-Original ARR Implementation
 

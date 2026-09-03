@@ -24,6 +24,7 @@ import com.newterraearth.tfe.world.surface.MudFlatsSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTEBadlandsSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTEAtollSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTECinderConeSurfaceBuilder;
+import com.newterraearth.tfe.world.surface.NormalAlternateSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTERiverSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTEStratovolcanoSurfaceBuilder;
 import com.newterraearth.tfe.world.surface.NTETuffRingsSurfaceBuilder;
@@ -160,7 +161,7 @@ public final class NTEBiomeExtensions
     {
         return setRiverMetadata(build("river_valley", BiomeBuilder.builder()
             .heightmap(seed -> BiomeNoise.hills(seed, -2, 4))
-            .surface(ShorelineSurfaceBuilder.SANDY)
+            .surface(NormalAlternateSurfaceBuilder.SANDY)
             .aquiferHeightOffset(-16)
             .spawnable()
             .type(RiverBlendType.WIDE)), NTERiverBlendType.FLOODPLAIN);

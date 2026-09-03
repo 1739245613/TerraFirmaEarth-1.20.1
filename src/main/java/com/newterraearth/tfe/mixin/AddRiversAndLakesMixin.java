@@ -36,7 +36,7 @@ public abstract class AddRiversAndLakesMixin
 
         for (Region.Point point : region.data())
         {
-            if (point == null || !point.land() || !point.river() || tfe$isLakeBiome(point.biome))
+            if (point == null || point.island() || !point.land() || !point.river() || tfe$isLakeBiome(point.biome))
             {
                 continue;
             }
@@ -45,8 +45,15 @@ public abstract class AddRiversAndLakesMixin
                 continue;
             }
 
-            // The 4.2.9 chooser gives the continental rift branch priority over rivers.
             final NTEPointAccess access = (NTEPointAccess) point;
+            // In 4.2.9, hotspot replacement runs after the river-valley branch.
+            // Keep that ordering when the 1.20 river task has to backfill valleys.
+            if (access.nte$getHotSpotAge() > 0)
+            {
+                continue;
+            }
+
+            // The 4.2.9 chooser gives the continental rift branch priority over rivers.
             if (point.distanceToEdge < 3 && access.nte$getDivergence() > 0d)
             {
                 continue;
