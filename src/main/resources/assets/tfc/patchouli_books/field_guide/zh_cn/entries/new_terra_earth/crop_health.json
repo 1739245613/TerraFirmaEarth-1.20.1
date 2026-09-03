@@ -1,0 +1,21 @@
+{
+  "name": "作物健康",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/wheat",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/wheat",
+      "title": "作物健康规则",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "作物健康规则",
+      "text": "作物健康初始为 100%。温度和水分都合适时正常生长并恢复健康；轻度不适会停止生长并逐步损失健康。$(br2)温度超出上下限 10°C 以上会立即枯死。Jade 可显示当前健康值，具体种植方法见 $(l:mechanics/crops)农作物章节$()。"
+    }
+  ],
+  "read_by_default": true
+}

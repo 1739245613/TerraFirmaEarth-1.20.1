@@ -1,0 +1,25 @@
+{
+  "name": "炉灶",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:stove",
+  "sortnum": 22,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc:crafting/stove",
+      "title": "炉灶",
+      "text": "炉灶是篝火的一种变体，使用它不用担心点燃附近的方块。它拥有篝火的主要功能，也可以添加锅，但不能安装烤架。"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "multiblock": {
+        "pattern": [["X"],["0"]],
+        "mapping": {"X": "tfc:stove"}
+      },
+      "name": "",
+      "text": "",
+      "enable_visualize": false
+    }
+  ],
+  "read_by_default": true
+}

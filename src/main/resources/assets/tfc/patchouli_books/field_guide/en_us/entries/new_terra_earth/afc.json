@@ -1,0 +1,31 @@
+{
+  "name": "AFC Compatibility",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:oak_sapling",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:oak_sapling",
+      "title": "ArborFirmaCraft Forests",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "ArborFirmaCraft Forests",
+      "text": "When ArborFirmaCraft is installed, TFE integrates its additional tree species into the newer forest generation. The compatibility content stays disabled without AFC and does not create a hard dependency."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Trees and Climate",
+      "text": "The compatibility pack contains 45 ordinary AFC forest tree entries and selects species using temperature, groundwater, rainfall variation, and elevation. Their current elevation range is -64~320."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Coordinated Forest Data",
+      "text": "When AFC is installed, TFE coordinates both mods' tree lists, tree shapes, and large forest features, reducing truncated giant trees, missing species, and misplaced humus."
+    }
+  ],
+  "read_by_default": true
+}

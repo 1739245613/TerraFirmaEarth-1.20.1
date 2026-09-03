@@ -3982,6 +3982,11 @@
           }
         }
       ]
+    },
+    {
+      "type": "patchouli:text",
+      "title": "TFE 作物规则",
+      "text": "当前已启用 TFE 的全部作物均已调整。$(br2)TFE 新增了作物健康规则，详见 $(l:new_terra_earth/crop_health)作物健康$()。"
     }
   ],
   "read_by_default": true,

@@ -1,0 +1,26 @@
+{
+  "name": "平滑山峰",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:stone",
+  "sortnum": 16,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:stone",
+      "title": "峰顶抬升",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "峰顶抬升",
+      "text": "山脉峰顶的悬崖抬高经过重新配置和平滑处理。峰顶不再在固定边界突然抬起，而会根据山脉强度逐渐进入高峰区域，让山肩、峰顶和周围地势衔接得更自然。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "调整范围",
+      "text": "可以调整山峰高度、渐变比例、山区抬升幅度、衰减距离和中心平台大小。改动只影响新生成区块；数值差异过大时，旧区块边缘可能出现接缝。"
+    }
+  ],
+  "read_by_default": true
+}

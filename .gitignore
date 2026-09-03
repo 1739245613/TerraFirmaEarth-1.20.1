@@ -1,64 +1,33 @@
 # ============================================================
-# Gradle / 构建产物
+# 白名单模式：默认忽略所有新文件，只保留可复现构建和打包所需内容。
+# 已经被 Git 跟踪的文件不会因为这里的规则自动删除。
 # ============================================================
-.gradle/
-build/
-out/
-bin/
-*.class
-.claude-tmp/
-# ============================================================
-# Forge / NeoForge 运行环境
-# ============================================================
-run/
-logs/
-*.log
-*.log.gz
+*
 
-# datagen 产物（构建时重新生成）
-src/generated/
-.claude/
+# 忽略规则本身
+!/.gitignore
 
-# ============================================================
-# IDE
-# ============================================================
-.idea/
-*.iml
-*.iws
-*.ipr
-.vscode/
-.eclipse/
-eclipse/
-.classpath
-.project
-.settings/
-.metadata/
-\.playwright-mcp
-/Resources
-# ============================================================
-# OS / Python 缓存
-# ============================================================
-Thumbs.db
-.DS_Store
-desktop.ini
-__pycache__/
-*.pyc
+# Gradle / ForgeGradle 构建入口
+!/build.gradle
+!/gradle.properties
+!/settings.gradle
+!/gradlew
+!/gradlew.bat
 
-# ============================================================
-# 仅本地：辅助工具 / 缓存 / 开发脚本
-# ============================================================
-.codex-cache/
-/local-reference/
-claude-memory
-scripts/
-一键打包.bat
+# Gradle Wrapper：保证其他环境可以直接使用项目指定的 Gradle
+!/gradle/
+!/gradle/wrapper/
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
 
-# ============================================================
-# 根目录开发文档与封面：仅本地保留
-# ============================================================
-/*.md
+# 模组源码与正式资源：这些内容会进入开发运行或最终 JAR
+!/src/
+!/src/main/
+!/src/main/**
+
+# 根目录 JAR 任务显式打包的许可与声明文件
+!/LICENSE
+!/NOTICE
 !/LICENSE-MAP.md
 !/DISCLAIMER.md
 !/数据包兼容写法教程.md
-/项目封面.png
-/项目封面.svg

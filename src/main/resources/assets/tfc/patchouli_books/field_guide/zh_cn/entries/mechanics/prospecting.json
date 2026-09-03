@@ -1,7 +1,7 @@
 {
   "name": "勘探",
   "category": "tfc:mechanics",
-  "icon": "tfe:canola",
+  "icon": "tfc:metal/propick/copper",
   "pages": [
     {
       "type": "patchouli:text",

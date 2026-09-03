@@ -1,0 +1,136 @@
+{
+  "name": "New Terrain Biomes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/loam",
+  "sortnum": 15,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:grass/loam",
+      "title": "Continents and Regions",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Terrain Overview",
+      "text": "The current world contains 125 new terrain biomes. All terrain biomes in the 1.20 world use this mod's new terrain system rather than the old terrain set."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Terrain Selection",
+      "text": "Selection combines temperature, rainfall, distance from the coast, volcanic stage, glacial state, and terrain height, covering oceans, shores, land, karst, volcanoes, glaciers, rivers, and lakes."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Common Regions",
+      "text": "Common regions include Plains ($(thing)tfc:plains$()), Hills ($(thing)tfc:hills$()), Rolling Hills ($(thing)tfc:rolling_hills$()), Highlands ($(thing)tfc:highlands$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mountain Regions",
+      "text": "Mountains ($(thing)tfc:mountains$()), and Old Mountains ($(thing)tfc:old_mountains$()). The codes in parentheses can be used to locate the corresponding biomes."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oceans and Ridges",
+      "text": "Ocean and ridge biomes sit around continental margins and in deep water, including Ocean Atolls ($(thing)tfc:ocean_atolls$()), Deep Ocean Atolls ($(thing)tfc:deep_ocean_atolls$()), and Ocean Ridge ($(thing)tfc:ocean_ridge$()).$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rivers and Rifts",
+      "text": "Rivers and rifts follow watersheds and continental breaks, including River Valley ($(thing)tfc:river_valley$()), Rift Valley ($(thing)tfc:rift_valley$()), and Rift Lake ($(thing)tfc:rift_lake$()).$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Volcanoes and Islands",
+      "text": "Volcanoes and islands appear around hotspots, volcanic arcs, and islands, including Oceanic Volcanic Arc ($(thing)tfc:oceanic_volcanic_arc$()), Volcanic Island ($(thing)tfc:volcanic_island$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Volcanic Islands",
+      "text": "Volcanic Mountain Islands ($(thing)tfc:volcanic_mountain_islands$()), and Collisional Mountains ($(thing)tfc:collisional_mountains$()).$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Glacial Terrain",
+      "text": "Glacial volcanic combinations require cold high-latitude or high-elevation volcanic terrain; each family transitions through several temperature, rainfall, and height stages."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oceans",
+      "text": "The oceans include Ocean ($(thing)tfc:ocean$()), Ocean Reef ($(thing)tfc:ocean_reef$()), Deep Ocean ($(thing)tfc:deep_ocean$()), and Deep Ocean Trench ($(thing)tfc:deep_ocean_trench$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Coasts",
+      "text": "Coasts can form Rocky Shores ($(thing)tfc:rocky_shores$()), Tidal Flats ($(thing)tfc:tidal_flats$()), Embayments ($(thing)tfc:embayments$()), Coastal Dunes ($(thing)tfc:coastal_dunes$()), and Sea Stacks ($(thing)tfc:sea_stacks$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Seafloor Depth",
+      "text": "The seafloor generally deepens away from land; trench cores reach roughly -60~-46. Ocean Ridge and atoll entries are listed on the previous page."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Landforms (1)",
+      "text": "Landforms include Badlands ($(thing)tfc:badlands$()), Canyons ($(thing)tfc:canyons$()), Low Canyons ($(thing)tfc:low_canyons$()), Lowlands ($(thing)tfc:lowlands$()), Plateau ($(thing)tfc:plateau$()), Plateau Wide ($(thing)tfc:plateau_wide$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Landforms (2)",
+      "text": "Mesas ($(thing)tfc:mesas$()), Buttes ($(thing)tfc:buttes$()), and Hoodoos ($(thing)tfc:hoodoos$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Karst (1)",
+      "text": "Karst branches include Tower Karst Plains ($(thing)tfc:tower_karst_plains$()), Shilin Plains ($(thing)tfc:shilin_plains$()), Doline Plains ($(thing)tfc:doline_plains$()), Cenote Plains ($(thing)tfc:cenote_plains$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Karst (2)",
+      "text": "Tower Karst Canyons ($(thing)tfc:tower_karst_canyons$()), Doline Canyons ($(thing)tfc:doline_canyons$()), Cenote Canyons ($(thing)tfc:cenote_canyons$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Karst (3)",
+      "text": "Tower Karst Hills ($(thing)tfc:tower_karst_hills$()), Doline Hills ($(thing)tfc:doline_hills$()), and Cenote Hills ($(thing)tfc:cenote_hills$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Volcanoes (1)",
+      "text": "Volcanic landforms include Active Shield Volcano ($(thing)tfc:active_shield_volcano$()), Dormant Shield Volcano ($(thing)tfc:dormant_shield_volcano$()), Extinct Shield Volcano ($(thing)tfc:extinct_shield_volcano$()), Ancient Shield Volcano ($(thing)tfc:ancient_shield_volcano$()), Sunken Shield Volcano ($(thing)tfc:sunken_shield_volcano$()),"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Volcanoes (2)",
+      "text": "Volcanic Mountains ($(thing)tfc:volcanic_mountains$()), and Volcanic Oceanic Mountains ($(thing)tfc:volcanic_oceanic_mountains$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Glaciers and Ice Sheets",
+      "text": "Cold regions can generate Ice Sheet ($(thing)tfc:ice_sheet$()), Ice Sheet Mountains ($(thing)tfc:ice_sheet_mountains$()), Glaciated Mountains ($(thing)tfc:glaciated_mountains$()), and Glacially Carved Mountains ($(thing)tfc:glacially_carved_mountains$())."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Glacial Transitions",
+      "text": "New volcanic arcs and islands are listed on the previous page."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rivers and Headwaters (1)",
+      "text": "River ($(thing)tfc:river$()) and headwater streams form connected water systems."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rivers and Headwaters (2)",
+      "text": "A headwater follows natural downhill terrain and can create bends, rapids, waterfalls, and spreading flow before gradually joining a main river; the new River Valley, Rift Valley, and Rift Lake entries are listed on the previous page."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Exploration Tip",
+      "text": "Terrain appears only in newly generated chunks. Travel along coasts, rivers, and mountain ranges to find the different transitions; existing chunks are not reshaped automatically."
+    }
+  ],
+  "read_by_default": true
+}

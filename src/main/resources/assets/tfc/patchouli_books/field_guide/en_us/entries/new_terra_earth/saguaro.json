@@ -1,0 +1,26 @@
+{
+  "name": "Giant Saguaro Changes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:cactus_wood",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:cactus_wood",
+      "title": "Whole-Plant Harvest",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Whole-Plant Harvest",
+      "text": "Breaking any connected saguaro branch handles the whole cactus and attached fruit, preventing floating branches or partial drops. With an axe, hoe, knife, or another sharp tool, each branch drops one Cactus Wood and each attached fruit drops one Saguaro Fruit."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Replanting and Uses",
+      "text": "Saguaro Fruit can be used to plant another cactus. Cactus Wood can be dried at 700°C, then used for log piles and fuel."
+    }
+  ],
+  "read_by_default": true
+}

@@ -1,0 +1,26 @@
+{
+  "name": "巨型仙人掌修改",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:cactus_wood",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:cactus_wood",
+      "title": "整株采集",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "整株采集",
+      "text": "破坏任意相连的仙人掌枝干会处理整株仙人掌和附着果实，避免枝条悬空或只有局部掉落。使用斧、锄、小刀或其他锋利工具采集时，每段枝干掉落 1 个仙人掌木，每个附着果实掉落 1 个仙人掌果。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "再种植与用途",
+      "text": "仙人掌果可以直接用于再次种植；仙人掌木可在 700°C 加热烘干，并作为木堆材料和燃料使用。"
+    }
+  ],
+  "read_by_default": true
+}

@@ -1,0 +1,26 @@
+{
+  "name": "地下河过渡",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 18,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "地表河流接入地下河",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "地表河流接入地下河",
+      "text": "普通河流接入地下河时，不再在地表突然消失或留下单格高的垂直切线。河谷会在接近洞口时逐渐把普通河型高度过渡到地下河入口，保留能看懂的河流去向。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "当前表现",
+      "text": "只有普通河流真正与地下河入口相接的区域才打开地表入口；平行经过地下河的山体不会整段塌成 V 字沟。过渡长度由当地河流和洞穴混合决定，只影响新生成区块。"
+    }
+  ],
+  "read_by_default": true
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Compatibility Features",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:canola",
+  "sortnum": 24,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:canola",
+      "title": "Optional Mod Support",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Optional Mod Support",
+      "text": "TFE's core terrain, climate, fauna, and plant features do not require optional addons. When a supported addon is installed, TFE connects to its compatibility hooks automatically; without it, the base content remains unchanged. See $(l:new_terra_earth/afc)AFC Compatibility$() for its tree integration."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Greenhouses and Cellars",
+      "text": "Inside a FirmalifeEnhanced controlled greenhouse or cellar, crops, fruit trees, and berry bushes use annual-average temperature and stable hydration instead of outside seasonal weather."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Choosing a Greenhouse",
+      "text": "TFCModernLife greenhouses control temperature from the current local temperature. These systems overlap, so choose the greenhouse expansion your pack needs instead of enabling duplicates."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Maps",
+      "text": "JourneyMap and similar map mods can identify and color the added terrain biomes."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Datapack Extensions",
+      "text": "Servers and modpacks can also extend fauna spawning, tree species, and other compatibility settings through datapacks; the bundled datapack compatibility guide is intended for players and pack authors who need those extensions."
+    }
+  ],
+  "read_by_default": true
+}

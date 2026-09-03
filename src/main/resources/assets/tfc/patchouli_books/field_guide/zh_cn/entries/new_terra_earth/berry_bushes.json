@@ -1,0 +1,21 @@
+{
+  "name": "灌木修改",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/blueberry",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/blueberry",
+      "title": "浆果灌木气候",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "浆果灌木气候",
+      "text": "11 种灌木分别拥有自然生成和栽培生长温度。大型灌木和小型浆果灌木的生命周期见 $(l:the_world/wild_fruits#tall_bushes)大型灌木$() 与 $(l:the_world/wild_fruits#small_bushes)小型灌木$()。"
+    }
+  ],
+  "read_by_default": true
+}

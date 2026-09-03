@@ -1,0 +1,26 @@
+{
+  "name": "Seasonal Rainfall and Crops",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "Average and Current Hydration",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Instant Hydration",
+      "text": "World rainfall and groundwater use 0~500, while cultivated plants read 0~100% hydration. Current seasonal rainfall becomes instant hydration, with nearby water adding a bonus."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Wild and Farmland",
+      "text": "Wild generation uses long-term average climate; farmland tooltips show average and current hydration separately. See $(l:the_world/climate#rainfall)TFC Rainfall$() and $(l:mechanics/hydration)Hydration$()."
+    }
+  ],
+  "read_by_default": true
+}

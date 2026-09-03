@@ -1,0 +1,31 @@
+{
+  "name": "新增地势系统",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/loam",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:grass/loam",
+      "title": "山地、海岸与海洋",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "山地、海岸与海洋",
+      "text": "世界生成加入连续的山区抬升、海岸衔接、火山地势和海洋深度。$(br2)地势会与原有地形、河流、海岸和岩层一起形成完整地貌，而不是孤立的装饰结构。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "山地与海岸",
+      "text": "山区可按配置形成更高山脉、中心平台和峰顶悬崖；高阶地、海退崖、海岸和河口使用平滑过渡，减少固定高度地形之间的突变。$(br2)地势配置只影响新生成区块。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海洋与火山",
+      "text": "普通海、珊瑚海、深海和海沟会连续加深，海沟核心逐渐降到更深处。火山根据区域条件选择不同阶段与地势，并改善与周围山地、河口的连接。"
+    }
+  ],
+  "read_by_default": true
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Crop Health",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/wheat",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/wheat",
+      "title": "Crop Health Rules",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Crop Health Rules",
+      "text": "Crops start at 100% health. Suitable temperature and hydration allow normal growth and restore health; mild stress stops growth and gradually drains health.$(br2)Temperatures more than 10°C beyond either limit kill the crop immediately. Jade can show the current health value."
+    }
+  ],
+  "read_by_default": true
+}

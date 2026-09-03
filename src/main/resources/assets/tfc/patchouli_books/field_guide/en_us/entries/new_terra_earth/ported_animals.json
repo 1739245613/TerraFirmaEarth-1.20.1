@@ -1,52 +1,207 @@
 {
-  "name": "Ported Animals",
+  "name": "New Animals",
   "category": "tfc:new_terra_earth",
-  "icon": "tfc:food/arctic_char",
+  "icon": "tfc:food/bison",
+  "sortnum": 8,
   "pages": [
     {
       "type": "patchouli:text",
-      "title": "Ported Animals",
-      "text": "This entry covers the creatures added by the TFC 4.1~4.2 migration. Their drops are connected to the existing TFC food, heating, hide, wool, blubber, bone, flux, bucket, and fishing systems."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/arctic_char",
-      "title": "Freshwater Fish",
-      "link_recipes": false,
-      "text": "Arctic char, burbot, muksun, northern pike, pacu, peacock bass, red piranha, spotted gudgeon, and tilapia use the TFC freshwater-fish AI. Catch them with a rod or collect them in their matching water bucket. Player kills drop raw fish; every raw fish has a TFC heating recipe and food decay / nutrition data for its cooked form. Each species also has a spawn egg."
+      "title": "New Animals",
+      "text": "This entry covers bison, leopard seals, armadillos, Bactrian camels, dromedary camels, and nine freshwater fish. They follow TFC climate, food, and processing rules.$(br2)For general predator, ramming, familiarity, breeding, and riding rules, see $(l:the_world/wild_animals)TFC Wild Animals$() and $(l:mechanics/animal_husbandry)TFC Animal Husbandry$()."
     },
     {
       "type": "patchouli:text",
-      "title": "Fish Tags and Predators",
-      "text": "The new fish are included in TFC's water-creature and small-fish tags, the common raw-fish / cooked-fish tags, the food creative tab, and the All Fish advancement. Fish can therefore be hunted by the leopard seal and used anywhere a TFC fish or food tag is accepted."
+      "title": "Pests",
+      "text": "Lemmings, mongooses, and jerboas appear as pests in cold, warm, or dry regions. Pets will hunt them, and they do not provide livestock products.$(br2)For testing, they can be summoned with spawn eggs or commands."
     },
     {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/bison",
-      "title": "Bison and Leopard Seal",
-      "link_recipes": false,
-      "text": "Bison retain TFC ramming-prey AI and drop bison meat, large raw hide, and bones when not predated. Leopard seals use pinniped brain AI, hunt small fish in water, and drop blubber, medium raw hide, and bones. Bison meat enters TFC food and heating chains; the other products use existing TFC processing."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:armadillo_scute",
-      "title": "Armadillo",
-      "link_recipes": false,
-      "text": "Adult armadillos shed one scute every 30 in-game hours and also drop a scute on death. They flee players and entities in TFC's land-predator tag, roll up for damage reduction, and can breed with spider eyes. In 1.20 the scute is registered as tfc:armadillo_scute and is accepted by TFC's fluxstone tag, so a hand quern turns it into two flux powder through the normal TFC recipe chain."
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/camelidae",
-      "title": "Camels",
-      "link_recipes": false,
-      "text": "Dromedary and Bactrian camels accept TFC grain and fruit foods, use camel terrain-speed tags, and keep the vanilla camel riding / saddle interaction. Dromedaries are cactus-immune and non-breeding, matching TFC 4.2. Bactrian camels can be sheared when adult and ready, producing tfc:wool; their 168-hour production cooldown is stored in the entity save data. Both species have dedicated spawn eggs and fauna entries."
+      "type": "patchouli:entity",
+      "entity": "tfc:bison",
+      "scale": 0.6,
+      "name": "Bison",
+      "text": ""
     },
     {
       "type": "patchouli:text",
-      "title": "1.20 Compatibility",
-      "text": "Minecraft 1.20.1 has no native armadillo entity, wolf armor item, or the 1.21 TFC familiarity / genetics / pregnancy interfaces. TFE supplies an equivalent 1.20 armadillo entity and practical scute-to-flux use, while preserving all available TFC food, AI, loot, bucket, spawn, and processing behavior without inventing a fake wolf-armor system."
+      "title": "Bison",
+      "text": "Bison spawn on open plains with $(l:the_world/climate#temperature)temperature$() from -10 to 15°C and $(l:the_world/climate#rainfall)rainfall$() from 160 to 420 mm. They are $(l:the_world/wild_animals#ramming_prey)ramming animals$() and are more likely to charge after being hurt. They drop raw bison, which can be heated, preserved, and processed like other TFC meats."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:leopard_seal",
+      "scale": 0.7,
+      "name": "Leopard Seal",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Leopard Seal",
+      "text": "Leopard seals spawn on cold beaches, ice-sheet edges, and sea ice with $(l:the_world/climate#temperature)temperature$() at most -9°C and $(l:the_world/climate#rainfall)rainfall$() at least 105 mm. They are amphibious aquatic predators that can move in water and can be fed suitable seal food."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:armadillo",
+      "scale": 0.7,
+      "name": "Armadillo",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Armadillo Behavior",
+      "text": "Armadillos spawn where $(l:the_world/climate#temperature)temperature$() is above 12°C and $(l:the_world/climate#rainfall)rainfall$() is between 100 and 400 mm."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Armadillo Scutes",
+      "text": "Adults shed one scute every 30 hours. They flee players and awake land predators, roll up under threat, and take reduced damage while rolled. Spider eyes attract and breed them; scutes can be processed into flux powder with a quern or hammer."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:bactrian_camel",
+      "scale": 0.75,
+      "name": "Bactrian Camel",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Bactrian Camel",
+      "text": "Bactrian camels spawn in cold deserts with $(l:the_world/climate#temperature)temperature$() at most -5°C and $(l:the_world/climate#rainfall)rainfall$() at most 100 mm. They are rideable, slower than horses but faster on sand and snow, and eat grains and fruits. Adults can be sheared for TFC wool, restoring the wool every 7 in-game days."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:dromedary_camel",
+      "scale": 0.75,
+      "name": "Dromedary Camel",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dromedary Camel",
+      "text": "Dromedary camels spawn in drier climates with $(l:the_world/climate#temperature)temperature$() at least -5°C and $(l:the_world/climate#rainfall)rainfall$() at most 100 mm. They are rideable, slower than horses but faster on sand, and immune to cactus damage; they eat grains and fruits. They cannot currently breed."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "New Freshwater Fish",
+      "text": "The nine fish below use TFC $(l:mechanics/fishing)fishing$() and fish-bucket mechanics, including decay, heating, and cooking.$(br2)They normally spawn from May through October according to river or lake temperature and groundwater. Each species has raw and cooked food, a fish bucket, and a spawn egg."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:arctic_char",
+      "scale": 0.7,
+      "name": "Arctic Char",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Arctic Char",
+      "text": "Arctic char live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from -20 to -8°C and $(l:the_world/climate#rainfall)rainfall$() from 150 to 400 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:burbot",
+      "scale": 0.7,
+      "name": "Burbot",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Burbot",
+      "text": "Burbot live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from -16 to -9°C and $(l:the_world/climate#rainfall)rainfall$() below 350 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:muksun",
+      "scale": 0.7,
+      "name": "Muksun",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Muksun",
+      "text": "Muksun live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from -20 to -10°C and $(l:the_world/climate#rainfall)rainfall$() of at least 250 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:northern_pike",
+      "scale": 0.7,
+      "name": "Northern Pike",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Northern Pike",
+      "text": "Northern pike live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from -14 to -5°C and $(l:the_world/climate#rainfall)rainfall$() from 150 to 400 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:peacock_bass",
+      "scale": 0.7,
+      "name": "Peacock Bass",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Peacock Bass",
+      "text": "Peacock bass live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from 12 to 25°C and $(l:the_world/climate#rainfall)rainfall$() from 200 to 400 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:pacu",
+      "scale": 0.7,
+      "name": "Pacu",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Pacu",
+      "text": "Pacu live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from 20 to 35°C and $(l:the_world/climate#rainfall)rainfall$() above 200 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:red_piranha",
+      "scale": 0.7,
+      "name": "Red Piranha",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Red Piranha",
+      "text": "Red piranha live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from 22 to 35°C and $(l:the_world/climate#rainfall)rainfall$() above 300 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:spotted_gudgeon",
+      "scale": 0.7,
+      "name": "Spotted Gudgeon",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Spotted Gudgeon",
+      "text": "Spotted gudgeon live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from 6 to 24°C and $(l:the_world/climate#rainfall)rainfall$() below 250 mm."
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:tilapia",
+      "scale": 0.7,
+      "name": "Tilapia",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tilapia",
+      "text": "Tilapia live in rivers or lakes at $(l:the_world/climate#temperature)temperature$() from 10 to 32°C and $(l:the_world/climate#rainfall)rainfall$() below 300 mm."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Getting and Processing",
+      "text": "Freshwater fish can be caught or moved with fish buckets, and raw and cooked fish follow TFC preservation and heating rules. Bison, leopard seals, and armadillos use the normal meat-processing chain; armadillo scutes can become flux powder, and Bactrian camels can be sheared for wool."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Spawn Settings",
+      "text": "Natural spawning for these animals can be adjusted independently in the configuration."
     }
   ],
-  "read_by_default": false,
-  "sortnum": 2
+  "read_by_default": true
 }

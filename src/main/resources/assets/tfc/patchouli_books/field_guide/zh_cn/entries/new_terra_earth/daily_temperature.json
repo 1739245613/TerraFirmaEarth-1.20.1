@@ -1,0 +1,26 @@
+{
+  "name": "日温差",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:clock",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:clock",
+      "title": "昼夜温差",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "昼夜温差",
+      "text": "日温差表示一天内从夜间到白天的温度变化。参考范围为：$(br)赤道附近约 7°C$(br)亚热带约 9°C$(br)极地接近 0°C。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "降雨的影响",
+      "text": "当前季节降雨会调节昼夜温差。干燥地区通常变化更剧烈，湿润地区通常更平缓。$(br2)日温差会与年温差、海拔、海岸和地质共同作用，最后显示在气候界面的当前温度中。详见 $(l:the_world/climate#temperature)历法和气候$()。"
+    }
+  ],
+  "read_by_default": true
+}

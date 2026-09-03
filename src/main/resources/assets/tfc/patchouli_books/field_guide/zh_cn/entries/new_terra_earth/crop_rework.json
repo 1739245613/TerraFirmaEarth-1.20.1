@@ -1,0 +1,21 @@
+{
+  "name": "作物修改",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/wheat",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/wheat",
+      "title": "作物气候与种植",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "作物气候与种植",
+      "text": "TFE 为全部作物重新整理了生长温度和水分范围。野生作物生成使用海拔修正后的年平均气候，耕地上的作物读取当前温度和当前水分；完整作物表见 $(l:mechanics/crops)TFC 农作物章节$()，野外分布见 $(l:the_world/wild_crops)野生作物$()。"
+    }
+  ],
+  "read_by_default": true
+}

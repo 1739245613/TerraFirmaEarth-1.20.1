@@ -1,0 +1,21 @@
+{
+  "name": "Fruit Tree Changes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/cherry",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/cherry",
+      "title": "Fruit Tree Climate",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Fruit Tree Climate",
+      "text": "Each of the nine fruit trees has its own natural-generation and cultivated-growth temperatures. Natural generation uses elevation-adjusted annual climate; cultivated growth and fruiting use current temperature and hydration.$(br2)Lifecycle and grafting details are in the $(l:the_world/wild_fruits#fruit_trees)TFC Fruit Trees chapter$()."
+    }
+  ],
+  "read_by_default": true
+}

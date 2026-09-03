@@ -1,0 +1,31 @@
+{
+  "name": "Annual Temperature Range",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:clock",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:clock",
+      "title": "Seasonal Half-Amplitude",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Seasonal Half-Amplitude",
+      "text": "Annual range uses a seasonal half-amplitude: the greatest monthly rise or fall from the annual mean temperature.$(br2)Reference values by latitude are:$(br)Equator: 0°C$(br)22.5° latitude: about 4.5°C$(br)45° latitude: about 9°C$(br)67.5° latitude: about 13.5°C$(br)Poles: 18°C."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Seasonal Swing",
+      "text": "Seasonal half-amplitude changes the baseline temperature through the year, with the strongest seasonal swing near the poles. Seasons are six months apart between hemispheres, so the same latitude can be in opposite seasons."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Final Temperature",
+      "text": "Daily variation, elevation, coasts, and geology are added to get the final temperature. See $(l:the_world/climate#temperature)Calendar and Climate$() for the complete screen guide."
+    }
+  ],
+  "read_by_default": true
+}

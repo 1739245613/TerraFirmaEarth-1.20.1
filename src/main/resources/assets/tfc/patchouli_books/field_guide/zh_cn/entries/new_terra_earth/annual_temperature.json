@@ -1,0 +1,31 @@
+{
+  "name": "年温差",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:clock",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:clock",
+      "title": "季节半振幅",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "季节半振幅",
+      "text": "年温差使用“季节半振幅”表示：月平均温度相对年平均温度最多升高或降低多少。$(br2)不同纬度的参考值为：$(br)赤道 0°C$(br)22.5° 纬度约 4.5°C$(br)45° 纬度约 9°C$(br)67.5° 纬度约 13.5°C$(br)极点 18°C。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "季节变化",
+      "text": "季节半振幅会改变每个月的基础温度，越接近极点，季节变化越明显。南北半球的季节相差半年，因此同一纬度在两个半球会处于相反季节。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "最终温度",
+      "text": "最终体感温度还要叠加日温差、海拔、海岸和地质影响。完整界面说明见 $(l:the_world/climate#temperature)历法和气候$()。"
+    }
+  ],
+  "read_by_default": true
+}

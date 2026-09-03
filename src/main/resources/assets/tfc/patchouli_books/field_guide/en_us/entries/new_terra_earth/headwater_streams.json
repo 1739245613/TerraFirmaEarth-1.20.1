@@ -1,0 +1,31 @@
+{
+  "name": "Headwater Streams",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "Terrain-Aware Streams",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Terrain-Aware Streams",
+      "text": "River ends that would otherwise stop abruptly can form headwater streams. A stream seeks a natural downhill route and gradually joins an existing main river while retaining TFC river biomes, water, and related features."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Flow and River Mouths",
+      "text": "The uppermost block remains a stable source. Later sections can form bends, rapids, waterfalls, and spreading flow.$(br2)Static river water uses 16 directions; near the main river, bed height, water level, width, and flow hand over gradually to avoid blockages or sudden cliffs."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Generation Scope",
+      "text": "Streams appear only in new worlds or previously ungenerated chunks. They avoid the full banks of unrelated main rivers and protect material around a wet bed without filling entire natural caves."
+    }
+  ],
+  "read_by_default": true
+}

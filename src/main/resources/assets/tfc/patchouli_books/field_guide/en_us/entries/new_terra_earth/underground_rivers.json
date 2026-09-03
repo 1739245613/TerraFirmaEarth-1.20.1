@@ -1,0 +1,26 @@
+{
+  "name": "Underground River Transitions",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 18,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "Surface to Underground",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Surface to Underground",
+      "text": "Where an ordinary river enters an underground river, it no longer vanishes at the surface or leaves a one-block vertical cut. As the valley approaches the cave mouth, its ordinary river height gradually blends toward the underground entrance, leaving a readable watercourse."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Current Behavior",
+      "text": "A surface opening appears only where an ordinary river truly meets an underground entrance. Mountains that merely run parallel to an underground river are not collapsed into a long V-shaped trench. Transition length follows the local river and cave blend, and only new chunks are affected."
+    }
+  ],
+  "read_by_default": true
+}

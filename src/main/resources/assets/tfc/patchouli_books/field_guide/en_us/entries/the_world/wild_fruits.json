@@ -3827,6 +3827,11 @@
     {
       "type": "patchouli:empty",
       "draw_filler": false
+    },
+    {
+      "type": "patchouli:text",
+      "title": "TFE Fruit Trees and Bushes",
+      "text": "TFE gives fruit trees and berry bushes distinct natural-generation and cultivated-growth climates, and changes short-term climate failure from death to stopped growth or dormancy. See $(l:new_terra_earth/fruit_trees)Fruit Tree Changes$(), $(l:new_terra_earth/berry_bushes)Bush Changes$(), and $(l:new_terra_earth/growth_survival)Fruit Tree and Bush Survival$()."
     }
   ],
   "read_by_default": true,

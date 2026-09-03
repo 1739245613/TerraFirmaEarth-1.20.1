@@ -1,0 +1,31 @@
+{
+  "name": "Other Plants",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:plant/golden_bamboo",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:plant/goldenrod",
+      "title": "Plant Types",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Plant Types",
+      "text": "The world contains standard flowers, dry plants, short and tall grass, shrubs, creeping plants, epiphytes, vines, and water plants. Many change color, flower, or go dormant with the seasons; flowers can usually be ground into dye in a $(l:mechanics/quern)quern$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Water Plants",
+      "text": "Water lilies grow in freshwater, while anemones, barnacles, mussels, and starfish grow in saltwater. Floating plants sit on the surface and are broken when a boat passes over them. Check the water type before harvesting."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Special Plants",
+      "text": "Bamboo, golden bamboo, cycads, and flame vines continue upward as they grow. Cactus beds and passable cacti are useful for desert landscapes. Thorny cacti deal damage, so keep your distance while harvesting."
+    }
+  ],
+  "read_by_default": true
+}

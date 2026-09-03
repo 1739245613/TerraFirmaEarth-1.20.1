@@ -1,0 +1,26 @@
+{
+  "name": "腐殖层与高岭土",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:kaolin_clay",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:kaolin_clay",
+      "title": "腐殖层地表标记",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "腐殖层地表标记",
+      "text": "森林腐殖层更完整地参与植物种植、滑坡和地图显示。当高岭土矿床生成在腐殖土区域时，地表会补上一层高岭土草方块，避免矿床被普通腐殖层完全盖住。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "生成边界",
+      "text": "这项表面覆盖只作用于符合高岭土生成条件的森林腐殖层，不会让深海或不适宜群系凭空出现高岭土。腐殖层仍保留森林土壤的种植用途和自然过渡，变化只出现在新生成区块。"
+    }
+  ],
+  "read_by_default": true
+}

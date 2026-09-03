@@ -1,0 +1,21 @@
+{
+  "name": "绳索",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:rope",
+  "sortnum": 23,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:rope",
+      "title": "使用绳索",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "使用绳索",
+      "text": "绳索可以连接岩石锚、钢绳锚和绳结，用于攀爬和安全下降。放置、收回和连接时请留意锚点是否牢固。$(br2)完整配方、操作方式和注意事项见 $(l:mechanics/ropes)TFC 绳索章节$()。"
+    }
+  ],
+  "read_by_default": true
+}

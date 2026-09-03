@@ -1,0 +1,21 @@
+{
+  "name": "勘探镐改进",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:metal/propick/copper",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:metal/propick/copper",
+      "title": "勘探系统",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "勘探系统",
+      "text": "勘探镐会合并同种矿物、分别统计矿量，并显示最近目标的方向、高低和距离。完整制作、材质能力、问号规则和矿量等级请直接查看 $(l:mechanics/prospecting)TFC 勘探章节$()。"
+    }
+  ],
+  "read_by_default": true
+}

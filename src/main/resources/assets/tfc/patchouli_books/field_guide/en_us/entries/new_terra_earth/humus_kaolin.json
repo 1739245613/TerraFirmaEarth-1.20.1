@@ -1,0 +1,26 @@
+{
+  "name": "Humus and Kaolin Clay",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:kaolin_clay",
+  "sortnum": 19,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:kaolin_clay",
+      "title": "Humus Surface Marking",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Humus Surface Marking",
+      "text": "Forest humus now participates more completely in planting, landslides, and map display. When a kaolin deposit generates inside humus terrain, a layer of kaolin clay grass is added so the deposit is not completely hidden beneath ordinary humus."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Generation Boundary",
+      "text": "This cover applies only to forest humus that already meets kaolin generation conditions; it does not create kaolin in deep oceans or unsuitable biomes. Humus keeps its forest-soil uses and natural transitions, and the change appears only in new chunks."
+    }
+  ],
+  "read_by_default": true
+}

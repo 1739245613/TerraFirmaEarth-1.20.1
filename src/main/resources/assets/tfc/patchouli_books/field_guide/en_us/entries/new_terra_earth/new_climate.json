@@ -1,0 +1,86 @@
+{
+  "name": "New Climate",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:textures/gui/book/icons/thermometer.png",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:canola",
+      "title": "31 Climate Classifications",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Climate Overview",
+      "text": "The Climate screen uses 31 classifications calculated from annual mean temperature, annual rainfall, rainfall seasonality, and hemisphere."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Climate Distribution",
+      "text": "Climate is not confined to tiny fixed zones: moving away from the equator generally becomes colder, while low rainfall or distance from the ocean favors arid, semi-arid, or continental climates."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Climate Factors",
+      "text": "Elevation can also push an area toward a colder class. See $(l:the_world/climate#temperature)Calendar and Climate$() for the current and average values used by the screen."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tropical Climate",
+      "text": "$(li)Humid Tropical (Af): $(thing)Af$(), hot and wet year-round. $(li)Tropical Monsoon (Am): $(thing)Am$(), hot with strongly seasonal rainfall. $(li)Tropical Wet/Dry (Aw): $(thing)Aw$(), drier winters. $(li)Tropical Dry/Wet (As): $(thing)As$(), drier summers."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Arid Climate",
+      "text": "$(li)Hot Desert (BWh): $(thing)BWh$(), hot with very little rainfall. $(li)Cold Desert (BWk): $(thing)BWk$(), a colder desert. $(li)Hot Semi-Arid (BSh): $(thing)BSh$(). $(li)Cold Semi-Arid (BSk): $(thing)BSk$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Temperate and Monsoonal",
+      "text": "$(li)Coastal Subtropical (Csa): $(thing)Csa$(). $(li)Coastal (Csb): $(thing)Csb$(). $(li)Cold Coastal (Csc): $(thing)Csc$(). $(li)Monsoonal Subtropical (Cwa): $(thing)Cwa$(). $(li)Monsoonal Temperate (Cwb): $(thing)Cwb$(). $(li)Cold Monsoonal Temperate (Cwc): $(thing)Cwc$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oceanic Climate",
+      "text": "$(li)Oceanic Subtropical (Cfa): $(thing)Cfa$(). $(li)Oceanic (Cfb): $(thing)Cfb$(). $(li)Cold Oceanic (Cfc): $(thing)Cfc$(). These are common across humid low and middle latitudes, especially where the ocean moderates seasonal extremes."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Continental Climate (1)",
+      "text": "$(li)Coastal Continental (Dsa), Cold Coastal Continental (Dsb), Coastal Subarctic (Dsc), and Coastal Cold Subarctic (Dsd): $(thing)Dsa$(), $(thing)Dsb$(), $(thing)Dsc$(), $(thing)Dsd$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Continental Climate (2)",
+      "text": "$(li)Monsoonal Continental (Dwa), Cold Monsoonal Continental (Dwb), Monsoonal Subarctic (Dwc), and Cold Monsoonal Subarctic (Dwd): $(thing)Dwa$(), $(thing)Dwb$(), $(thing)Dwc$(), $(thing)Dwd$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Continental Climate (3)",
+      "text": "$(li)Continental (Dfa), Cold Continental (Dfb), Subarctic (Dfc), and Cold Subarctic (Dfd): $(thing)Dfa$(), $(thing)Dfb$(), $(thing)Dfc$(), $(thing)Dfd$(). D climates are common in middle and high-latitude interiors, where annual and daily temperature swings are larger."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Polar Climate",
+      "text": "$(li)Tundra (ET): $(thing)ET$(), with very cold summers. $(li)Polar (EF): $(thing)EF$(), near freezing year-round."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Finding a Climate",
+      "text": "Polar climates appear mainly at high latitudes and elevations."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Current Location",
+      "text": "Open the Climate screen to see the classification at your position;"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Finding a Target",
+      "text": "Use its annual mean temperature and rainfall together with latitude, elevation, and distance from the coast. Seasons are six months apart between hemispheres, but the classification rules remain the same."
+    }
+  ],
+  "read_by_default": true
+}

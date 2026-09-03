@@ -1,0 +1,76 @@
+{
+  "name": "新气候",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:textures/gui/book/icons/thermometer.png",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:canola",
+      "title": "31 种气候分类",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "气候概览",
+      "text": "气候界面中的分类共有 31 种，依据年平均温度、年降雨量、降雨季节性和所在半球计算。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "气候分布",
+      "text": "气候不是固定的小区域：从赤道向两极通常逐渐变冷，远离海洋或降雨较少的地区更容易转为干旱、半干旱或大陆性气候；高海拔也会使当地更接近寒冷分类。完整的当前温度、平均温度和降雨数值见 $(l:the_world/climate#temperature)历法和气候$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "热带气候",
+      "text": "$(li)热带雨林气候（Af）：$(thing)Af$()，全年炎热湿润。$(li)热带季风气候（Am）：$(thing)Am$()，高温且季节性降雨集中。$(li)热带草原气候（冬旱）（Aw）：$(thing)Aw$()，冬季较干。$(li)热带草原气候（夏旱）（As）：$(thing)As$()，夏季较干。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "干旱气候",
+      "text": "$(li)热带沙漠气候（BWh）：$(thing)BWh$()，炎热且极少降雨。$(li)温带沙漠气候（BWk）：$(thing)BWk$()，较冷的沙漠。$(li)热带半干旱气候（BSh）：$(thing)BSh$()，炎热的半干旱区。$(li)温带半干旱气候（BSk）：$(thing)BSk$()，较冷的半干旱区。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "温带与季风气候",
+      "text": "$(li)地中海气候（夏热）（Csa）：$(thing)Csa$()。$(li)地中海气候（夏暖）（Csb）：$(thing)Csb$()。$(li)地中海气候（夏凉）（Csc）：$(thing)Csc$()。$(li)亚热带季风气候（Cwa）：$(thing)Cwa$()。$(li)亚热带高原气候（Cwb）：$(thing)Cwb$()。$(li)温带高原气候（Cwc）：$(thing)Cwc$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "温带海洋性气候",
+      "text": "$(li)亚热带湿润气候（Cfa）：$(thing)Cfa$()。$(li)温带海洋性气候（Cfb）：$(thing)Cfb$()。$(li)副极地海洋性气候（Cfc）：$(thing)Cfc$()。这些气候主要出现在中低纬度的湿润陆地和沿海地区，季节温差通常比大陆内部平缓。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "大陆性气候（一）",
+      "text": "$(li)温带大陆性气候（夏热）（Dsa）：$(thing)Dsa$()；夏季干燥。$(li)温带大陆性气候（夏暖）（Dsb）：$(thing)Dsb$()。$(li)温带大陆性气候（夏凉）（Dsc）：$(thing)Dsc$()。$(li)温带大陆性气候（夏寒）（Dsd）：$(thing)Dsd$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "大陆性气候（二）",
+      "text": "$(li)温带大陆性季风气候（夏热/夏暖/夏凉/夏寒）：$(thing)Dwa$()、$(thing)Dwb$()、$(thing)Dwc$()、$(thing)Dwd$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "大陆性湿润气候",
+      "text": "$(li)温带大陆性湿润气候（夏热/夏暖/夏凉/夏寒）：$(thing)Dfa$()、$(thing)Dfb$()、$(thing)Dfc$()、$(thing)Dfd$()。D 类气候常见于中高纬度内陆，昼夜和年内温差通常更大。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "极地气候",
+      "text": "$(li)苔原气候（ET）：$(thing)ET$()，最暖月份仍然寒冷。$(li)冰原气候（EF）：$(thing)EF$()，全年接近冰冻。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "极地气候",
+      "text": "极地气候主要分布在高纬度和高海拔地区。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "气候查找",
+      "text": "打开气候界面即可查看当前位置的分类；需要寻找特定气候时，可结合界面中的年平均温度、降雨量和地图上的纬度、海拔判断方向。南北半球季节相差半年，但同一分类的温度和降雨判定规则不变。"
+    }
+  ],
+  "read_by_default": true
+}

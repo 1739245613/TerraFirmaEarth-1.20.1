@@ -1,0 +1,25 @@
+{
+  "name": "Stove",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:stove",
+  "sortnum": 22,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "tfc:crafting/stove",
+      "title": "Stove",
+      "text": "A stove is a firepit variant that will not ignite nearby blocks. It has the main firepit functions and accepts a pot, but it cannot use a grill."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "multiblock": {
+        "pattern": [["X"],["0"]],
+        "mapping": {"X": "tfc:stove"}
+      },
+      "name": "",
+      "text": "",
+      "enable_visualize": false
+    }
+  ],
+  "read_by_default": true
+}

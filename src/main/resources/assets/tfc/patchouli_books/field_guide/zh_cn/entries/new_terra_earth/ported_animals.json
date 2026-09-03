@@ -1,52 +1,207 @@
 {
-  "name": "移植生物",
+  "name": "新生物",
   "category": "tfc:new_terra_earth",
-  "icon": "tfc:food/arctic_char",
+  "icon": "tfc:food/bison",
+  "sortnum": 8,
   "pages": [
     {
       "type": "patchouli:text",
-      "title": "移植生物",
-      "text": "本篇说明 TFC 4.1~4.2 生物迁移。它们的掉落已经接入现有 TFC 的食物、加热、皮革、羊毛、脂肪、骨头、助焊剂、鱼桶和钓鱼系统。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/arctic_char",
-      "title": "淡水鱼",
-      "link_recipes": false,
-      "text": "新增北极红点鲑、江鳕、白鲑、狗鱼、食人鲳、孔雀鲈、红腹食人鱼、斑点塘鳢和罗非鱼，沿用 TFC 淡水鱼 AI。可以用鱼竿捕获，也可以用对应鱼桶收集；玩家击杀会掉落生鱼，每种生鱼都有 TFC 加热配方和腐败/营养数据，熟鱼可直接烹饪食用。每种鱼还配有刷怪蛋。"
+      "title": "新增生物",
+      "text": "这里收录野牛、海豹、犰狳、双峰驼、单峰驼，以及九种淡水鱼。它们遵循 TFC 的气候、食物和加工规则。$(br2)通用的捕食、冲撞、亲密度、繁殖和骑乘规则，请查看 $(l:the_world/wild_animals)TFC 野生动物$() 与 $(l:mechanics/animal_husbandry)TFC 畜牧业$()。"
     },
     {
       "type": "patchouli:text",
-      "title": "鱼类标签与捕食",
-      "text": "新增鱼类已经加入 TFC 水生生物和小型鱼类标签、通用生鱼/熟鱼标签、食物创造栏和“全部鱼类”成就，因此海豹可以捕食它们，也能被所有接受 TFC 鱼类或食物标签的系统识别。"
+      "title": "害虫",
+      "text": "旅鼠、獴、跳鼠会作为害虫出现在寒冷、温暖或干燥的地区。它们会被宠物主动追捕，不提供畜牧产品。$(br2)需要人工测试时，可以使用刷怪蛋或命令生成。"
     },
     {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/bison",
-      "title": "野牛与豹海豹",
-      "link_recipes": false,
-      "text": "野牛保留 TFC 冲撞猎物 AI；在没有被捕食的情况下会掉落野牛肉、大型生皮和骨头。豹海豹使用鳍足类脑 AI，会在水中捕食小型鱼，并掉落脂肪、中型生皮和骨头。野牛肉进入 TFC 食物和加热链，其余产物沿用 TFC 现有加工用途。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:armadillo_scute",
-      "title": "犰狳",
-      "link_recipes": false,
-      "text": "成年犰狳每 30 个游戏内小时脱落一枚鳞甲，死亡时也会掉落鳞甲；它们会躲避玩家和 TFC 陆地捕食者标签中的生物，受到威胁时蜷缩并减伤，可以用蜘蛛眼繁殖。在 1.20 中鳞甲注册为 tfc:armadillo_scute，并加入 TFC 助焊剂石标签；把它放入手摇磨石即可沿 TFC 原有配方产出两份助焊剂粉。"
-    },
-    {
-      "type": "patchouli:spotlight",
-      "item": "tfc:food/camelidae",
-      "title": "骆驼",
-      "link_recipes": false,
-      "text": "单峰骆驼和双峰骆驼接受 TFC 谷物与水果食物，使用骆驼地形加速标签，并保留原版骑乘和鞍具交互。单峰骆驼免疫仙人掌伤害且不能繁殖，符合 TFC 4.2；成年双峰骆驼准备好后可以剪毛，产出 tfc:wool，168 小时冷却会保存到实体存档。两种骆驼都有刷怪蛋和自然刷新条目。"
+      "type": "patchouli:entity",
+      "entity": "tfc:bison",
+      "scale": 0.6,
+      "name": "野牛",
+      "text": ""
     },
     {
       "type": "patchouli:text",
-      "title": "1.20 兼容边界",
-      "text": "Minecraft 1.20.1 没有原生犰狳实体、狼铠物品，也没有 1.21 TFC 的熟悉度/基因/妊娠接口。TFE 提供等价的 1.20 犰狳实体和可实际使用的鳞甲转助焊剂用途，同时保留能在 1.20 中实现的 TFC 食物、AI、掉落、鱼桶、刷新和加工行为，不伪造狼铠系统。"
+      "title": "野牛",
+      "text": "野牛生成在开阔平原，平均$(l:the_world/climate#temperature)温度$()为 -10~15°C，$(l:the_world/climate#rainfall)降雨量$()为 160~420 mm。它属于$(l:the_world/wild_animals#ramming_prey)冲撞动物$()，受伤后更容易发起冲撞。掉落生野牛肉，可按 TFC 方式加热、保存和加工。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:leopard_seal",
+      "scale": 0.7,
+      "name": "海豹",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海豹",
+      "text": "海豹生成在寒冷海滩、冰盖边缘和海冰上，需要$(l:the_world/climate#temperature)温度$()不高于 -9°C、$(l:the_world/climate#rainfall)降雨量$()至少 105 mm。它是两栖水生捕食者，可以在水中活动；使用适合海豹的食物喂养。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:armadillo",
+      "scale": 0.7,
+      "name": "犰狳",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "犰狳习性",
+      "text": "犰狳生成在$(l:the_world/climate#temperature)温度$()高于 12°C、$(l:the_world/climate#rainfall)降雨量$()为 100~400 mm 的地区。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "犰狳鳞甲",
+      "text": "成年犰狳每 30 小时掉落一枚鳞甲；它会躲避玩家和未睡眠的陆地捕食者，受威胁时蜷缩并减少所受伤害。蜘蛛眼可用于吸引和繁殖，鳞甲可经手推磨或锤子加工为助焊剂粉。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:bactrian_camel",
+      "scale": 0.75,
+      "name": "双峰驼",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "双峰驼",
+      "text": "双峰驼生成在寒冷沙漠，需要$(l:the_world/climate#temperature)温度$()不高于 -5°C、$(l:the_world/climate#rainfall)降雨量$()不超过 100 mm。它可以骑乘，比马慢，但在沙地和雪地上更快；食物为谷物和水果。成年双峰驼可以剪下 TFC 羊毛，每 7 个游戏日恢复一次。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:dromedary_camel",
+      "scale": 0.75,
+      "name": "单峰驼",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "单峰驼",
+      "text": "单峰驼生成在较干燥气候，需要$(l:the_world/climate#temperature)温度$()至少 -5°C、$(l:the_world/climate#rainfall)降雨量$()不超过 100 mm。它可以骑乘，比马慢，但在沙地上更快并免疫仙人掌伤害；食物为谷物和水果。目前不能繁殖。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "新增淡水鱼",
+      "text": "以下九种鱼使用 TFC 的 $(l:mechanics/fishing)钓鱼$()和鱼桶系统，并会正常腐败、加热和烹饪。$(br2)它们通常在五月至十月按河流或湖泊的温度与地下水条件生成。每种鱼都有生鱼、熟鱼、鱼桶和刷怪蛋。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:arctic_char",
+      "scale": 0.7,
+      "name": "红点鲑",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "红点鲑",
+      "text": "红点鲑生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 -20~-8°C、$(l:the_world/climate#rainfall)降雨量$()为 150~400 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:burbot",
+      "scale": 0.7,
+      "name": "江鳕",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "江鳕",
+      "text": "江鳕生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 -16~-9°C、$(l:the_world/climate#rainfall)降雨量$()低于 350 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:muksun",
+      "scale": 0.7,
+      "name": "穆松白鲑",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "穆松白鲑",
+      "text": "穆松白鲑生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 -20~-10°C、$(l:the_world/climate#rainfall)降雨量$()至少 250 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:northern_pike",
+      "scale": 0.7,
+      "name": "狗鱼",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "狗鱼",
+      "text": "狗鱼生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 -14~-5°C、$(l:the_world/climate#rainfall)降雨量$()为 150~400 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:peacock_bass",
+      "scale": 0.7,
+      "name": "孔雀鲈",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "孔雀鲈",
+      "text": "孔雀鲈生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 12~25°C、$(l:the_world/climate#rainfall)降雨量$()为 200~400 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:pacu",
+      "scale": 0.7,
+      "name": "食人鲳",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "食人鲳",
+      "text": "食人鲳生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 20~35°C、$(l:the_world/climate#rainfall)降雨量$()高于 200 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:red_piranha",
+      "scale": 0.7,
+      "name": "红腹食人鱼",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "红腹食人鱼",
+      "text": "红腹食人鱼生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 22~35°C、$(l:the_world/climate#rainfall)降雨量$()高于 300 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:spotted_gudgeon",
+      "scale": 0.7,
+      "name": "斑纹塘鳢",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "斑纹塘鳢",
+      "text": "斑纹塘鳢生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 6~24°C、$(l:the_world/climate#rainfall)降雨量$()低于 250 mm。"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "tfc:tilapia",
+      "scale": 0.7,
+      "name": "罗非鱼",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "罗非鱼",
+      "text": "罗非鱼生活在河流或湖泊中，$(l:the_world/climate#temperature)温度$()为 10~32°C、$(l:the_world/climate#rainfall)降雨量$()低于 300 mm。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "获取与加工",
+      "text": "淡水鱼可以通过钓鱼或鱼桶获得，生鱼和熟鱼都遵循 TFC 的保存与加热规则。野牛、海豹和犰狳会进入常规肉类加工流程；犰狳鳞甲可加工为助焊剂粉，双峰驼可剪下羊毛。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "刷新设置",
+      "text": "需要调整自然刷新时，可在配置中分别关闭对应生物。"
     }
   ],
-  "read_by_default": false,
-  "sortnum": 2
+  "read_by_default": true
 }

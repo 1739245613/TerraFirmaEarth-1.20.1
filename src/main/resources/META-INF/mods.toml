@@ -15,17 +15,17 @@ TerraFirmaEarth / 群峦地球
 
 移植自高版本 TFC 的内容
 - 积雪逻辑移植，积雪现在是在对应的气候立即生效，冬天外出不会慢慢积雪，夏天外出不会慢慢化雪。
-- 新版地形地貌和过渡：在既有地形基础上继续补齐海岭、裂谷、河谷、环礁、火山弧与火山岛等 4.2.9 地形入口。
+- 新地形群系和过渡：当前世界共有 125 种新地形群系，覆盖海岭、裂谷、河谷、环礁、火山弧、火山岛以及冰川等海洋和陆地地貌。
 - 气候与季节：新的气候(总共31种)与面板日历显示、运行时天气与降雨判定。
 - 植物季相：树叶、花草、莲花、向日葵等的动态季相外观(风景美化)。
 - 作物与农田杂草花朵：完整移植.
 - 新生物与刷新：野牛、海豹等新生物按高版本气候口径接入；北极熊、冰原狼按高版本气候口径运行。
 - 害虫系统：跟随气候变化的多种老鼠。
-- 手册条目：在 TFC 手册首页新增"群峦地球 / New Terra Earth"独立分类，比较粗糙，拿来查看作物生长条件。
+- 帕秋莉手册：在 TFC 手册首页新增"群峦地球 / New Terra Earth"独立分类，整理作物、气候、地形与其他功能的查询入口。
 
 额外的内容
 - 果树作物灌木等湿度，直接取决于当前降雨量，且可以读取环境水源。
-- 海洋地形：采用 TFC 4.2.9 的普通海、海礁、深海和新版海沟高度噪声；TFE 仍保留深水海床薄砂砾与火山海岸表面适配。
+- 海洋地形：普通海、海礁、深海和海沟使用连续的深度过渡；TFE 仍保留深水海床薄砂砾与火山海岸表面适配。
 - 区域地形：补齐 ocean ridge、rift valley、river valley、环礁和基础 stratovolcano centered-feature；TFE 的地势溪流与河床保护继续叠加。
 - 高低版本兼容层：让高版本的生物、气候、植物等数据在 1.20 端正常工作，兼容了1.20提前注册的物品。
 - AFC 兼容：兼容林海传说
@@ -34,11 +34,13 @@ TerraFirmaEarth / 群峦地球
 - TFCModernLife群峦现代化生活兼容：温室范围是以当前温度为基准进行控温。且建议使用此模组作为本模组温室、地窖和电力厨房相关拓展，勿重复启用.
 - 数据包接入说明：随附 GitHub 上的《数据包兼容写法教程》，方便个人使用者或整合包作者添加生物刷新、追加 fauna、协调 AFC 兼容。
 
-2.0.2 更新概括
-- 新增作物健康机制：温度或湿度不适时作物停止生长并逐步降低健康，气候恢复后逐步恢复；健康归零或温度超出适宜范围10°C时枯死,TFE帕秋莉作物重做篇有介绍。
-- Jade 信息面板新增作物健康显示。
-- 香蕉每次收获改为 8 - 16 个，营养调整为 1.5 点水果和 0.5 点乳制品；直接破坏果树时树苗掉落增加为1-3个。
-- 修复芦竹、干芦苇和树蕨从底部破坏时，中间节不掉落的问题。
+2.1.0 更新概括
+- 移植最新版 TFC 的地形、气候、生物、植物与相关内容。
+- 新增绳索及相关交互功能。
+- 增加作物全状态 Jade 显示，新增作物健康机制。
+- 优化勘探系统，调整果树气候条件。
+- 优化并补充 TFE 帕秋莉手册，整理各项功能的目录与说明。
+- 具体机制与参数均可查阅帕秋莉手册。
 
 2.0.1 更新概括
 - 新增全新的河流群系溪流。
@@ -99,13 +101,13 @@ TerraFirmaEarth is a back-port addon for TerraFirmaCraft on Minecraft 1.20.1 For
 
 Ported from newer TFC versions
 - Snow logic: snow accumulation and melting now react to climate immediately — no more slowly building up in winter or slowly melting in summer.
-- Full set of new terrain biomes and transitions: 109 biomes ported.
+- New terrain biomes and transitions: the world uses 125 new terrain biomes, covering ocean ridges, rifts, river valleys, atolls, volcanic arcs, islands, and glacial landforms.
 - Climate and seasons: 31 climate types ported, with the new climate panel and calendar display, runtime weather and rainfall.
 - Seasonal plants: dynamic seasonal appearance for leaves, flowers, lotus, sunflower and more (visual polish).
 - Crops, farmland, weeds and flowers: fully ported.
 - New fauna and spawning: bison, leopard seal and other new mobs follow newer-version climate rules; polar bear and dire wolf also run on newer climate logic.
 - Pest system: multiple climate-driven rodents (lemming / mongoose / jerboa).
-- Field guide: a dedicated "TerraFirmaEarth / 群峦地球" category added to the TFC field guide — fairly rough, mainly intended for looking up crop growth conditions.
+- Field guide: a dedicated "TerraFirmaEarth / 群峦地球" category added to the TFC field guide, with organized entries for crops, climate, terrain, and other features.
 
 Extras
 - Crops, fruit trees and bushes draw their hydration directly from current rainfall, and can read nearby water sources.
@@ -117,11 +119,13 @@ Extras
 - TFCModernLife (群峦现代化生活) compatibility: greenhouse control is based on current temperature. It is recommended as the greenhouse, cellar and electric kitchen expansion for this mod; do not enable duplicate greenhouse expansions at the same time.
 - Datapack integration: a separate "Datapack Compatibility Guide" is provided on GitHub for personal users or modpack authors who want to add fauna spawning, extend fauna entries, or coordinate AFC compatibility.
 
-2.0.2 Update Summary
-- Added crop health: crops stop growing and gradually lose health when temperature or hydration is unsuitable, then recover when the climate becomes suitable again. Crops die when health reaches zero or temperature exceeds the suitable range by 10°C. See the Crop Rework chapter in the TFE Field Guide for details.
-- Added crop health to the Jade information panel.
-- Increased banana harvests to 8 - 16 and adjusted each banana to 1.5 fruit and 0.5 dairy nutrition. Directly breaking the fruit tree now drops 1 - 3 saplings.
-- Fixed missing middle-section drops when arundo, dry phragmite, or tree ferns are broken from the bottom.
+2.1.0 Update Summary
+- Ported the latest TFC terrain, climate, fauna, flora, and related content.
+- Added ropes and related interactions.
+- Added full crop-state information to Jade and introduced crop health.
+- Improved the prospecting system and adjusted fruit-tree climate conditions.
+- Improved and expanded the TFE Patchouli field guide with organized entries for each feature.
+- See the Patchouli field guide for detailed mechanics and parameters.
 
 2.0.1 Update Summary
 - Added brand-new streams to river biomes.

@@ -1,0 +1,21 @@
+{
+  "name": "果树修改",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/cherry",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/cherry",
+      "title": "果树气候",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "果树气候",
+      "text": "9 种果树分别拥有自然生成和栽培生长温度。自然生成使用海拔修正后的年平均气候，栽培生长和结果使用当前温度、当前水分。$(br2)各树种的生命周期和嫁接方法见 $(l:the_world/wild_fruits#fruit_trees)TFC 果树章节$()。"
+    }
+  ],
+  "read_by_default": true
+}

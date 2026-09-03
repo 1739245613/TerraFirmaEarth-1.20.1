@@ -1,0 +1,31 @@
+{
+  "name": "船只与水流",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:oak_boat",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:oak_boat",
+      "title": "溪流中的船只",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "溪流中的船只",
+      "text": "船只现在可以正确适应溪流、急流和瀑布。完全沉水时会恢复正常浮力，水流的推拉方向仍然有效。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "驾驶上浮",
+      "text": "当玩家驾驶、按住前进且船体完全沉水时，船每刻额外获得 0.03 的向上速度，可以沿上升水流或瀑布逐步爬升。接近水面、松开前进、空船或非玩家驾驶时不会获得额外上浮。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "窄水道",
+      "text": "原版船与 TFC 普通船、箱船的基础碰撞宽度为 0.9 格，可以通过居中的一格宽水道。模型外观不会缩小，水平前进速度保持原版。"
+    }
+  ],
+  "read_by_default": true
+}

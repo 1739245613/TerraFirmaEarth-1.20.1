@@ -1,0 +1,96 @@
+{
+  "name": "新地形群系",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/loam",
+  "sortnum": 15,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:grass/loam",
+      "title": "大陆与区域",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "地形总览",
+      "text": "当前世界共有 125 种新地形群系，当前 1.20 世界的地形群系均采用本模组的新地形体系，不再沿用旧地形。它们会根据温度、降雨、海岸距离、火山阶段、冰川状态和地形高度组合选择，涵盖海洋、海岸、陆地、喀斯特、火山、冰川、河流和湖泊。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "常见区域",
+      "text": "常见区域包括平原（$(thing)tfc:plains$()）、丘陵（$(thing)tfc:hills$()）、绵延丘陵（$(thing)tfc:rolling_hills$()）、高地（$(thing)tfc:highlands$()）、山脉（$(thing)tfc:mountains$()）和古老山脉（$(thing)tfc:old_mountains$()）。括号内代码可直接用于定位对应生物群系。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海洋与海岭",
+      "text": "海洋与海岭群系位于大陆外缘和深海，包括海洋环礁（$(thing)tfc:ocean_atolls$()）、深海环礁（$(thing)tfc:deep_ocean_atolls$()）和洋脊（$(thing)tfc:ocean_ridge$()）。$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "河流与裂谷",
+      "text": "河流与裂谷沿水系和大陆断裂带延伸，包括河谷（$(thing)tfc:river_valley$()）、裂谷（$(thing)tfc:rift_valley$()）和裂谷湖（$(thing)tfc:rift_lake$()）。$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "火山与岛屿",
+      "text": "火山与岛屿分布在热点、火山弧和海岛，包括海洋火山弧（$(thing)tfc:oceanic_volcanic_arc$()）、火山岛（$(thing)tfc:volcanic_island$()）、火山群岛（$(thing)tfc:volcanic_mountain_islands$()）和碰撞山脉（$(thing)tfc:collisional_mountains$()）。$(br)"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "冰川地形",
+      "text": "冰川火山组合出现在寒冷的高纬度或高海拔火山地形；同一地形家族会根据温度、降雨和地势逐级过渡。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海洋",
+      "text": "海洋包括海洋（$(thing)tfc:ocean$()）、海洋暗礁（$(thing)tfc:ocean_reef$()）、深海（$(thing)tfc:deep_ocean$()）和深海海沟（$(thing)tfc:deep_ocean_trench$()）。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "海岸",
+      "text": "海岸还会出现岩岸（$(thing)tfc:rocky_shores$()）、潮滩（$(thing)tfc:tidal_flats$()）、海湾（$(thing)tfc:embayments$()）、沙岸（$(thing)tfc:coastal_dunes$()）和海蚀柱（$(thing)tfc:sea_stacks$()）。海沟最深处约在 -60~-46 高度；洋脊与环礁等新增海洋群系见上一页。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "陆地",
+      "text": "陆地地貌包括恶地（$(thing)tfc:badlands$()）、峡谷（$(thing)tfc:canyons$()）、低地峡谷（$(thing)tfc:low_canyons$()）、低地（$(thing)tfc:lowlands$()）、高原（$(thing)tfc:plateau$()）、广阔高原（$(thing)tfc:plateau_wide$()）、平顶山（$(thing)tfc:mesas$()）、孤峰（$(thing)tfc:buttes$()）和石林（$(thing)tfc:hoodoos$()）。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "喀斯特（一）",
+      "text": "喀斯特分支包含塔状喀斯特平原（$(thing)tfc:tower_karst_plains$()）、石林平原（$(thing)tfc:shilin_plains$()）、溶斗平原（$(thing)tfc:doline_plains$()）、溶井平原（$(thing)tfc:cenote_plains$()）、"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "喀斯特（二）",
+      "text": "塔状喀斯特峡谷（$(thing)tfc:tower_karst_canyons$()）、溶斗峡谷（$(thing)tfc:doline_canyons$()）、溶井峡谷（$(thing)tfc:cenote_canyons$()）、塔状喀斯特丘陵（$(thing)tfc:tower_karst_hills$()）、溶斗丘陵（$(thing)tfc:doline_hills$()）和溶井丘陵（$(thing)tfc:cenote_hills$()）。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "火山（一）",
+      "text": "火山地貌包括活火山（$(thing)tfc:active_shield_volcano$()）、眠火山（$(thing)tfc:dormant_shield_volcano$()）、死火山（$(thing)tfc:extinct_shield_volcano$()）、古火山（$(thing)tfc:ancient_shield_volcano$()）、"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "火山（二）",
+      "text": "沉没火山（$(thing)tfc:sunken_shield_volcano$()）、火山山脉（$(thing)tfc:volcanic_mountains$()）和海洋火山山脉（$(thing)tfc:volcanic_oceanic_mountains$()）。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "冰川与冰盖",
+      "text": "寒冷山区会出现冰盖（$(thing)tfc:ice_sheet$()）、冰盖山脉（$(thing)tfc:ice_sheet_mountains$()）、冰川山脉（$(thing)tfc:glaciated_mountains$()）和冰蚀山脉（$(thing)tfc:glacially_carved_mountains$()）等类型；新增火山弧与火山岛见上一页。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "河流与溪流",
+      "text": "主河（$(thing)tfc:river$()）与源头溪流会连成完整水系。源头溪流沿自然下坡延伸，可形成弯流、急流、瀑布和扩散水流，并在接近主河时逐渐汇合；新增河谷、裂谷和裂谷湖见前面的新增群系列表。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "探索提示",
+      "text": "地形只会在新生成的区块中出现。沿海岸、河流和山脉旅行，可以找到不同的过渡地貌；已经生成的区块不会自动重新塑形。"
+    }
+  ],
+  "read_by_default": true
+}

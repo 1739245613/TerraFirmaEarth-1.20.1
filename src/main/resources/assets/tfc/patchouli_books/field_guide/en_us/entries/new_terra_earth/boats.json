@@ -1,0 +1,31 @@
+{
+  "name": "Boats and Flowing Water",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:oak_boat",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:oak_boat",
+      "title": "Boats in Streams",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Boats in Streams",
+      "text": "Boats now handle streams, rapids, and waterfalls correctly. A fully submerged boat regains normal buoyancy, while flowing water still pushes and pulls it as expected."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Driven Ascent",
+      "text": "While a player is steering forward and the boat remains fully submerged, it gains 0.03 upward velocity each tick. This lets it climb rising currents or waterfall water. The extra lift stops near the surface, when forward is released, in an empty boat, or with a non-player driver."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Narrow Channels",
+      "text": "Vanilla boats and ordinary TFC boats or chest boats use a 0.9-block base collision width and can pass through a centered one-block channel. The model is not visually scaled, and horizontal acceleration remains vanilla."
+    }
+  ],
+  "read_by_default": true
+}

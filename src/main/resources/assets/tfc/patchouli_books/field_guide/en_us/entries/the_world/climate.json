@@ -1,0 +1,60 @@
+{
+  "name": "Calendar and Climate",
+  "category": "tfc:the_world",
+  "icon": "tfc:textures/gui/book/icons/thermometer.png",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "anchor": "calendar",
+      "title": "Calendar",
+      "text": "The calendar records the current date, season, and month phase. Open the calendar tab in your inventory to see the current season.$(br2)A year has spring, summer, autumn, and winter, each divided into early, mid, and late months."
+    },
+    {
+      "type": "patchouli:image",
+      "images": ["tfc:textures/gui/book/gui/calendar.png"],
+      "text": "The Calendar Screen",
+      "border": false
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Seasons",
+      "text": "Spring is March–May, summer June–August, autumn September–November, and winter December–February. Seasons are reversed between the northern and southern hemispheres.$(br2)The season changes temperature, rainfall, and snowfall."
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "climate",
+      "title": "Climate Screen",
+      "text": "The Climate tab shows the local climate classification, geologic province, annual mean temperature, average rainfall, and current rainfall. Averages describe the long-term environment; current values describe the conditions around you now. See $(l:new_terra_earth/new_climate)New Climate$() for all 31 classifications and their distribution."
+    },
+    {
+      "type": "patchouli:image",
+      "images": ["tfc:textures/gui/book/gui/climate.png"],
+      "text": "The Climate Screen",
+      "border": false
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "temperature",
+      "title": "How Temperature Is Calculated",
+      "text": "Local temperature combines the base climate, latitude and hemisphere, season, time of day, and elevation. Annual range describes seasonal change; daily range describes the difference between day and night. See $(l:new_terra_earth/annual_temperature)Annual Temperature Range$() and $(l:new_terra_earth/daily_temperature)Daily Temperature Range$() for detailed values."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "What Temperature Affects",
+      "text": "The final line of the Climate tab shows the combined current temperature. Temperature affects crops, fruit trees, bushes, and other plants, as well as snow and ice formation."
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "rainfall",
+      "title": "Rainfall and Hydration",
+      "text": "Annual rainfall is measured in millimeters and ranges from 0~500 mm. Average rainfall affects flora, soil, and groundwater; current seasonal rainfall affects instant hydration. See $(l:new_terra_earth/rainfall_crops)Seasonal Rainfall and Crops$() for the conversion."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Hemisphere and Elevation",
+      "text": "The default temperature scale is 20,000 blocks, and seasons are six months apart between hemispheres. Above Y=63, temperature cools with elevation, with the maximum reduction limited by the climate system. Leaf colors and seasonal models use the player's hemisphere."
+    }
+  ],
+  "read_by_default": true
+}

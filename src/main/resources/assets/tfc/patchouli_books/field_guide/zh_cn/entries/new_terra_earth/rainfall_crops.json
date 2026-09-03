@@ -1,0 +1,26 @@
+{
+  "name": "季节降雨与作物",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "平均水分与当前水分",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "即时水分",
+      "text": "世界降雨和地下水使用 0~500，栽培植物读取 0~100% 水分。当前季节降雨会换算为即时水分，再叠加附近补水。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "野外与耕地",
+      "text": "野生植物生成使用长期平均气候；耕地工具提示会分别显示平均与当前水分。基础定义见 $(l:the_world/climate#rainfall)TFC 降雨量$() 和 $(l:mechanics/hydration)湿润度$()。"
+    }
+  ],
+  "read_by_default": true
+}

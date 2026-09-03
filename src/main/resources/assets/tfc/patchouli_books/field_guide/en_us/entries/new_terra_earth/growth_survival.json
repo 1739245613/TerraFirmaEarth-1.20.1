@@ -1,0 +1,21 @@
+{
+  "name": "Fruit Tree and Bush Survival",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/blueberry",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/blueberry",
+      "title": "Dormancy Instead of Death",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dormancy Instead of Death",
+      "text": "Fruit tree saplings and berry bushes pause growth or enter dormancy during short-term temperature or hydration stress instead of dying immediately. They resume growth and fruiting when the climate returns to the species' range. Wild generation uses long-term average climate."
+    }
+  ],
+  "read_by_default": true
+}

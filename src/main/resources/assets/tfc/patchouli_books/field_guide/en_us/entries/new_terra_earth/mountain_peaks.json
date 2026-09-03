@@ -1,0 +1,26 @@
+{
+  "name": "Smoothed Mountain Peaks",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:stone",
+  "sortnum": 16,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:stone",
+      "title": "Summit Uplift",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Summit Uplift",
+      "text": "Summit cliff uplift is configurable and smoothed. Peaks no longer rise abruptly at a fixed boundary; stronger mountain terrain gradually enters the high summit region so shoulders, peaks, and surrounding land connect naturally."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "What You Can Adjust",
+      "text": "You can adjust peak height, blend ratios, overall mountain uplift, falloff distance, and central plateau size. Changes affect only new chunks; very large differences can leave seams at old chunk borders."
+    }
+  ],
+  "read_by_default": true
+}

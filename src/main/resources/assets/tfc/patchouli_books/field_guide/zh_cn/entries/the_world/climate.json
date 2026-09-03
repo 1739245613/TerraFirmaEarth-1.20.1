@@ -1,0 +1,60 @@
+{
+  "name": "历法和气候",
+  "category": "tfc:the_world",
+  "icon": "tfc:textures/gui/book/icons/thermometer.png",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "anchor": "calendar",
+      "title": "日历",
+      "text": "日历记录当前日期、季节和月期。打开物品栏的日历选项卡，可以查看当天处于哪个季节。$(br2)一年分为春、夏、秋、冬四季，每季又分早期、中期和晚期。"
+    },
+    {
+      "type": "patchouli:image",
+      "images": ["tfc:textures/gui/book/gui/calendar.png"],
+      "text": "日历界面",
+      "border": false
+    },
+    {
+      "type": "patchouli:text",
+      "title": "季节",
+      "text": "春季为三月至五月，夏季为六月至八月，秋季为九月至十一月，冬季为十二月至次年二月。南北半球的季节相反。$(br2)季节会改变温度、降雨和降雪情况。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "climate",
+      "title": "气候界面",
+      "text": "气候选项卡显示当前位置的气候分类、地质区域、年平均温度、平均降雨和当前降雨。年平均值适合判断长期环境，当前值适合判断眼下的种植和生存条件。完整的 31 种分类与分布见 $(l:new_terra_earth/new_climate)新气候$()。"
+    },
+    {
+      "type": "patchouli:image",
+      "images": ["tfc:textures/gui/book/gui/climate.png"],
+      "text": "气候界面",
+      "border": false
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "temperature",
+      "title": "温度组成",
+      "text": "当前位置的温度由基础气候、纬度与半球、季节、一天中的时间和海拔共同决定。年温差描述季节带来的长期变化，日温差描述昼夜之间的变化。详细数值见 $(l:new_terra_earth/annual_temperature)年温差$() 和 $(l:new_terra_earth/daily_temperature)日温差$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "温度影响",
+      "text": "气候界面最后一行显示综合后的当前温度。温度会影响作物、果树、灌木和其他植物的生长，也会影响积雪与结冰。"
+    },
+    {
+      "type": "patchouli:text",
+      "anchor": "rainfall",
+      "title": "降雨与湿润度",
+      "text": "年降雨量以毫米计量，范围为 0~500 mm；平均降雨会影响植物、土壤和地下水。当前季节降雨会影响即时湿润度，具体换算方式见 $(l:new_terra_earth/rainfall_crops)季节降雨与作物$()。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "半球与海拔",
+      "text": "默认温度尺度为 20000 格，南北半球的季节相差半年。地表高于 Y=63 后会随海拔逐格降温，最高处的降温受到气候链限制。客户端叶色和季相会按玩家所在半球显示。"
+    }
+  ],
+  "read_by_default": true
+}

@@ -3982,6 +3982,11 @@
           }
         }
       ]
+    },
+    {
+      "type": "patchouli:text",
+      "title": "TFE Crop Rules",
+      "text": "All currently enabled TFE crops have been adjusted. $(br2)TFE also adds crop health rules; see $(l:new_terra_earth/crop_health)Crop Health$()."
     }
   ],
   "read_by_default": true,

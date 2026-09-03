@@ -1,0 +1,31 @@
+{
+  "name": "其他植物",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:plant/golden_bamboo",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:plant/goldenrod",
+      "title": "植物类型",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "植物类型",
+      "text": "世界中可以见到普通花草、干燥植物、短草、高草、灌木、匍匐植物、附生植物、藤本和水生植物。许多植物会随季节变色、开花或休眠；花朵通常可以在 $(l:mechanics/quern)石磨$() 中制成染料。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "水生植物",
+      "text": "睡莲生长在淡水中，海葵、藤壶、贻贝和海星生长在盐水中。漂浮植物位于水面，船只驶过时会将它们撞掉。采集水生植物时，先确认脚下的水体类型。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "特殊植物",
+      "text": "竹子、金竹、苏铁和火焰藤会继续向上生长；仙人掌床和可通行仙人掌适合制作沙漠景观。带刺仙人掌会造成伤害，采集时请保持距离。"
+    }
+  ],
+  "read_by_default": true
+}

@@ -1,0 +1,26 @@
+{
+  "name": "Daily Temperature Range",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:clock",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:clock",
+      "title": "Day and Night Range",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Day and Night Range",
+      "text": "Daily range describes the temperature change between night and day. Reference values are:$(br)About 7°C near the equator$(br)About 9°C in the subtropics$(br)Close to 0°C near the poles."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rainfall Influence",
+      "text": "Current seasonal rainfall adjusts the day/night range. Dry areas generally vary more, while wet areas change more gently.$(br2)Daily range combines with annual range, elevation, coasts, and geology to produce the current temperature shown on the Climate tab. See $(l:the_world/climate#temperature)Calendar and Climate$()."
+    }
+  ],
+  "read_by_default": true
+}

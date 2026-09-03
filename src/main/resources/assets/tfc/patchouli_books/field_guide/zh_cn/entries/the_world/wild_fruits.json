@@ -3827,6 +3827,11 @@
     {
       "type": "patchouli:empty",
       "draw_filler": false
+    },
+    {
+      "type": "patchouli:text",
+      "title": "TFE 果树与灌木",
+      "text": "TFE 为果树和浆果灌木分别整理了自然生成与栽培生长气候，并把短期气候不适从直接死亡改为停长或休眠。相关说明见 $(l:new_terra_earth/fruit_trees)果树修改$()、$(l:new_terra_earth/berry_bushes)灌木修改$() 和 $(l:new_terra_earth/growth_survival)果树与灌木生存逻辑$()。"
     }
   ],
   "read_by_default": true,

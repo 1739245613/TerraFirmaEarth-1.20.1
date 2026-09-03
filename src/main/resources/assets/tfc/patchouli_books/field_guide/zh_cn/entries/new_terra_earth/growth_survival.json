@@ -1,0 +1,21 @@
+{
+  "name": "果树与灌木生存逻辑",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/blueberry",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/blueberry",
+      "title": "停长而非死亡",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "停长而非死亡",
+      "text": "果树树苗和浆果灌木遇到短期温度或水分不适时，会停止生长或进入休眠，而不是立即死亡。气候回到对应物种范围后，它们会继续生长和结果。野外生成地点由长期平均气候决定。"
+    }
+  ],
+  "read_by_default": true
+}

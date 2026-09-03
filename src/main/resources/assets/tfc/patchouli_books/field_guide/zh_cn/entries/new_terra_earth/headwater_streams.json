@@ -1,0 +1,31 @@
+{
+  "name": "源头溪流",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:water_bucket",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:water_bucket",
+      "title": "地形感知溪流",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "地形感知溪流",
+      "text": "原本容易突然断头的河流叶端会形成源头溪流。溪流会寻找自然下坡路线，逐渐接入既有主河，同时继续使用 TFC 河流群系、水流和相关地物。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "水流与汇入口",
+      "text": "每条溪流最上游保留一格稳定源水，其余河段可形成弯流、急流、瀑布和落地摊流。$(br2)静态河水使用 16 个方向；临近主河时床高、水位、宽度和流向逐渐交接，避免河口堵塞或突然断层。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "生成范围",
+      "text": "溪流只出现在新世界或尚未生成的新区块，会避开无关主河的完整河岸，并保护湿润河床附近的必要材料；天然洞穴不会因此被整体填满。"
+    }
+  ],
+  "read_by_default": true
+}

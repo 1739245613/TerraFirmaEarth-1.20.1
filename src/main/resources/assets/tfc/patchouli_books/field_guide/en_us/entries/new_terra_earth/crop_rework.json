@@ -1,0 +1,21 @@
+{
+  "name": "Crop Changes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/wheat",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/wheat",
+      "title": "Crop Climate and Farming",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Crop Climate and Farming",
+      "text": "TFE gives every crop its own temperature and hydration range. Wild crop generation uses elevation-adjusted annual climate, while farmland crops read current temperature and hydration. See the full $(l:mechanics/crops)TFC Crops chapter$() and $(l:the_world/wild_crops)Wild Crops$()."
+    }
+  ],
+  "read_by_default": true
+}

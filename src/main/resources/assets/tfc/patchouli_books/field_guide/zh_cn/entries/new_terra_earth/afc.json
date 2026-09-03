@@ -1,0 +1,31 @@
+{
+  "name": "AFC 兼容",
+  "category": "tfc:new_terra_earth",
+  "icon": "minecraft:oak_sapling",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "minecraft:oak_sapling",
+      "title": "林海传说森林兼容",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "林海传说森林兼容",
+      "text": "安装 ArborFirmaCraft / 林海传说后，TFE 会把 AFC 的额外树种接入新版森林生成；没有安装 AFC 时不会启用这套兼容内容，也不会形成硬依赖。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "树种与气候",
+      "text": "兼容包包含 45 种 AFC 普通森林树配置，并按温度、地下水、降雨变化和海拔选择适合当地气候的树种。当前海拔范围统一为 -64~320。"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "森林资源协调",
+      "text": "安装 AFC 后，TFE 会自动协调双方的树种清单、树形和大型森林地物，减少巨型树截断、树种缺失和腐殖层错位。"
+    }
+  ],
+  "read_by_default": true
+}

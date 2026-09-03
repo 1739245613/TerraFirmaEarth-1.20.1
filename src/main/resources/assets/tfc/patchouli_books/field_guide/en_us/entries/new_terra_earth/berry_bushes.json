@@ -1,0 +1,21 @@
+{
+  "name": "Bush Changes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:food/blueberry",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:food/blueberry",
+      "title": "Berry Bush Climate",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Berry Bush Climate",
+      "text": "Each of the eleven bushes has its own natural-generation and cultivated-growth temperatures. See $(l:the_world/wild_fruits#tall_bushes)Tall Bushes$() and $(l:the_world/wild_fruits#small_bushes)Small Bushes$() for lifecycle details."
+    }
+  ],
+  "read_by_default": true
+}

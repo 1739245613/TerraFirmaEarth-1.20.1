@@ -1,0 +1,31 @@
+{
+  "name": "Added Terrain Systems",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:grass/loam",
+  "sortnum": 17,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:grass/loam",
+      "title": "Mountains, Coasts, and Oceans",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mountains, Coasts, and Oceans",
+      "text": "World generation adds continuous mountain uplift, coastal transitions, volcanic terrain, and ocean depth.$(br2)These layers blend with existing terrain, rivers, coasts, and rock layers instead of acting as isolated decorations."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mountains and Coasts",
+      "text": "Configurable uplift can form higher ranges, central plateaus, and summit cliffs. Terraces, marine scarps, coasts, and river mouths use smoother transitions to reduce sudden changes between fixed-height landforms.$(br2)Terrain settings affect only new chunks."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oceans and Volcanoes",
+      "text": "Ordinary oceans, coral seas, deep oceans, and trenches deepen continuously, with trench cores descending farther. Volcanoes select stages and terrain from regional conditions and connect more cleanly to mountains and river mouths."
+    }
+  ],
+  "read_by_default": true
+}

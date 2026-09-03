@@ -1,0 +1,21 @@
+{
+  "name": "Prospector's Pick Changes",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:metal/propick/copper",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:metal/propick/copper",
+      "title": "Prospecting System",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Prospecting System",
+      "text": "The prospector's pick merges matching minerals, reports their sample sizes separately, and shows the nearest target's direction, height, and distance. For recipes, material limits, question marks, and sample tiers, open the complete $(l:mechanics/prospecting)TFC Prospecting chapter$()."
+    }
+  ],
+  "read_by_default": true
+}
