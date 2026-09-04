@@ -123,6 +123,8 @@ Extras
 
 2.1.0 Update Summary
 - Ported the latest TFC terrain, climate, fauna, flora, and related content.
+- Ported the soil fertility settings.
+- Optimized terrain generation across all terrain types to reduce terrain-damaging probabilities, making the overall terrain cleaner, flatter, and more consistent.
 - Added ropes and related interactions.
 - Added full crop-state information to Jade and introduced crop health.
 - Improved the prospecting system and adjusted fruit-tree climate conditions.
