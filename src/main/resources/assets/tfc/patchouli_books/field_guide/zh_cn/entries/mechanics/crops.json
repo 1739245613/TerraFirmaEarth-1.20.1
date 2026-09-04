@@ -3188,7 +3188,7 @@
     {
       "type": "patchouli:text",
       "anchor": "alfalfa",
-      "text": "$(bold)$(l:the_world/climate#temperature)温度$()： 1 - 28 °C$(br)$(bold)$(l:mechanics/hydration)湿度$()： 40 - 100 %$(br)$(bold)营养物质$()：氮$(br2)苜蓿是适应寒冷温度的单格作物。栽培苜蓿成熟后产量更高，也可以喂给多数常见家畜、家禽和草食动物。苜蓿仍可用作干草或堆肥来源。",
+      "text": "$(bold)$(l:the_world/climate#temperature)温度$()： 1 - 28 °C$(br)$(bold)$(l:mechanics/hydration)湿度$()： 40 - 100 %$(br)$(bold)营养物质$()：氮$(br2)苜蓿是适应寒冷温度的单格作物。成熟苜蓿可以直接食用，提供 0.2 谷物与 0.3 蔬菜营养，默认保质期为 80 天；也可以喂给多数常见家畜、家禽和草食动物，或用作干草及堆肥来源。",
       "title": "苜蓿"
     },
     {

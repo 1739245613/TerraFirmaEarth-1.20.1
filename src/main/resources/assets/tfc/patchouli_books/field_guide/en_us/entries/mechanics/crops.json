@@ -3188,7 +3188,7 @@
     {
       "type": "patchouli:text",
       "anchor": "alfalfa",
-      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): 1 - 28 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 40 - 100 %$(br)$(bold)Nutrient$(): Nitrogen$(br2)Alfalfa is a single block crop adapted to cold temperatures. Cultivated alfalfa yields more when mature, and can feed most common livestock, poultry, and grazing animals. It can still be used as a source of straw or compost.",
+      "text": "$(bold)$(l:the_world/climate#temperature)Temperature$(): 1 - 28 °C$(br)$(bold)$(l:mechanics/hydration)Hydration$(): 40 - 100 %$(br)$(bold)Nutrient$(): Nitrogen$(br2)Alfalfa is a single block crop adapted to cold temperatures. Mature alfalfa can be eaten for 0.2 grain and 0.3 vegetable nutrition and keeps for 80 days by default. It can also feed most common livestock, poultry, and grazing animals, or be used for straw and compost.",
       "title": "Alfalfa"
     },
     {

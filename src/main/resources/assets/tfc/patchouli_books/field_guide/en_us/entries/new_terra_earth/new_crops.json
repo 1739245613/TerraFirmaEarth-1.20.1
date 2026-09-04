@@ -9,7 +9,7 @@
       "item": [{"item": "tfe:seeds/alfalfa"}, {"item": "tfe:alfalfa"}],
       "title": "Alfalfa",
       "link_recipes": false,
-      "text": "Alfalfa grows at 1~28°C and 40~100% hydration, preferring nitrogen. Cultivated mature alfalfa now yields 12~20. It can feed common livestock, poultry, and grazing animals, and can also be used for straw or compost."
+      "text": "Alfalfa grows at 1~28°C and 40~100% hydration, preferring nitrogen. Cultivated mature alfalfa yields 12~20. It can be eaten directly for 0.2 grain and 0.3 vegetable nutrition and keeps for 80 days by default. It also feeds common livestock, poultry, and grazing animals, or can be used for straw and compost."
     },
     {
       "type": "patchouli:spotlight",

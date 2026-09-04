@@ -14,7 +14,7 @@ import com.newterraearth.tfe.NewTerraEarthMod;
 
 public enum NTECrop
 {
-    ALFALFA(FarmlandBlockEntity.NutrientType.NITROGEN, false, false),
+    ALFALFA(FarmlandBlockEntity.NutrientType.NITROGEN, true, false, "alfalfa"),
     CANOLA(FarmlandBlockEntity.NutrientType.PHOSPHOROUS, true, false, "canola"),
     CASSAVA(FarmlandBlockEntity.NutrientType.POTASSIUM, true, true),
     LENTIL(FarmlandBlockEntity.NutrientType.NITROGEN, true, true),
