@@ -2,7 +2,7 @@
   "name": "平滑山峰",
   "category": "tfc:new_terra_earth",
   "icon": "minecraft:stone",
-  "sortnum": 16,
+  "sortnum": 19,
   "pages": [
     {
       "type": "patchouli:spotlight",

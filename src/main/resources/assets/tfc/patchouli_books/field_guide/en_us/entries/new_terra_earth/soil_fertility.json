@@ -1,0 +1,67 @@
+{
+  "name": "Soil Fertility",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:dirt/mollisol",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/fluvisol",
+      "title": "Fluvisol",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Fluvisol",
+      "text": "Fluvisol is found along rivers in regions with wet and dry seasons. Its farmland is high quality: stored nutrients contribute 10% more to crop growth and yield, and applied fertilizer is 10% more effective."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/mollisol",
+      "title": "Mollisol",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Mollisol",
+      "text": "Mollisol is found in cold grasslands with at least 250mm of rainfall. Its farmland is very high quality: stored nutrients contribute 20% more to crop growth and yield, and applied fertilizer is 20% more effective. This is the most fertile soil type."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/podzol",
+      "title": "Podzol",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Podzol",
+      "text": "Podzol is found in conifer forests. Its farmland is poor quality: stored nutrients contribute 10% less to crop growth and yield, and applied fertilizer is 10% less effective."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/oxisol",
+      "title": "Oxisol",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Oxisol",
+      "text": "Oxisol is found in wet tropical regions. Its farmland is very poor quality: stored nutrients contribute 20% less to crop growth and yield, and applied fertilizer is 20% less effective. This is the least fertile soil type."
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:dirt/fluvisol": 0,
+    "tfe:farmland/fluvisol": 0,
+    "tfe:dirt/mollisol": 2,
+    "tfe:farmland/mollisol": 2,
+    "tfe:dirt/podzol": 4,
+    "tfe:farmland/podzol": 4,
+    "tfe:dirt/oxisol": 6,
+    "tfe:farmland/oxisol": 6
+  }
+}

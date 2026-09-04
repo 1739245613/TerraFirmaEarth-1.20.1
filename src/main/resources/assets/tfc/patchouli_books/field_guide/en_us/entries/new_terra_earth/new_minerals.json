@@ -1,0 +1,67 @@
+{
+  "name": "Gemstones",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:ore/ruby",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/pyrite",
+      "title": "Pyrite",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Pyrite",
+      "text": "Pyrite, also called fool's gold, is a decorative $(l:mechanics/gems)gemstone$(). It occurs below Y=70 in intrusive and extrusive igneous rocks."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/ruby",
+      "title": "Ruby",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Ruby",
+      "text": "Ruby is a decorative $(l:mechanics/gems)gemstone$(). It is rarely found in marble below Y=-10 and is more common in marble belts within collisional mountains."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/sapphire",
+      "title": "Sapphire",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Sapphire",
+      "text": "Sapphire is a decorative $(l:mechanics/gems)gemstone$(). It can be found in the rock fissures surrounding hot springs."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/topaz",
+      "title": "Topaz",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Topaz",
+      "text": "Topaz is a decorative $(l:mechanics/gems)gemstone$(). It can be found in lava fissures associated with volcanoes and tuyas."
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfc:ore/pyrite": 0,
+    "tfe:ore/pyrite/tuff": 0,
+    "tfc:ore/ruby": 2,
+    "tfe:ore/ruby/tuff": 2,
+    "tfc:ore/sapphire": 4,
+    "tfe:ore/sapphire/tuff": 4,
+    "tfc:ore/topaz": 6,
+    "tfe:ore/topaz/tuff": 6
+  }
+}

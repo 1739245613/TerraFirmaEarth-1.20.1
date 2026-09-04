@@ -1,0 +1,67 @@
+{
+  "name": "宝石",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfc:ore/ruby",
+  "sortnum": 21,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/pyrite",
+      "title": "黄铁矿",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "黄铁矿",
+      "text": "黄铁矿又名愚人金，是一种装饰性$(l:mechanics/gems)宝石$()。它分布在 Y=70 以下的侵入岩和喷出岩中。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/ruby",
+      "title": "红宝石",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "红宝石",
+      "text": "红宝石是一种装饰性$(l:mechanics/gems)宝石$()。它很少分布在 Y=-10 以下的大理岩中，在碰撞山脉的大理岩带中更为常见。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/sapphire",
+      "title": "蓝宝石",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "蓝宝石",
+      "text": "蓝宝石是一种装饰性$(l:mechanics/gems)宝石$()，可以在温泉周围的岩石裂缝中找到。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfc:ore/topaz",
+      "title": "黄玉",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "黄玉",
+      "text": "黄玉是一种装饰性$(l:mechanics/gems)宝石$()，可以在火山和桌状火山附近的熔岩裂缝中找到。"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfc:ore/pyrite": 0,
+    "tfe:ore/pyrite/tuff": 0,
+    "tfc:ore/ruby": 2,
+    "tfe:ore/ruby/tuff": 2,
+    "tfc:ore/sapphire": 4,
+    "tfe:ore/sapphire/tuff": 4,
+    "tfc:ore/topaz": 6,
+    "tfe:ore/topaz/tuff": 6
+  }
+}

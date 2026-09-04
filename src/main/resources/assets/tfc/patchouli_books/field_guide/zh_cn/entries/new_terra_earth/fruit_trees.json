@@ -2,7 +2,7 @@
   "name": "果树修改",
   "category": "tfc:new_terra_earth",
   "icon": "tfc:food/cherry",
-  "sortnum": 4,
+  "sortnum": 5,
   "pages": [
     {
       "type": "patchouli:spotlight",

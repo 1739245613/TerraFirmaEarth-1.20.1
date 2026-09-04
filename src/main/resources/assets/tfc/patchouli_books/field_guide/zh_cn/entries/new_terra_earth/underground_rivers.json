@@ -2,7 +2,7 @@
   "name": "地下河过渡",
   "category": "tfc:new_terra_earth",
   "icon": "minecraft:water_bucket",
-  "sortnum": 18,
+  "sortnum": 14,
   "pages": [
     {
       "type": "patchouli:spotlight",

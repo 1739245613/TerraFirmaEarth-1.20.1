@@ -1,0 +1,40 @@
+{
+  "name": "凝灰岩与岩盐",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:rock/raw/tuff",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [{"item": "tfe:rock/chiseled/tuff"}, {"item": "tfe:rock/cracked_bricks/tuff"}],
+      "title": "凝灰岩建材",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "凝灰岩建材",
+      "text": "凝灰岩属于沉积岩，和其他岩石一样可以加工成常见石材。其建材包括光滑石、砖块、覆苔方块、裂纹砖、錾制砖、台阶、楼梯、墙和$(l:mechanics/aqueducts)水渠$()。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [{"item": "tfc:halite"}, {"item": "tfe:ore/halite/tuff"}],
+      "title": "凝灰岩中的岩盐",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "凝灰岩中的岩盐",
+      "text": "岩盐会在包括凝灰岩在内的沉积岩中形成非常巨大的扁平矿层。开采岩盐块可直接获得盐粉，可用于保存食物。"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:rock/chiseled/tuff": 0,
+    "tfe:rock/cracked_bricks/tuff": 0,
+    "tfe:rock/aqueduct/tuff": 0,
+    "tfc:halite": 2,
+    "tfe:ore/halite/tuff": 2
+  }
+}

@@ -2,7 +2,7 @@
   "name": "新地形群系",
   "category": "tfc:new_terra_earth",
   "icon": "tfc:grass/loam",
-  "sortnum": 15,
+  "sortnum": 17,
   "pages": [
     {
       "type": "patchouli:spotlight",

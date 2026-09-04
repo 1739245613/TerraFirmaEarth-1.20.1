@@ -1,0 +1,67 @@
+{
+  "name": "土壤肥力",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:dirt/mollisol",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/fluvisol",
+      "title": "冲积土",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "冲积土",
+      "text": "冲积土分布在有旱季和雨季地区的河流沿岸。它的耕地属于高品质土壤，土壤养分对作物生长和产量的效果提高 10%，施肥效果也提高 10%。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/mollisol",
+      "title": "黑土",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "黑土",
+      "text": "黑土分布在降雨量至少为 250mm 的寒冷草原。它的耕地属于非常高品质土壤，土壤养分对作物生长和产量的效果提高 20%，施肥效果也提高 20%，是肥力最高的土壤类型。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/podzol",
+      "title": "灰化土",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "灰化土",
+      "text": "灰化土分布在针叶林中。它的耕地属于低品质土壤，土壤养分对作物生长和产量的效果降低 10%，施肥效果也降低 10%。"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "tfe:dirt/oxisol",
+      "title": "氧化土",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "氧化土",
+      "text": "氧化土分布在潮湿的热带地区。它的耕地属于非常低品质土壤，土壤养分对作物生长和产量的效果降低 20%，施肥效果也降低 20%，是肥力最低的土壤类型。"
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:dirt/fluvisol": 0,
+    "tfe:farmland/fluvisol": 0,
+    "tfe:dirt/mollisol": 2,
+    "tfe:farmland/mollisol": 2,
+    "tfe:dirt/podzol": 4,
+    "tfe:farmland/podzol": 4,
+    "tfe:dirt/oxisol": 6,
+    "tfe:farmland/oxisol": 6
+  }
+}

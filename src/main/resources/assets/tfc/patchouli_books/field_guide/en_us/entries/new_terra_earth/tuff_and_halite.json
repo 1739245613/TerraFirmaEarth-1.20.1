@@ -1,0 +1,40 @@
+{
+  "name": "Tuff and Halite",
+  "category": "tfc:new_terra_earth",
+  "icon": "tfe:rock/raw/tuff",
+  "sortnum": 20,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": [{"item": "tfe:rock/chiseled/tuff"}, {"item": "tfe:rock/cracked_bricks/tuff"}],
+      "title": "Tuff Building Blocks",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tuff Building Blocks",
+      "text": "Tuff is a sedimentary rock and supports the same common stone forms as other rock types. Its building set includes smooth stone, bricks, mossy blocks, cracked bricks, chiseled bricks, slabs, stairs, walls, and $(l:mechanics/aqueducts)aqueducts$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": [{"item": "tfc:halite"}, {"item": "tfe:ore/halite/tuff"}],
+      "title": "Halite in Tuff",
+      "link_recipes": false,
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Halite in Tuff",
+      "text": "Halite forms very large, flat deposits in sedimentary rocks, including tuff. Mining a halite block directly yields salt powder, which can be used to preserve food."
+    }
+  ],
+  "read_by_default": true,
+  "extra_recipe_mappings": {
+    "tfe:rock/chiseled/tuff": 0,
+    "tfe:rock/cracked_bricks/tuff": 0,
+    "tfe:rock/aqueduct/tuff": 0,
+    "tfc:halite": 2,
+    "tfe:ore/halite/tuff": 2
+  }
+}

@@ -2,7 +2,7 @@
   "name": "Fruit Tree and Bush Survival",
   "category": "tfc:new_terra_earth",
   "icon": "tfc:food/blueberry",
-  "sortnum": 6,
+  "sortnum": 7,
   "pages": [
     {
       "type": "patchouli:spotlight",

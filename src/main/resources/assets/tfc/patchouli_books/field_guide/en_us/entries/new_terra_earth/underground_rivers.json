@@ -2,7 +2,7 @@
   "name": "Underground River Transitions",
   "category": "tfc:new_terra_earth",
   "icon": "minecraft:water_bucket",
-  "sortnum": 18,
+  "sortnum": 14,
   "pages": [
     {
       "type": "patchouli:spotlight",

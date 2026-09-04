@@ -2,7 +2,7 @@
   "name": "New Climate",
   "category": "tfc:new_terra_earth",
   "icon": "tfc:textures/gui/book/icons/thermometer.png",
-  "sortnum": 9,
+  "sortnum": 10,
   "pages": [
     {
       "type": "patchouli:spotlight",
